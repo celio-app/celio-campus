@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celio Campus</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== VARIABLES ===== */
+:root {
+  --bg: #f5f4ff;
+  --bg2: #ffffff;
+  --bg3: #eeecff;
+  --bg4: #e8e6ff;
+  --border: #dbd8ff;
+  --border2: #ede9ff;
+  --text: #1a1540;
+  --text2: #3d3666;
+  --text3: #7b6fa0;
+  --text4: #a99fca;
+  --accent: #6c47ff;
+  --accent2: #8b67ff;
+  --accent-bg: #ede9ff;
+  --green: #22c55e;
+  --green-bg: #dcfce7;
+  --amber: #f59e0b;
+  --amber-bg: #fef3c7;
+  --red: #ef4444;
+  --red-bg: #fee2e2;
+  --pink: #ec4899;
+  --pink-bg: #fce7f3;
+  --cyan: #06b6d4;
+  --cyan-bg: #cffafe;
+  --sb-w: 248px;
+  --sb-col: 54px;
+  --card-shadow: 0 2px 12px rgba(108,71,255,.08);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+[data-theme="dark"] {
+  --bg: #0e0d1a;
+  --bg2: #17162a;
+  --bg3: #1e1c33;
+  --bg4: #141327;
+  --border: #2a2848;
+  --border2: #201e38;
+  --text: #e9e6ff;
+  --text2: #b8b0e0;
+  --text3: #7a72a8;
+  --text4: #4d4778;
+  --accent: #7c5aff;
+  --accent2: #9b7eff;
+  --accent-bg: #1e1c33;
+  --green: #34d399;
+  --green-bg: #052e16;
+  --amber: #fbbf24;
+  --amber-bg: #1c1200;
+  --red: #f87171;
+  --red-bg: #2d0a0a;
+  --pink: #f472b6;
+  --pink-bg: #2d0a1e;
+  --cyan: #22d3ee;
+  --cyan-bg: #021e2b;
+  --card-shadow: none;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Nunito", system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text4); }
+
+/* ===== AUTH ===== */
+#auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); position: relative; overflow: hidden; }
+#auth-screen::before { content: ""; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,71,255,.15) 0%, transparent 70%); pointer-events: none; }
+#auth-screen::after { content: ""; position: absolute; bottom: -200px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(236,72,153,.1) 0%, transparent 70%); pointer-events: none; }
+.auth-box { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 20px; padding: 40px; width: 400px; max-width: 95vw; box-shadow: 0 20px 60px rgba(108,71,255,.12); position: relative; z-index: 1; }
+.auth-logo { text-align: center; margin-bottom: 28px; }
+.auth-logo-mark { font-size: 2.6rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+.auth-logo-mark .c { color: var(--accent); }
+.auth-tagline { color: var(--text3); font-size: .8rem; margin-top: 6px; font-weight: 600; }
+.auth-tabs { display: flex; margin-bottom: 24px; background: var(--bg3); border-radius: 10px; padding: 4px; gap: 4px; }
+.auth-tab { flex: 1; text-align: center; padding: 8px; border-radius: 7px; cursor: pointer; font-size: .82rem; font-weight: 700; color: var(--text3); transition: all .15s; border: none; background: none; }
+.auth-tab.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(108,71,255,.35); }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: .71rem; color: var(--text3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .6px; font-weight: 800; }
+.form-row input, .form-row select, .form-row textarea { width: 100%; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 13px; color: var(--text); font-size: .88rem; outline: none; transition: border-color .15s; }
+.form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--accent); background: var(--bg2); }
+.btn-auth { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: .92rem; font-weight: 800; cursor: pointer; margin-top: 6px; transition: all .15s; box-shadow: 0 4px 14px rgba(108,71,255,.4); }
+.btn-auth:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,71,255,.45); }
+.auth-msg { text-align: center; font-size: .78rem; margin-top: 12px; min-height: 18px; font-weight: 600; }
+.auth-msg.error { color: var(--red); }
+.auth-msg.success { color: var(--green); }
+
+/* ===== APP LAYOUT ===== */
+#app-screen { display: none; height: 100vh; overflow: hidden; }
+.app-layout { display: flex; height: 100vh; }
+
+/* ===== SIDEBAR ===== */
+.sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 39; }
+.sb-overlay.show { display: block; }
+.sidebar { width: var(--sb-w); background: var(--bg2); border-right: 1.5px solid var(--border); display: flex; flex-direction: column; transition: width .22s ease; overflow: hidden; flex-shrink: 0; z-index: 40; }
+.sidebar.collapsed { width: var(--sb-col); }
+.sb-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 12px 12px; border-bottom: 1.5px solid var(--border); min-height: 56px; flex-shrink: 0; }
+.sb-logo { font-size: 1.15rem; font-weight: 900; white-space: nowrap; overflow: hidden; letter-spacing: -0.5px; }
+.sb-logo .c { color: var(--accent); }
+.sb-logo .campus { font-size: .65rem; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-top: -2px; }
+.sb-toggle { background: none; border: none; cursor: pointer; color: var(--text3); padding: 5px 7px; border-radius: 7px; flex-shrink: 0; font-size: 1rem; transition: all .15s; }
+.sb-toggle:hover { background: var(--bg3); color: var(--text); }
+.sb-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
+.sb-sect { padding: 10px 14px 4px; font-size: .61rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text4); font-weight: 800; white-space: nowrap; }
+.sidebar.collapsed .sb-sect { opacity: 0; pointer-events: none; }
+
+/* Sidebar new semester button */
+.sb-new-btn { margin: 4px 8px 6px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; cursor: pointer; background: var(--accent); color: #fff; border: none; font-size: .78rem; font-weight: 800; white-space: nowrap; width: calc(100% - 16px); transition: all .15s; }
+.sb-new-btn:hover { background: var(--accent2); }
+.sb-new-btn-icon { display: none; margin: 4px auto 6px; width: 36px; height: 36px; border-radius: 10px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-size: 1.3rem; align-items: center; justify-content: center; }
+.sidebar.collapsed .sb-new-btn-icon { display: flex; }
+.sidebar.collapsed .sb-new-btn { display: none; }
+
+/* Semester rows */
+.sem-row { display: flex; align-items: center; gap: 0; margin: 1px 8px; border-radius: 10px; overflow: hidden; cursor: pointer; transition: background .15s; position: relative; }
+.sem-row:hover { background: var(--bg3); }
+.sem-row.active { background: var(--accent-bg); }
+.sem-row.active::before { content: ""; position: absolute; left: 0; top: 15%; height: 70%; width: 3px; background: var(--accent); border-radius: 0 3px 3px 0; }
+.sem-row-main { display: flex; align-items: center; gap: 8px; padding: 8px 8px 8px 12px; flex: 1; min-width: 0; }
+.sem-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.sem-row-name { font-size: .8rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.sem-row.active .sem-row-name { color: var(--accent); }
+.sem-chevron { font-size: .65rem; color: var(--text4); padding: 8px 8px 8px 4px; transition: transform .2s; flex-shrink: 0; }
+.sem-chevron.open { transform: rotate(90deg); }
+.sidebar.collapsed .sem-row-name, .sidebar.collapsed .sem-chevron, .sidebar.collapsed .sb-sect { visibility: hidden; }
+.sidebar.collapsed .sem-tree { display: none; }
+
+/* Course rows (inside semester) */
+.sem-tree { padding: 0 0 4px; border-bottom: 1.5px solid var(--border2); margin-bottom: 2px; }
+.course-row { display: flex; align-items: center; gap: 5px; padding: 5px 8px 5px 24px; margin: 1px 8px; border-radius: 8px; cursor: pointer; transition: background .15s; }
+.course-row:hover { background: var(--bg3); }
+.course-row.active { background: var(--bg3); }
+.course-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.course-code { font-size: .72rem; font-weight: 800; color: var(--accent); white-space: nowrap; }
+.course-name-lbl { font-size: .7rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; font-weight: 600; }
+.course-btns { display: flex; gap: 1px; opacity: 0; transition: opacity .15s; margin-left: auto; }
+.course-row:hover .course-btns { opacity: 1; }
+.tree-btn { background: none; border: none; cursor: pointer; color: var(--text4); padding: 2px 4px; border-radius: 4px; font-size: .68rem; }
+.tree-btn:hover { background: var(--bg4); color: var(--text2); }
+.add-course-row { display: flex; align-items: center; gap: 5px; padding: 5px 8px 5px 24px; margin: 1px 8px; border-radius: 8px; cursor: pointer; color: var(--text4); font-size: .71rem; border: none; background: none; width: calc(100% - 16px); font-weight: 700; font-family: inherit; }
+.add-course-row:hover { background: var(--bg3); color: var(--text2); }
+
+/* Sidebar bottom */
+.sb-bottom { padding: 10px 8px; border-top: 1.5px solid var(--border); flex-shrink: 0; }
+.sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; overflow: hidden; cursor: pointer; border-radius: 8px; }
+.sb-user:hover { background: var(--bg3); }
+.sb-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .75rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sb-email { font-size: .72rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.sb-signout { background: none; border: none; cursor: pointer; color: var(--text4); font-size: .72rem; padding: 3px 6px; border-radius: 5px; white-space: nowrap; font-family: inherit; font-weight: 700; }
+.sb-signout:hover { background: var(--red-bg); color: var(--red); }
+
+/* ===== MAIN CONTENT ===== */
+.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* TOPBAR */
+.topbar { display: flex; align-items: center; gap: 10px; padding: 0 18px; height: 56px; border-bottom: 1.5px solid var(--border); background: var(--bg2); flex-shrink: 0; }
+.topbar-title { font-size: 1rem; font-weight: 800; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: -0.3px; }
+.topbar-pill { font-size: .68rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: var(--accent-bg); color: var(--accent); letter-spacing: .3px; }
+.topbar-btn { background: none; border: 1.5px solid var(--border); cursor: pointer; color: var(--text2); padding: 6px 10px; border-radius: 8px; font-size: .78rem; font-weight: 700; display: flex; align-items: center; gap: 5px; transition: all .15s; font-family: inherit; }
+.topbar-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+.topbar-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.topbar-btn.primary:hover { background: var(--accent2); }
+.hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--text2); font-size: 1.3rem; padding: 4px 6px; }
+
+/* TAB NAV */
+.tab-nav { display: flex; gap: 2px; padding: 10px 18px 0; border-bottom: 1.5px solid var(--border); background: var(--bg2); flex-shrink: 0; overflow-x: auto; }
+.tab-btn { padding: 8px 14px; border: none; background: none; cursor: pointer; font-size: .8rem; font-weight: 700; color: var(--text3); border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; white-space: nowrap; transition: all .15s; font-family: inherit; display: flex; align-items: center; gap: 6px; border-radius: 8px 8px 0 0; }
+.tab-btn:hover { color: var(--text); background: var(--bg3); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-icon { font-size: .95rem; }
+
+/* CONTENT AREA */
+.content-area { flex: 1; overflow-y: auto; padding: 20px 18px; }
+
+/* ===== EMPTY STATE ===== */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; gap: 12px; }
+.empty-icon { font-size: 3rem; opacity: .5; }
+.empty-title { font-size: 1.1rem; font-weight: 800; color: var(--text2); }
+.empty-sub { font-size: .82rem; color: var(--text3); max-width: 320px; line-height: 1.6; }
+
+/* ===== DASHBOARD ===== */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.stat-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px 18px 16px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; }
+.stat-card::after { content: ""; position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: .12; }
+.stat-card.purple { border-top: 3px solid var(--accent); }
+.stat-card.purple::after { background: var(--accent); }
+.stat-card.green { border-top: 3px solid var(--green); }
+.stat-card.green::after { background: var(--green); }
+.stat-card.amber { border-top: 3px solid var(--amber); }
+.stat-card.amber::after { background: var(--amber); }
+.stat-card.red { border-top: 3px solid var(--red); }
+.stat-card.red::after { background: var(--red); }
+.stat-card.pink { border-top: 3px solid var(--pink); }
+.stat-card.pink::after { background: var(--pink); }
+.stat-label { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 6px; }
+.stat-value { font-size: 2.2rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+.stat-card.purple .stat-value { color: var(--accent); }
+.stat-card.green .stat-value { color: var(--green); }
+.stat-card.amber .stat-value { color: var(--amber); }
+.stat-card.red .stat-value { color: var(--red); }
+.stat-card.pink .stat-value { color: var(--pink); }
+.stat-sub { font-size: .72rem; color: var(--text3); margin-top: 4px; font-weight: 600; }
+
+/* Upcoming section */
+.section-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.section-title::after { content: ""; flex: 1; height: 1.5px; background: var(--border); }
+
+/* Countdown chips */
+.countdown-grid { display: flex; flex-direction: column; gap: 8px; }
+.countdown-item { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--card-shadow); cursor: pointer; transition: all .15s; }
+.countdown-item:hover { border-color: var(--accent); transform: translateX(2px); }
+.countdown-icon { font-size: 1.3rem; width: 32px; text-align: center; flex-shrink: 0; }
+.countdown-info { flex: 1; min-width: 0; }
+.countdown-title { font-size: .85rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.countdown-meta { font-size: .72rem; color: var(--text3); font-weight: 600; margin-top: 2px; }
+.countdown-badge { font-size: .72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.badge-overdue { background: var(--red-bg); color: var(--red); }
+.badge-today { background: var(--amber-bg); color: var(--amber); }
+.badge-soon { background: var(--cyan-bg); color: var(--cyan); }
+.badge-upcoming { background: var(--accent-bg); color: var(--accent); }
+.badge-done { background: var(--green-bg); color: var(--green); }
+
+/* GPA display */
+.gpa-card { background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%); border-radius: var(--radius); padding: 20px; color: #fff; margin-bottom: 22px; display: flex; align-items: center; gap: 16px; box-shadow: 0 6px 24px rgba(108,71,255,.3); }
+.gpa-icon { font-size: 2.5rem; }
+.gpa-info { flex: 1; }
+.gpa-label { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: .8; margin-bottom: 2px; }
+.gpa-value { font-size: 2.4rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+.gpa-sub { font-size: .75rem; opacity: .8; font-weight: 600; margin-top: 2px; }
+
+/* ===== ASSIGNMENT LIST ===== */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.filter-pill { padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg2); color: var(--text3); font-size: .74rem; font-weight: 700; cursor: pointer; transition: all .15s; font-family: inherit; }
+.filter-pill:hover { border-color: var(--accent); color: var(--accent); }
+.filter-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(108,71,255,.3); }
+.filter-search { flex: 1; min-width: 150px; max-width: 280px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; color: var(--text); font-size: .82rem; outline: none; font-family: inherit; }
+.filter-search:focus { border-color: var(--accent); }
+
+/* Assignment rows */
+.assignment-list { display: flex; flex-direction: column; gap: 6px; }
+.assignment-row { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all .15s; box-shadow: var(--card-shadow); }
+.assignment-row:hover { border-color: var(--accent); background: var(--bg3); }
+.assignment-row.done-row { opacity: .65; }
+.a-checkbox { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .15s; }
+.a-checkbox.checked { background: var(--green); border-color: var(--green); }
+.a-checkbox.checked::after { content: "✓"; color: #fff; font-size: .75rem; font-weight: 800; }
+.a-info { flex: 1; min-width: 0; }
+.a-title { font-size: .87rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a-meta { font-size: .72rem; color: var(--text3); margin-top: 2px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.a-course-tag { padding: 1px 7px; border-radius: 4px; font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; }
+.a-type-tag { padding: 2px 8px; border-radius: 4px; font-size: .68rem; font-weight: 700; }
+.type-assignment { background: var(--cyan-bg); color: var(--cyan); }
+.type-exam { background: var(--red-bg); color: var(--red); }
+.type-test { background: var(--amber-bg); color: var(--amber); }
+.type-lab { background: var(--pink-bg); color: var(--pink); }
+.type-project { background: var(--accent-bg); color: var(--accent); }
+.type-quiz { background: var(--green-bg); color: var(--green); }
+.a-due { font-size: .72rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.due-overdue { color: var(--red); }
+.due-today { color: var(--amber); }
+.due-soon { color: var(--cyan); }
+.due-upcoming { color: var(--text3); }
+.a-priority { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.prio-high { background: var(--red); }
+.prio-med { background: var(--amber); }
+.prio-low { background: var(--green); }
+
+/* ===== CALENDAR ===== */
+.cal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.cal-month { font-size: 1.1rem; font-weight: 800; flex: 1; letter-spacing: -0.3px; }
+.cal-nav { background: none; border: 1.5px solid var(--border); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: var(--text2); font-size: .9rem; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.cal-nav:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-dow { text-align: center; font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text4); padding: 6px 0; }
+.cal-day { min-height: 80px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 8px; padding: 5px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; transition: border-color .15s; }
+.cal-day:hover { border-color: var(--accent); }
+.cal-day.today { border-color: var(--accent); background: var(--accent-bg); }
+.cal-day.other-month { opacity: .4; }
+.cal-day-num { font-size: .72rem; font-weight: 800; text-align: right; color: var(--text2); padding: 0 2px; }
+.cal-day.today .cal-day-num { color: var(--accent); }
+.cal-event { font-size: .62rem; font-weight: 700; padding: 2px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
+.cal-more { font-size: .6rem; font-weight: 700; color: var(--text4); padding: 1px 3px; }
+
+/* ===== GANTT ===== */
+.gantt-wrap { overflow-x: auto; }
+.gantt-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; }
+.gantt-header-row { }
+.gantt-header-row th { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text4); padding: 6px 8px; border-bottom: 1.5px solid var(--border); background: var(--bg2); position: sticky; top: 0; z-index: 2; }
+.gantt-name-col { width: 200px; min-width: 200px; text-align: left; }
+.gantt-week-col { min-width: 36px; text-align: center; }
+.gantt-row td { padding: 4px 8px; border-bottom: 1px solid var(--border2); font-size: .8rem; vertical-align: middle; }
+.gantt-course-row td { background: var(--bg3); font-weight: 800; font-size: .75rem; text-transform: uppercase; letter-spacing: .4px; color: var(--text2); }
+.gantt-bar-cell { padding: 2px 4px !important; }
+.gantt-bar { height: 20px; border-radius: 10px; display: block; opacity: .85; transition: opacity .15s; cursor: pointer; }
+.gantt-bar:hover { opacity: 1; }
+.gantt-today-line { border-right: 2px dashed var(--red); position: relative; }
+
+/* ===== COURSE DETAIL ===== */
+.course-header-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; box-shadow: var(--card-shadow); }
+.course-color-block { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; font-weight: 900; }
+.course-header-info { flex: 1; min-width: 0; }
+.course-header-code { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); }
+.course-header-name { font-size: 1.1rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: -0.3px; }
+.course-header-meta { font-size: .75rem; color: var(--text3); margin-top: 3px; font-weight: 600; }
+.course-stats { display: flex; gap: 16px; align-items: center; flex-shrink: 0; }
+.course-stat { text-align: center; }
+.course-stat-val { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.5px; }
+.course-stat-lbl { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); }
+.progress-bar-wrap { background: var(--bg3); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 8px; }
+.progress-bar { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--pink)); transition: width .5s ease; }
+
+/* ===== MODALS ===== */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 18px; padding: 24px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,.25); max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 1rem; font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+.modal-close { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--text3); padding: 2px 6px; border-radius: 6px; line-height: 1; }
+.modal-close:hover { background: var(--bg3); color: var(--text); }
+
+/* Form elements inside modals */
+.flbl { display: block; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); margin-bottom: 5px; }
+.inp { width: 100%; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text); font-size: .87rem; outline: none; font-family: inherit; transition: border-color .15s; }
+.inp:focus { border-color: var(--accent); background: var(--bg2); }
+select.inp { cursor: pointer; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+/* Buttons */
+.btn { padding: 8px 16px; border-radius: 10px; font-size: .82rem; font-weight: 700; cursor: pointer; border: none; transition: all .15s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(108,71,255,.3); }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-ghost { background: none; border: 1.5px solid var(--border); color: var(--text2); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: .85; }
+.btn-sm { padding: 5px 12px; font-size: .75rem; }
+
+/* ===== TOAST ===== */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 20px; font-size: .82rem; font-weight: 700; z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s; opacity: 0; white-space: nowrap; max-width: 90vw; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+#toast.error { background: var(--red); color: #fff; }
+#toast.success { background: var(--green); color: #fff; }
+
+/* ===== THEME TOGGLE ===== */
+.theme-btn { background: none; border: 1.5px solid var(--border); cursor: pointer; color: var(--text2); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .9rem; transition: all .15s; }
+.theme-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+/* ===== NOTES ===== */
+.notes-area { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: .87rem; color: var(--text); line-height: 1.7; outline: none; width: 100%; min-height: 200px; font-family: "DM Mono", monospace; resize: vertical; }
+.notes-area:focus { border-color: var(--accent); }
+
+/* ===== CONFETTI ===== */
+@keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.confetti-piece { position: fixed; width: 10px; height: 10px; top: -20px; z-index: 9999; animation: confettiFall linear forwards; pointer-events: none; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar { position: fixed; left: -280px; top: 0; bottom: 0; transition: left .25s ease, width .22s ease; z-index: 40; }
+  .sidebar.mobile-open { left: 0; }
+  .sidebar.collapsed { width: var(--sb-w); left: -280px; }
+  .sidebar.collapsed.mobile-open { left: 0; }
+  .hamburger { display: flex; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .cal-grid { font-size: 11px; }
+  .cal-day { min-height: 60px; }
+  .tab-btn { padding: 8px 10px; font-size: .75rem; }
+  .course-stats { display: none; }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn .25s ease forwards; }
+@keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(108,71,255,.3); } 50% { box-shadow: 0 0 0 8px rgba(108,71,255,0); } }
+.pulse { animation: pulseGlow 2s infinite; }
+
+/* ===== COLOR SWATCHES for course picker ===== */
+.color-swatches { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.color-swatch { width: 28px; height: 28px; border-radius: 7px; cursor: pointer; transition: transform .15s; border: 2px solid transparent; }
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.selected { border-color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-mark"><span class="c">C</span>elio</div>
+      <div class="auth-tagline">🎓 Campus · Your semester, organised</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <div id="auth-form">
+      <div class="form-row">
+        <label>Email</label>
+        <input type="email" id="auth-email" placeholder="you@university.edu" autocomplete="email">
+      </div>
+      <div class="form-row">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="form-row" id="name-row" style="display:none">
+        <label>Display Name</label>
+        <input type="text" id="auth-name" placeholder="Your name">
+      </div>
+      <button class="btn-auth" onclick="doAuth()" id="auth-submit-btn">Sign In</button>
+      <div class="auth-msg" id="auth-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="app-screen">
+  <div class="app-layout">
+
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sb-top">
+        <div class="sb-logo" id="sb-logo-text">
+          <span><span class="c">C</span>elio</span>
+          <span class="campus">Campus</span>
+        </div>
+        <button class="sb-toggle" onclick="toggleSidebar()" title="Collapse sidebar">&#9776;</button>
+      </div>
+      <div class="sb-scroll" id="sb-scroll">
+        <div class="sb-sect">Semesters</div>
+        <button class="sb-new-btn" onclick="openSemesterModal()">＋ New Semester</button>
+        <button class="sb-new-btn-icon" onclick="openSemesterModal()" title="New Semester">＋</button>
+        <div id="sb-semesters"></div>
+      </div>
+      <div class="sb-bottom">
+        <div class="sb-user" id="sb-user-row">
+          <div class="sb-avatar" id="sb-avatar">?</div>
+          <div style="flex:1;min-width:0;">
+            <div class="sb-email" id="sb-email"></div>
+          </div>
+          <button class="sb-signout" onclick="doSignOut()">Out</button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <div class="topbar">
+        <button class="hamburger" onclick="openSidebar()" id="hamburger-btn">☰</button>
+        <div class="topbar-title" id="topbar-title">Welcome to Celio Campus</div>
+        <div id="topbar-pills"></div>
+        <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
+        <button class="topbar-btn primary" id="topbar-add-btn" onclick="openAddAssignmentModal()" style="display:none">＋ Add</button>
+      </div>
+
+      <div class="tab-nav" id="tab-nav" style="display:none">
+        <button class="tab-btn active" data-tab="dashboard" onclick="showTab('dashboard')"><span class="tab-icon">📊</span>Dashboard</button>
+        <button class="tab-btn" data-tab="assignments" onclick="showTab('assignments')"><span class="tab-icon">📝</span>Assignments</button>
+        <button class="tab-btn" data-tab="calendar" onclick="showTab('calendar')"><span class="tab-icon">📅</span>Calendar</button>
+        <button class="tab-btn" data-tab="gantt" onclick="showTab('gantt')"><span class="tab-icon">📊</span>Timeline</button>
+        <button class="tab-btn" data-tab="courses" onclick="showTab('courses')"><span class="tab-icon">📚</span>Courses</button>
+      </div>
+
+      <div class="content-area" id="content-area">
+        <div class="empty-state">
+          <div class="empty-icon">🎓</div>
+          <div class="empty-title">Welcome to Celio Campus!</div>
+          <div class="empty-sub">Create a semester in the sidebar to get started tracking your courses and assignments.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SEMESTER MODAL -->
+<div class="modal-bg" id="sem-modal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title">
+      <span id="sem-modal-title">New Semester</span>
+      <button class="modal-close" onclick="closeSemModal()">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label class="flbl">Semester Name</label><input id="sem-name" class="inp" placeholder="e.g. Fall 2025"></div>
+      <div class="form-grid-2">
+        <div><label class="flbl">Start Date</label><input id="sem-start" class="inp" type="date"></div>
+        <div><label class="flbl">End Date</label><input id="sem-end" class="inp" type="date"></div>
+      </div>
+      <div><label class="flbl">Goal GPA</label><input id="sem-gpa-goal" class="inp" type="number" step="0.1" min="0" max="4" placeholder="e.g. 3.5"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSemester()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- COURSE MODAL -->
+<div class="modal-bg" id="course-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title">
+      <span id="course-modal-title">New Course</span>
+      <button class="modal-close" onclick="closeCourseModal()">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label class="flbl">Course Code</label><input id="c-code" class="inp" placeholder="e.g. CS101"></div>
+      <div><label class="flbl">Course Name</label><input id="c-name" class="inp" placeholder="e.g. Introduction to Computer Science"></div>
+      <div class="form-grid-2">
+        <div><label class="flbl">Instructor</label><input id="c-instructor" class="inp" placeholder="Prof. Name"></div>
+        <div><label class="flbl">Credits</label><input id="c-credits" class="inp" type="number" min="0" max="6" step="0.5" placeholder="3"></div>
+      </div>
+      <div><label class="flbl">Colour</label>
+        <div class="color-swatches" id="course-color-swatches"></div>
+      </div>
+      <div><label class="flbl">Notes / Location</label><input id="c-notes" class="inp" placeholder="Room 201, Mon/Wed 10am"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeCourseModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCourse()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGNMENT MODAL -->
+<div class="modal-bg" id="assign-modal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-title">
+      <span id="assign-modal-title">New Assignment</span>
+      <button class="modal-close" onclick="closeAssignModal()">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label class="flbl">Title</label><input id="a-title" class="inp" placeholder="Assignment title"></div>
+      <div class="form-grid-2">
+        <div><label class="flbl">Course</label>
+          <select id="a-course" class="inp">
+            <option value="">— Select course —</option>
+          </select>
+        </div>
+        <div><label class="flbl">Type</label>
+          <select id="a-type" class="inp">
+            <option value="assignment">Assignment</option>
+            <option value="exam">Exam</option>
+            <option value="test">Test</option>
+            <option value="quiz">Quiz</option>
+            <option value="lab">Lab</option>
+            <option value="project">Project</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div><label class="flbl">Due Date</label><input id="a-due" class="inp" type="date"></div>
+        <div><label class="flbl">Priority</label>
+          <select id="a-priority" class="inp">
+            <option value="low">Low</option>
+            <option value="med" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div><label class="flbl">Status</label>
+          <select id="a-status" class="inp">
+            <option value="todo">To Do</option>
+            <option value="inprogress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div><label class="flbl">Grade / Score (optional)</label><input id="a-grade" class="inp" placeholder="e.g. 88 or A-"></div>
+      </div>
+      <div><label class="flbl">Notes</label><textarea id="a-notes" class="inp" rows="2" style="resize:vertical" placeholder="Any notes..."></textarea></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
+      <button class="btn btn-danger btn-sm" id="assign-delete-btn" onclick="deleteAssignment()" style="display:none">Delete</button>
+      <div class="modal-actions" style="margin-top:0">
+        <button class="btn btn-ghost" onclick="closeAssignModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveAssignment()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:28px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+    <div style="font-size:2.5rem;text-align:center;margin-bottom:10px;">⚠️</div>
+    <h3 id="confirm-title" style="font-size:1rem;font-weight:800;margin:0 0 8px;text-align:center;"></h3>
+    <p id="confirm-msg" style="font-size:.82rem;color:var(--text3);text-align:center;margin:0 0 22px;line-height:1.6;font-weight:600;"></p>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button id="confirm-ok-btn" class="btn btn-danger" onclick="confirmOk()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// CELIO CAMPUS — MAIN SCRIPT
+// =============================================
+(function() {
+"use strict";
+
+// ===== SUPABASE CONFIG =====
+// Replace with your actual Supabase URL and anon key
+var SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+var SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ===== STATE =====
+var currentUser = null;
+var semesters = [];
+var courses = [];
+var assignments = [];
+var activeSemester = null;
+var activeCourse = null;
+var activeTab = "dashboard";
+var editingAssignmentId = null;
+var editingSemesterId = null;
+var editingCourseId = null;
+var calViewDate = new Date();
+var assignFilter = "all";
+var assignSearch = "";
+var uiExpanded = {};
+var confirmCb = null;
+
+// ===== COURSE COLORS =====
+var COURSE_COLORS = [
+  "#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4",
+  "#ef4444","#8b5cf6","#14b8a6","#f97316","#64748b",
+  "#a855f7","#10b981","#3b82f6","#e11d48","#0ea5e9"
+];
+
+var TYPE_EMOJI = {
+  assignment: "📝", exam: "🔥", test: "✏️", quiz: "⚡",
+  lab: "🔬", project: "🚀"
+};
+
+// ===== TOAST =====
+var toastTimer = null;
+function showToast(msg, type) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "show" + (type ? " " + type : "");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() {
+    el.className = "";
+  }, 3000);
+}
+
+// ===== CONFIRM =====
+window.showConfirm = function(title, msg, cb) {
+  document.getElementById("confirm-title").textContent = title;
+  document.getElementById("confirm-msg").textContent = msg;
+  confirmCb = cb;
+  var overlay = document.getElementById("confirm-overlay");
+  overlay.style.display = "flex";
+};
+window.closeConfirm = function() {
+  document.getElementById("confirm-overlay").style.display = "none";
+  confirmCb = null;
+};
+window.confirmOk = function() {
+  if (confirmCb) { var fn = confirmCb; confirmCb = null; fn(); }
+  document.getElementById("confirm-overlay").style.display = "none";
+};
+
+// ===== AUTH =====
+var currentAuthTab = "login";
+window.switchAuthTab = function(tab) {
+  currentAuthTab = tab;
+  document.querySelectorAll(".auth-tab").forEach(function(b, i) {
+    b.classList.toggle("active", (i === 0 && tab === "login") || (i === 1 && tab === "signup"));
+  });
+  document.getElementById("name-row").style.display = tab === "signup" ? "block" : "none";
+  document.getElementById("auth-submit-btn").textContent = tab === "login" ? "Sign In" : "Create Account";
+  document.getElementById("auth-msg").textContent = "";
+};
+
+window.doAuth = async function() {
+  var email = document.getElementById("auth-email").value.trim();
+  var password = document.getElementById("auth-password").value;
+  var name = document.getElementById("auth-name").value.trim();
+  var msgEl = document.getElementById("auth-msg");
+  msgEl.textContent = "";
+  if (!email || !password) { msgEl.className = "auth-msg error"; msgEl.textContent = "Please fill in all fields."; return; }
+  try {
+    var result;
+    if (currentAuthTab === "login") {
+      result = await sb.auth.signInWithPassword({ email: email, password: password });
+    } else {
+      result = await sb.auth.signUp({ email: email, password: password, options: { data: { display_name: name || email.split("@")[0] } } });
+    }
+    if (result.error) throw result.error;
+    if (currentAuthTab === "signup" && result.data && !result.data.session) {
+      msgEl.className = "auth-msg success";
+      msgEl.textContent = "Check your email to confirm your account!";
+    }
+  } catch (err) {
+    msgEl.className = "auth-msg error";
+    msgEl.textContent = err.message || "Authentication failed.";
+  }
+};
+
+// Enter key on auth
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && document.getElementById("auth-screen").style.display !== "none") {
+    doAuth();
+  }
+});
+
+window.doSignOut = async function() {
+  await sb.auth.signOut();
+};
+
+// ===== THEME =====
+window.toggleTheme = function() {
+  var html = document.documentElement;
+  var current = html.getAttribute("data-theme");
+  var next = current === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+  localStorage.setItem("celio-campus-theme", next);
+  document.querySelector(".theme-btn").textContent = next === "dark" ? "☀" : "🌙";
+};
+
+// ===== SIDEBAR TOGGLE =====
+window.toggleSidebar = function() {
+  var sb = document.getElementById("sidebar");
+  sb.classList.toggle("collapsed");
+  localStorage.setItem("celio-campus-sb-collapsed", sb.classList.contains("collapsed") ? "1" : "0");
+};
+window.openSidebar = function() {
+  var sb = document.getElementById("sidebar");
+  sb.classList.remove("collapsed");
+  sb.classList.add("mobile-open");
+  document.getElementById("sb-overlay").classList.add("show");
+};
+window.closeSidebar = function() {
+  var sb = document.getElementById("sidebar");
+  sb.classList.remove("mobile-open");
+  document.getElementById("sb-overlay").classList.remove("show");
+};
+
+// ===== LOAD ALL DATA =====
+async function loadAll() {
+  if (!currentUser) return;
+  try {
+    var [semRes, courseRes, assignRes] = await Promise.all([
+      sb.from("semesters").select("*").order("start_date", { ascending: true }),
+      sb.from("courses").select("*").order("code"),
+      sb.from("assignments").select("*").order("due_date", { ascending: true })
+    ]);
+    if (semRes.error) throw semRes.error;
+    if (courseRes.error) throw courseRes.error;
+    if (assignRes.error) throw assignRes.error;
+    semesters = semRes.data || [];
+    courses = courseRes.data || [];
+    assignments = assignRes.data || [];
+
+    // Restore last active semester
+    var savedSemId = localStorage.getItem("celio-campus-sem-" + currentUser.id);
+    if (savedSemId) {
+      activeSemester = semesters.find(function(s) { return s.id === savedSemId; }) || null;
+    }
+    if (!activeSemester && semesters.length > 0) {
+      activeSemester = semesters[semesters.length - 1];
+    }
+    renderSidebar();
+    renderActiveTab();
+  } catch (err) {
+    showToast("Error loading data: " + err.message, "error");
+  }
+}
+
+// ===== RENDER SIDEBAR =====
+function renderSidebar() {
+  var el = document.getElementById("sb-semesters");
+  if (!el) return;
+  if (semesters.length === 0) {
+    el.innerHTML = '<div style="padding:12px 16px;font-size:.75rem;color:var(--text4);font-weight:600;">No semesters yet</div>';
+    return;
+  }
+  var html = "";
+  semesters.forEach(function(sem) {
+    var isActive = activeSemester && activeSemester.id === sem.id;
+    var isExpanded = uiExpanded[sem.id] !== false;
+    var semCourses = courses.filter(function(c) { return c.semester_id === sem.id; });
+    html += '<div class="sem-row' + (isActive ? " active" : "") + '" onclick="selectSemester(\'' + sem.id + '\')">';
+    html += '<div class="sem-row-main">';
+    html += '<div class="sem-dot" style="background:' + (sem.color || "#6c47ff") + '"></div>';
+    html += '<span class="sem-row-name">' + esc(sem.name) + '</span>';
+    html += '</div>';
+    html += '<span class="sem-chevron' + (isExpanded ? " open" : "") + '" onclick="toggleSemExpand(event,\'' + sem.id + '\')">▶</span>';
+    html += '</div>';
+    if (isExpanded) {
+      html += '<div class="sem-tree">';
+      semCourses.forEach(function(c) {
+        html += '<div class="course-row' + (activeCourse && activeCourse.id === c.id ? " active" : "") + '" onclick="selectCourse(\'' + c.id + '\')">';
+        html += '<div class="course-dot" style="background:' + (c.color || "#6c47ff") + '"></div>';
+        html += '<span class="course-code">' + esc(c.code) + '</span>';
+        html += '<span class="course-name-lbl">' + esc(c.name) + '</span>';
+        html += '<div class="course-btns">';
+        html += '<button class="tree-btn" onclick="openEditCourse(event,\'' + c.id + '\')">✏️</button>';
+        html += '<button class="tree-btn" onclick="openDeleteCourse(event,\'' + c.id + '\')">🗑</button>';
+        html += '</div></div>';
+      });
+      html += '<button class="add-course-row" onclick="openAddCourseModal(event,\'' + sem.id + '\')">＋ Add course</button>';
+      html += '</div>';
+    }
+  });
+  el.innerHTML = html;
+  if (currentUser) {
+    var email = currentUser.email || "";
+    var name = (currentUser.user_metadata && currentUser.user_metadata.display_name) || email.split("@")[0] || "?";
+    document.getElementById("sb-email").textContent = name;
+    document.getElementById("sb-avatar").textContent = (name[0] || "?").toUpperCase();
+  }
+}
+
+// ===== SELECT SEMESTER =====
+window.selectSemester = function(semId) {
+  activeSemester = semesters.find(function(s) { return s.id === semId; }) || null;
+  activeCourse = null;
+  uiExpanded[semId] = true;
+  if (currentUser) localStorage.setItem("celio-campus-sem-" + currentUser.id, semId);
+  document.getElementById("tab-nav").style.display = "flex";
+  document.getElementById("topbar-add-btn").style.display = "flex";
+  updateTopbar();
+  renderSidebar();
+  renderActiveTab();
+  closeSidebar();
+};
+
+window.selectCourse = function(courseId) {
+  activeCourse = courses.find(function(c) { return c.id === courseId; }) || null;
+  if (activeCourse) {
+    activeSemester = semesters.find(function(s) { return s.id === activeCourse.semester_id; }) || activeSemester;
+  }
+  document.getElementById("tab-nav").style.display = "flex";
+  document.getElementById("topbar-add-btn").style.display = "flex";
+  showTab("assignments");
+  renderSidebar();
+  closeSidebar();
+};
+
+window.toggleSemExpand = function(e, semId) {
+  e.stopPropagation();
+  uiExpanded[semId] = !uiExpanded[semId];
+  renderSidebar();
+};
+
+function updateTopbar() {
+  var title = "Celio Campus";
+  if (activeSemester) title = activeSemester.name;
+  document.getElementById("topbar-title").textContent = title;
+}
+
+// ===== TABS =====
+window.showTab = function(tab) {
+  activeTab = tab;
+  document.querySelectorAll(".tab-btn").forEach(function(b) {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+  renderActiveTab();
+};
+
+function renderActiveTab() {
+  if (!activeSemester) return;
+  updateTopbar();
+  var fns = {
+    dashboard: renderDashboard,
+    assignments: renderAssignments,
+    calendar: renderCalendar,
+    gantt: renderGantt,
+    courses: renderCoursesTab
+  };
+  if (fns[activeTab]) fns[activeTab]();
+}
+
+// ===== HELPERS =====
+function esc(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  var d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  var now = new Date();
+  now.setHours(0,0,0,0);
+  var d = new Date(dateStr + "T00:00:00");
+  return Math.round((d - now) / 86400000);
+}
+
+function getDueBadge(days, status) {
+  if (status === "done") return { cls: "badge-done", text: "Done" };
+  if (days === null) return { cls: "badge-upcoming", text: "No date" };
+  if (days < 0) return { cls: "badge-overdue", text: Math.abs(days) + "d overdue" };
+  if (days === 0) return { cls: "badge-today", text: "Due today!" };
+  if (days <= 3) return { cls: "badge-soon", text: "In " + days + "d" };
+  return { cls: "badge-upcoming", text: "In " + days + "d" };
+}
+
+function getDueClass(days, status) {
+  if (status === "done") return "due-upcoming";
+  if (days === null) return "due-upcoming";
+  if (days < 0) return "due-overdue";
+  if (days === 0) return "due-today";
+  if (days <= 3) return "due-soon";
+  return "due-upcoming";
+}
+
+function getSemAssignments() {
+  if (!activeSemester) return [];
+  var semCourseIds = courses.filter(function(c) { return c.semester_id === activeSemester.id; }).map(function(c) { return c.id; });
+  return assignments.filter(function(a) { return semCourseIds.indexOf(a.course_id) > -1; });
+}
+
+function getCourseById(id) {
+  return courses.find(function(c) { return c.id === id; }) || null;
+}
+
+function calculateGPA(semAssignments) {
+  var graded = semAssignments.filter(function(a) { return a.grade && a.status === "done"; });
+  if (graded.length === 0) return null;
+  var gradeMap = {
+    "A+":4.0,"A":4.0,"A-":3.7,"B+":3.3,"B":3.0,"B-":2.7,
+    "C+":2.3,"C":2.0,"C-":1.7,"D+":1.3,"D":1.0,"F":0
+  };
+  var total = 0; var count = 0;
+  graded.forEach(function(a) {
+    var g = String(a.grade).trim().toUpperCase();
+    if (gradeMap[g] !== undefined) { total += gradeMap[g]; count++; }
+    else {
+      var num = parseFloat(g);
+      if (!isNaN(num)) {
+        var gpa = num >= 90 ? 4.0 : num >= 80 ? 3.0 : num >= 70 ? 2.0 : num >= 60 ? 1.0 : 0;
+        total += gpa; count++;
+      }
+    }
+  });
+  return count > 0 ? (total / count).toFixed(2) : null;
+}
+
+// ===== RENDER DASHBOARD =====
+function renderDashboard() {
+  var ca = document.getElementById("content-area");
+  var semA = getSemAssignments();
+  var total = semA.length;
+  var done = semA.filter(function(a) { return a.status === "done"; }).length;
+  var overdue = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; }).length;
+  var today = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) === 0; }).length;
+  var upcoming = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) !== null && daysUntil(a.due_date) > 0 && daysUntil(a.due_date) <= 7; }).length;
+  var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
+  var gpa = calculateGPA(semA);
+  var html = '<div class="fade-in">';
+
+  // GPA card (if any)
+  if (gpa !== null) {
+    html += '<div class="gpa-card">';
+    html += '<div class="gpa-icon">🎓</div>';
+    html += '<div class="gpa-info"><div class="gpa-label">Current GPA</div><div class="gpa-value">' + gpa + '</div>';
+    if (activeSemester.gpa_goal) html += '<div class="gpa-sub">Goal: ' + activeSemester.gpa_goal + ' &nbsp;·&nbsp; ' + (gpa >= activeSemester.gpa_goal ? "✅ On track!" : "📈 Keep pushing") + '</div>';
+    html += '</div></div>';
+  }
+
+  // Stat cards
+  html += '<div class="stat-grid">';
+  html += '<div class="stat-card purple"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div>';
+  html += '<div class="stat-card green"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div>';
+  html += '<div class="stat-card red"><div class="stat-label">Overdue</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">need attention</div></div>';
+  html += '<div class="stat-card amber"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div>';
+  html += '<div class="stat-card pink"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div>';
+  html += '</div>';
+
+  // Progress
+  if (total > 0) {
+    var pct = Math.round(done / total * 100);
+    html += '<div class="section-title">Semester Progress</div>';
+    html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:.82rem;font-weight:700;color:var(--text2)">' + done + ' of ' + total + ' completed</span><span style="font-size:1rem;font-weight:900;color:var(--accent)">' + pct + '%</span></div>';
+    html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + pct + '%"></div></div>';
+    html += '</div>';
+  }
+
+  // Upcoming items
+  var upcoming7 = semA.filter(function(a) {
+    var d = daysUntil(a.due_date);
+    return a.status !== "done" && d !== null && d <= 14;
+  }).sort(function(a, b) {
+    return (daysUntil(a.due_date)||99) - (daysUntil(b.due_date)||99);
+  }).slice(0, 8);
+
+  // Also add overdue
+  var overdueItems = semA.filter(function(a) {
+    return a.status !== "done" && daysUntil(a.due_date) < 0;
+  });
+  var combined = overdueItems.concat(upcoming7).filter(function(a, i, arr) {
+    return arr.findIndex(function(x) { return x.id === a.id; }) === i;
+  }).slice(0, 10);
+
+  if (combined.length > 0) {
+    html += '<div class="section-title">Upcoming & Overdue</div>';
+    html += '<div class="countdown-grid">';
+    combined.forEach(function(a) {
+      var course = getCourseById(a.course_id);
+      var days = daysUntil(a.due_date);
+      var badge = getDueBadge(days, a.status);
+      var emoji = TYPE_EMOJI[a.type] || "📝";
+      html += '<div class="countdown-item" onclick="openEditAssignment(\'' + a.id + '\')">';
+      html += '<div class="countdown-icon">' + emoji + '</div>';
+      html += '<div class="countdown-info">';
+      html += '<div class="countdown-title">' + esc(a.title) + '</div>';
+      html += '<div class="countdown-meta">' + (course ? esc(course.code) + ' · ' : '') + esc(formatDate(a.due_date)) + '</div>';
+      html += '</div>';
+      html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Course overview
+  if (semCourses.length > 0) {
+    html += '<div class="section-title" style="margin-top:20px">Courses</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">';
+    semCourses.forEach(function(course) {
+      var ca2 = assignments.filter(function(a) { return a.course_id === course.id; });
+      var cdone = ca2.filter(function(a) { return a.status === "done"; }).length;
+      var cpct = ca2.length > 0 ? Math.round(cdone / ca2.length * 100) : 0;
+      html += '<div class="course-header-card" style="cursor:pointer;margin-bottom:0" onclick="selectCourse(\'' + course.id + '\')">';
+      html += '<div class="course-color-block" style="background:' + (course.color||"#6c47ff") + '">' + (course.code||"?")[0] + '</div>';
+      html += '<div class="course-header-info" style="flex:1">';
+      html += '<div class="course-header-code">' + esc(course.code) + '</div>';
+      html += '<div class="course-header-name" style="font-size:.9rem">' + esc(course.name) + '</div>';
+      html += '<div class="progress-bar-wrap" style="margin-top:6px"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div>';
+      html += '</div>';
+      html += '<span style="font-size:.75rem;font-weight:800;color:' + (course.color||"var(--accent)") + '">' + cpct + '%</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  ca.innerHTML = html;
+}
+
+// ===== RENDER ASSIGNMENTS =====
+function renderAssignments() {
+  var ca = document.getElementById("content-area");
+  var semA = getSemAssignments();
+  if (activeCourse) {
+    semA = assignments.filter(function(a) { return a.course_id === activeCourse.id; });
+  }
+
+  // Filter
+  var filtered = semA.filter(function(a) {
+    if (assignFilter === "todo") return a.status === "todo";
+    if (assignFilter === "inprogress") return a.status === "inprogress";
+    if (assignFilter === "done") return a.status === "done";
+    if (assignFilter === "overdue") return a.status !== "done" && daysUntil(a.due_date) < 0;
+    if (assignFilter === "upcoming") { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d >= 0 && d <= 7; }
+    return true;
+  }).filter(function(a) {
+    if (!assignSearch) return true;
+    var q = assignSearch.toLowerCase();
+    return (a.title||"").toLowerCase().includes(q) || (a.notes||"").toLowerCase().includes(q);
+  });
+
+  var html = '<div class="fade-in">';
+  if (activeCourse) {
+    var course = activeCourse;
+    html += '<div class="course-header-card">';
+    html += '<div class="course-color-block" style="background:' + (course.color||"#6c47ff") + '">' + (course.code||"?")[0] + '</div>';
+    html += '<div class="course-header-info">';
+    html += '<div class="course-header-code">' + esc(course.code) + '</div>';
+    html += '<div class="course-header-name">' + esc(course.name) + '</div>';
+    html += '<div class="course-header-meta">' + (course.instructor ? '👤 ' + esc(course.instructor) : '') + (course.credits ? ' &nbsp;·&nbsp; ' + course.credits + ' credits' : '') + (course.notes ? ' &nbsp;·&nbsp; ' + esc(course.notes) : '') + '</div>';
+    html += '</div>';
+    var ca2 = assignments.filter(function(a) { return a.course_id === course.id; });
+    var cdone = ca2.filter(function(a) { return a.status === "done"; }).length;
+    html += '<div class="course-stats"><div class="course-stat"><div class="course-stat-val" style="color:' + (course.color||"var(--accent)") + '">' + cdone + '/' + ca2.length + '</div><div class="course-stat-lbl">Done</div></div></div>';
+    html += '</div>';
+  }
+
+  // Filter bar
+  html += '<div class="filter-bar">';
+  ["all","todo","inprogress","done","overdue","upcoming"].forEach(function(f) {
+    var labels = {all:"All",todo:"To Do",inprogress:"In Progress",done:"Done",overdue:"Overdue",upcoming:"This Week"};
+    html += '<button class="filter-pill' + (assignFilter === f ? " active" : "") + '" onclick="setFilter(\'' + f + '\')">' + labels[f] + '</button>';
+  });
+  html += '<input class="filter-search" placeholder="Search..." value="' + esc(assignSearch) + '" oninput="setSearch(this.value)">';
+  html += '</div>';
+
+  if (filtered.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nothing here</div><div class="empty-sub">No assignments match your filter. Try changing the filter or add a new one!</div></div>';
+  } else {
+    html += '<div class="assignment-list">';
+    filtered.forEach(function(a) {
+      var course = getCourseById(a.course_id);
+      var days = daysUntil(a.due_date);
+      var dueClass = getDueClass(days, a.status);
+      var dueText = a.due_date ? formatDate(a.due_date) : "No date";
+      if (days !== null && a.status !== "done") {
+        if (days < 0) dueText += " (" + Math.abs(days) + "d late)";
+        else if (days === 0) dueText = "Due today!";
+        else if (days === 1) dueText += " (tomorrow)";
+      }
+      html += '<div class="assignment-row' + (a.status === "done" ? " done-row" : "") + '" onclick="openEditAssignment(\'' + a.id + '\')">';
+      html += '<div class="a-checkbox' + (a.status === "done" ? " checked" : "") + '" onclick="toggleDone(event,\'' + a.id + '\')"></div>';
+      html += '<div class="a-info">';
+      html += '<div class="a-title" style="' + (a.status === "done" ? "text-decoration:line-through" : "") + '">' + esc(a.title) + '</div>';
+      html += '<div class="a-meta">';
+      if (course) html += '<span class="a-course-tag" style="background:' + (course.color||"#6c47ff") + '22;color:' + (course.color||"#6c47ff") + '">' + esc(course.code) + '</span>';
+      html += '<span class="a-type-tag type-' + (a.type||"assignment") + '">' + (TYPE_EMOJI[a.type]||"📝") + ' ' + (a.type||"assignment") + '</span>';
+      if (a.grade) html += '<span style="color:var(--green);font-weight:800">📊 ' + esc(a.grade) + '</span>';
+      html += '</div></div>';
+      html += '<div class="' + dueClass + ' a-due">' + dueText + '</div>';
+      html += '<div class="a-priority prio-' + (a.priority||"med") + '"></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  ca.innerHTML = html;
+}
+
+window.setFilter = function(f) { assignFilter = f; renderAssignments(); };
+window.setSearch = function(v) { assignSearch = v; renderAssignments(); };
+window.toggleDone = async function(e, id) {
+  e.stopPropagation();
+  var a = assignments.find(function(x) { return x.id === id; });
+  if (!a) return;
+  var newStatus = a.status === "done" ? "todo" : "done";
+  try {
+    var res = await sb.from("assignments").update({ status: newStatus }).eq("id", id);
+    if (res.error) throw res.error;
+    a.status = newStatus;
+    if (newStatus === "done") launchConfetti();
+    renderActiveTab();
+  } catch (err) { showToast(err.message, "error"); }
+};
+
+// ===== CONFETTI =====
+function launchConfetti() {
+  var colors = ["#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4","#ef4444"];
+  for (var i = 0; i < 30; i++) {
+    (function(i) {
+      setTimeout(function() {
+        var el = document.createElement("div");
+        el.className = "confetti-piece";
+        el.style.left = Math.random() * 100 + "vw";
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.width = (Math.random() * 8 + 6) + "px";
+        el.style.height = (Math.random() * 8 + 6) + "px";
+        el.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+        el.style.animationDuration = (Math.random() * 2 + 1.5) + "s";
+        el.style.animationDelay = (Math.random() * 0.5) + "s";
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 4000);
+      }, i * 40);
+    })(i);
+  }
+}
+
+// ===== RENDER CALENDAR =====
+function renderCalendar() {
+  var ca = document.getElementById("content-area");
+  var semA = getSemAssignments();
+  var year = calViewDate.getFullYear();
+  var month = calViewDate.getMonth();
+  var firstDay = new Date(year, month, 1).getDay();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  var html = '<div class="fade-in">';
+  html += '<div class="cal-header">';
+  html += '<button class="cal-nav" onclick="calNav(-1)">◀</button>';
+  html += '<div class="cal-month">' + monthNames[month] + ' ' + year + '</div>';
+  html += '<button class="cal-nav" onclick="calNav(1)">▶</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="calToday()">Today</button>';
+  html += '</div>';
+  html += '<div class="cal-grid">';
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) {
+    html += '<div class="cal-dow">' + d + '</div>';
+  });
+
+  // blank cells before first day
+  for (var i = 0; i < firstDay; i++) {
+    html += '<div class="cal-day other-month"><div class="cal-day-num">' + (new Date(year, month, -firstDay + i + 1).getDate()) + '</div></div>';
+  }
+
+  for (var day = 1; day <= daysInMonth; day++) {
+    var d = new Date(year, month, day);
+    d.setHours(0,0,0,0);
+    var isToday = d.getTime() === today.getTime();
+    var dateStr = year + "-" + String(month+1).padStart(2,"0") + "-" + String(day).padStart(2,"0");
+    var dayAssigns = semA.filter(function(a) { return a.due_date === dateStr; });
+    html += '<div class="cal-day' + (isToday ? " today" : "") + '">';
+    html += '<div class="cal-day-num">' + day + '</div>';
+    var shown = 0;
+    dayAssigns.forEach(function(a) {
+      if (shown >= 3) return;
+      shown++;
+      var course = getCourseById(a.course_id);
+      var color = (course && course.color) || "#6c47ff";
+      html += '<div class="cal-event" style="background:' + color + '22;color:' + color + '" onclick="event.stopPropagation();openEditAssignment(\'' + a.id + '\')">' + esc(a.title) + '</div>';
+    });
+    if (dayAssigns.length > 3) html += '<div class="cal-more">+' + (dayAssigns.length-3) + ' more</div>';
+    html += '</div>';
+  }
+
+  // trailing blank cells
+  var total = firstDay + daysInMonth;
+  var trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (var t = 1; t <= trailing; t++) {
+    html += '<div class="cal-day other-month"><div class="cal-day-num">' + t + '</div></div>';
+  }
+
+  html += '</div></div>';
+  ca.innerHTML = html;
+}
+
+window.calNav = function(dir) {
+  calViewDate.setMonth(calViewDate.getMonth() + dir);
+  renderCalendar();
+};
+window.calToday = function() {
+  calViewDate = new Date();
+  renderCalendar();
+};
+
+// ===== RENDER GANTT =====
+function renderGantt() {
+  var ca = document.getElementById("content-area");
+  if (!activeSemester || !activeSemester.start_date || !activeSemester.end_date) {
+    ca.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Set semester dates</div><div class="empty-sub">Add start and end dates to your semester to see the timeline view.</div></div>';
+    return;
+  }
+
+  var start = new Date(activeSemester.start_date + "T00:00:00");
+  var end = new Date(activeSemester.end_date + "T00:00:00");
+  var totalDays = Math.ceil((end - start) / 86400000) + 1;
+  var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
+  var semA = getSemAssignments();
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayOffset = Math.ceil((today - start) / 86400000);
+
+  // Build week columns
+  var weeks = [];
+  var weekMs = 7 * 86400000;
+  var numWeeks = Math.ceil(totalDays / 7);
+  for (var w = 0; w < numWeeks; w++) {
+    var wStart = new Date(start.getTime() + w * weekMs);
+    weeks.push("W" + (w+1));
+  }
+
+  var html = '<div class="fade-in"><div class="gantt-wrap">';
+  html += '<table class="gantt-table"><thead><tr class="gantt-header-row">';
+  html += '<th class="gantt-name-col">Assignment</th>';
+  weeks.forEach(function(w, i) {
+    var isTodayWeek = todayOffset >= i*7 && todayOffset < (i+1)*7;
+    html += '<th class="gantt-week-col' + (isTodayWeek ? " gantt-today-line" : "") + '">' + w + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  semCourses.forEach(function(course) {
+    var cAssigns = semA.filter(function(a) { return a.course_id === course.id; });
+    if (cAssigns.length === 0) return;
+    html += '<tr class="gantt-row gantt-course-row"><td colspan="' + (numWeeks+1) + '" style="color:' + (course.color||"var(--accent)") + ';padding-left:12px">' + esc(course.code) + ' — ' + esc(course.name) + '</td></tr>';
+    cAssigns.forEach(function(a) {
+      if (!a.due_date) return;
+      var dueDate = new Date(a.due_date + "T00:00:00");
+      var dayOffset = Math.ceil((dueDate - start) / 86400000);
+      var weekIndex = Math.floor(dayOffset / 7);
+      weekIndex = Math.max(0, Math.min(numWeeks-1, weekIndex));
+      html += '<tr class="gantt-row">';
+      html += '<td style="font-size:.78rem;font-weight:700;padding-left:16px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">';
+      html += '<span class="a-type-tag type-' + (a.type||"assignment") + '" style="margin-right:4px">' + (TYPE_EMOJI[a.type]||"📝") + '</span>' + esc(a.title);
+      html += '</td>';
+      weeks.forEach(function(w, i) {
+        if (i === weekIndex) {
+          var color = a.status === "done" ? "#22c55e" : (course.color || "#6c47ff");
+          html += '<td class="gantt-bar-cell" onclick="openEditAssignment(\'' + a.id + '\')">';
+          html += '<div class="gantt-bar" style="background:' + color + ';width:85%;margin:0 auto" title="' + esc(a.title) + '"></div>';
+          html += '</td>';
+        } else {
+          html += '<td></td>';
+        }
+      });
+      html += '</tr>';
+    });
+  });
+
+  html += '</tbody></table></div></div>';
+  ca.innerHTML = html;
+}
+
+// ===== RENDER COURSES TAB =====
+function renderCoursesTab() {
+  var ca = document.getElementById("content-area");
+  var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
+  var html = '<div class="fade-in">';
+
+  if (semCourses.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No courses yet</div><div class="empty-sub">Add your courses for this semester to start tracking assignments.</div></div>';
+    html += '<div style="text-align:center;margin-top:12px"><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
+  } else {
+    html += '<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
+    semCourses.forEach(function(course) {
+      var cA = assignments.filter(function(a) { return a.course_id === course.id; });
+      var cdone = cA.filter(function(a) { return a.status === "done"; }).length;
+      var coverdue = cA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; }).length;
+      var cpct = cA.length > 0 ? Math.round(cdone / cA.length * 100) : 0;
+      html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--card-shadow)">';
+      html += '<div style="height:6px;background:' + (course.color||"#6c47ff") + '"></div>';
+      html += '<div style="padding:16px">';
+      html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">';
+      html += '<div><div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3)">' + esc(course.code) + '</div>';
+      html += '<div style="font-size:.95rem;font-weight:800;margin-top:2px">' + esc(course.name) + '</div></div>';
+      html += '<div style="display:flex;gap:4px">';
+      html += '<button class="btn btn-ghost btn-sm" onclick="openEditCourse(null,\'' + course.id + '\')">✏️</button>';
+      html += '<button class="btn btn-ghost btn-sm" onclick="openDeleteCourse(null,\'' + course.id + '\')">🗑</button>';
+      html += '</div></div>';
+      if (course.instructor) html += '<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px;font-weight:600">👤 ' + esc(course.instructor) + (course.credits ? ' · ' + course.credits + ' credits' : '') + '</div>';
+      if (course.notes) html += '<div style="font-size:.73rem;color:var(--text4);margin-bottom:8px">📍 ' + esc(course.notes) + '</div>';
+      html += '<div style="display:flex;gap:10px;font-size:.75rem;font-weight:700;margin-bottom:10px">';
+      html += '<span style="color:var(--green)">✅ ' + cdone + ' done</span>';
+      html += '<span style="color:var(--text3)">📝 ' + cA.length + ' total</span>';
+      if (coverdue > 0) html += '<span style="color:var(--red)">⚠️ ' + coverdue + ' overdue</span>';
+      html += '</div>';
+      html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div>';
+      html += '<div style="text-align:right;font-size:.7rem;font-weight:800;color:' + (course.color||"var(--accent)") + ';margin-top:4px">' + cpct + '%</div>';
+      html += '<button class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="selectCourse(\'' + course.id + '\')">View Assignments</button>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  ca.innerHTML = html;
+}
+
+// ===== SEMESTER MODAL =====
+window.openSemesterModal = function() {
+  editingSemesterId = null;
+  document.getElementById("sem-modal-title").textContent = "New Semester";
+  document.getElementById("sem-name").value = "";
+  document.getElementById("sem-start").value = "";
+  document.getElementById("sem-end").value = "";
+  document.getElementById("sem-gpa-goal").value = "";
+  document.getElementById("sem-modal").classList.add("open");
+};
+window.openEditSemester = function(semId) {
+  var sem = semesters.find(function(s) { return s.id === semId; });
+  if (!sem) return;
+  editingSemesterId = semId;
+  document.getElementById("sem-modal-title").textContent = "Edit Semester";
+  document.getElementById("sem-name").value = sem.name || "";
+  document.getElementById("sem-start").value = sem.start_date || "";
+  document.getElementById("sem-end").value = sem.end_date || "";
+  document.getElementById("sem-gpa-goal").value = sem.gpa_goal || "";
+  document.getElementById("sem-modal").classList.add("open");
+};
+window.closeSemModal = function() {
+  document.getElementById("sem-modal").classList.remove("open");
+};
+window.saveSemester = async function() {
+  var name = document.getElementById("sem-name").value.trim();
+  var startDate = document.getElementById("sem-start").value;
+  var endDate = document.getElementById("sem-end").value;
+  var gpaGoal = document.getElementById("sem-gpa-goal").value;
+  if (!name) { showToast("Semester name is required", "error"); return; }
+  try {
+    var payload = {
+      name: name,
+      start_date: startDate || null,
+      end_date: endDate || null,
+      gpa_goal: gpaGoal ? parseFloat(gpaGoal) : null,
+      user_id: currentUser.id
+    };
+    var colors = ["#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4"];
+    if (!editingSemesterId) payload.color = colors[semesters.length % colors.length];
+    var res;
+    if (editingSemesterId) {
+      res = await sb.from("semesters").update(payload).eq("id", editingSemesterId).select().single();
+    } else {
+      res = await sb.from("semesters").insert(payload).select().single();
+    }
+    if (res.error) throw res.error;
+    closeSemModal();
+    await loadAll();
+    if (!editingSemesterId) {
+      activeSemester = res.data;
+      document.getElementById("tab-nav").style.display = "flex";
+      document.getElementById("topbar-add-btn").style.display = "flex";
+      showTab("dashboard");
+    }
+    showToast(editingSemesterId ? "Semester updated!" : "Semester created! 🎉", "success");
+  } catch (err) { showToast(err.message, "error"); }
+};
+
+// ===== COURSE MODAL =====
+var currentCourseColorPick = COURSE_COLORS[0];
+var currentCourseSemesterId = null;
+
+window.openAddCourseModal = function(e, semId) {
+  if (e) e.stopPropagation();
+  editingCourseId = null;
+  currentCourseSemesterId = semId || (activeSemester ? activeSemester.id : null);
+  document.getElementById("course-modal-title").textContent = "New Course";
+  document.getElementById("c-code").value = "";
+  document.getElementById("c-name").value = "";
+  document.getElementById("c-instructor").value = "";
+  document.getElementById("c-credits").value = "";
+  document.getElementById("c-notes").value = "";
+  currentCourseColorPick = COURSE_COLORS[courses.length % COURSE_COLORS.length];
+  renderColorSwatches();
+  document.getElementById("course-modal").classList.add("open");
+};
+window.openEditCourse = function(e, courseId) {
+  if (e) e.stopPropagation();
+  var course = courses.find(function(c) { return c.id === courseId; });
+  if (!course) return;
+  editingCourseId = courseId;
+  currentCourseSemesterId = course.semester_id;
+  document.getElementById("course-modal-title").textContent = "Edit Course";
+  document.getElementById("c-code").value = course.code || "";
+  document.getElementById("c-name").value = course.name || "";
+  document.getElementById("c-instructor").value = course.instructor || "";
+  document.getElementById("c-credits").value = course.credits || "";
+  document.getElementById("c-notes").value = course.notes || "";
+  currentCourseColorPick = course.color || COURSE_COLORS[0];
+  renderColorSwatches();
+  document.getElementById("course-modal").classList.add("open");
+};
+function renderColorSwatches() {
+  var el = document.getElementById("course-color-swatches");
+  el.innerHTML = "";
+  COURSE_COLORS.forEach(function(color) {
+    var div = document.createElement("div");
+    div.className = "color-swatch" + (color === currentCourseColorPick ? " selected" : "");
+    div.style.background = color;
+    div.onclick = function() { currentCourseColorPick = color; renderColorSwatches(); };
+    el.appendChild(div);
+  });
+}
+window.closeCourseModal = function() {
+  document.getElementById("course-modal").classList.remove("open");
+};
+window.saveCourse = async function() {
+  var code = document.getElementById("c-code").value.trim().toUpperCase();
+  var name = document.getElementById("c-name").value.trim();
+  if (!code || !name) { showToast("Course code and name are required", "error"); return; }
+  try {
+    var payload = {
+      code: code, name: name,
+      instructor: document.getElementById("c-instructor").value.trim() || null,
+      credits: document.getElementById("c-credits").value ? parseFloat(document.getElementById("c-credits").value) : null,
+      notes: document.getElementById("c-notes").value.trim() || null,
+      color: currentCourseColorPick,
+      semester_id: currentCourseSemesterId,
+      user_id: currentUser.id
+    };
+    var res;
+    if (editingCourseId) {
+      res = await sb.from("courses").update(payload).eq("id", editingCourseId).select().single();
+    } else {
+      res = await sb.from("courses").insert(payload).select().single();
+    }
+    if (res.error) throw res.error;
+    closeCourseModal();
+    await loadAll();
+    showToast(editingCourseId ? "Course updated!" : "Course added! 📚", "success");
+  } catch (err) { showToast(err.message, "error"); }
+};
+window.openDeleteCourse = function(e, courseId) {
+  if (e) e.stopPropagation();
+  var course = courses.find(function(c) { return c.id === courseId; });
+  if (!course) return;
+  showConfirm("Delete Course", "Delete " + course.name + " and all its assignments? This cannot be undone.", async function() {
+    try {
+      await sb.from("assignments").delete().eq("course_id", courseId);
+      var res = await sb.from("courses").delete().eq("id", courseId);
+      if (res.error) throw res.error;
+      if (activeCourse && activeCourse.id === courseId) { activeCourse = null; showTab("courses"); }
+      await loadAll();
+      showToast("Course deleted.");
+    } catch (err) { showToast(err.message, "error"); }
+  });
+};
+
+// ===== ASSIGNMENT MODAL =====
+window.openAddAssignmentModal = function() {
+  editingAssignmentId = null;
+  document.getElementById("assign-modal-title").textContent = "New Assignment";
+  document.getElementById("a-title").value = "";
+  document.getElementById("a-due").value = "";
+  document.getElementById("a-type").value = "assignment";
+  document.getElementById("a-priority").value = "med";
+  document.getElementById("a-status").value = "todo";
+  document.getElementById("a-grade").value = "";
+  document.getElementById("a-notes").value = "";
+  document.getElementById("assign-delete-btn").style.display = "none";
+  populateCourseDropdown(activeCourse ? activeCourse.id : "");
+  document.getElementById("assign-modal").classList.add("open");
+};
+window.openEditAssignment = function(id) {
+  var a = assignments.find(function(x) { return x.id === id; });
+  if (!a) return;
+  editingAssignmentId = id;
+  document.getElementById("assign-modal-title").textContent = "Edit Assignment";
+  document.getElementById("a-title").value = a.title || "";
+  document.getElementById("a-due").value = a.due_date || "";
+  document.getElementById("a-type").value = a.type || "assignment";
+  document.getElementById("a-priority").value = a.priority || "med";
+  document.getElementById("a-status").value = a.status || "todo";
+  document.getElementById("a-grade").value = a.grade || "";
+  document.getElementById("a-notes").value = a.notes || "";
+  document.getElementById("assign-delete-btn").style.display = "inline-flex";
+  populateCourseDropdown(a.course_id);
+  document.getElementById("assign-modal").classList.add("open");
+};
+function populateCourseDropdown(selected) {
+  var sel = document.getElementById("a-course");
+  var semCourses = activeSemester ? courses.filter(function(c) { return c.semester_id === activeSemester.id; }) : courses;
+  sel.innerHTML = '<option value="">— Select course —</option>';
+  semCourses.forEach(function(c) {
+    sel.innerHTML += '<option value="' + c.id + '"' + (c.id === selected ? " selected" : "") + '>' + esc(c.code) + ' — ' + esc(c.name) + '</option>';
+  });
+}
+window.closeAssignModal = function() {
+  document.getElementById("assign-modal").classList.remove("open");
+};
+window.saveAssignment = async function() {
+  var title = document.getElementById("a-title").value.trim();
+  var courseId = document.getElementById("a-course").value;
+  if (!title) { showToast("Assignment title is required", "error"); return; }
+  if (!courseId) { showToast("Please select a course", "error"); return; }
+  try {
+    var payload = {
+      title: title,
+      course_id: courseId,
+      type: document.getElementById("a-type").value,
+      due_date: document.getElementById("a-due").value || null,
+      priority: document.getElementById("a-priority").value,
+      status: document.getElementById("a-status").value,
+      grade: document.getElementById("a-grade").value.trim() || null,
+      notes: document.getElementById("a-notes").value.trim() || null,
+      user_id: currentUser.id
+    };
+    var res;
+    if (editingAssignmentId) {
+      res = await sb.from("assignments").update(payload).eq("id", editingAssignmentId).select().single();
+    } else {
+      res = await sb.from("assignments").insert(payload).select().single();
+    }
+    if (res.error) throw res.error;
+    closeAssignModal();
+    await loadAll();
+    renderActiveTab();
+    showToast(editingAssignmentId ? "Updated!" : "Assignment added! ✅", "success");
+  } catch (err) { showToast(err.message, "error"); }
+};
+window.deleteAssignment = function() {
+  if (!editingAssignmentId) return;
+  var a = assignments.find(function(x) { return x.id === editingAssignmentId; });
+  showConfirm("Delete Assignment", "Delete \"" + (a ? a.title : "this assignment") + "\"? This cannot be undone.", async function() {
+    try {
+      var res = await sb.from("assignments").delete().eq("id", editingAssignmentId);
+      if (res.error) throw res.error;
+      closeAssignModal();
+      await loadAll();
+      renderActiveTab();
+      showToast("Assignment deleted.");
+    } catch (err) { showToast(err.message, "error"); }
+  });
+};
+
+// ===== MODAL BACKDROP CLOSE =====
+window.addEventListener("DOMContentLoaded", function() {
+  ["sem-modal","course-modal","assign-modal"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("click", function(e) {
+      if (e.target === el) {
+        el.classList.remove("open");
+      }
+    });
+  });
+  var overlay = document.getElementById("confirm-overlay");
+  if (overlay) overlay.addEventListener("click", function(e) { if (e.target === this) closeConfirm(); });
+});
+
+// ===== AUTH STATE LISTENER =====
+sb.auth.onAuthStateChange(async function(event, session) {
+  currentUser = session ? session.user : null;
+  if (currentUser) {
+    document.getElementById("auth-screen").style.display = "none";
+    document.getElementById("app-screen").style.display = "block";
+    var savedTheme = localStorage.getItem("celio-campus-theme") || "light";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    document.querySelector(".theme-btn").textContent = savedTheme === "dark" ? "☀" : "🌙";
+    if (localStorage.getItem("celio-campus-sb-collapsed") === "1") {
+      document.getElementById("sidebar").classList.add("collapsed");
+    }
+    await loadAll();
+    if (semesters.length > 0 && activeSemester) {
+      document.getElementById("tab-nav").style.display = "flex";
+      document.getElementById("topbar-add-btn").style.display = "flex";
+      showTab("dashboard");
+    }
+  } else {
+    document.getElementById("auth-screen").style.display = "flex";
+    document.getElementById("app-screen").style.display = "none";
+    semesters = []; courses = []; assignments = [];
+    activeSemester = null; activeCourse = null;
+  }
+});
+
+})();
+</script>
+</body>
+</html>
