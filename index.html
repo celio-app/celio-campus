@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Celio Campus</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ===== VARIABLES ===== */
@@ -507,7 +507,7 @@ select.inp { cursor: pointer; }
         <div><label class="flbl">Start Date</label><input id="sem-start" class="inp" type="date"></div>
         <div><label class="flbl">End Date</label><input id="sem-end" class="inp" type="date"></div>
       </div>
-      <div><label class="flbl">Goal GPA</label><input id="sem-gpa-goal" class="inp" type="number" step="0.1" min="0" max="4" placeholder="e.g. 3.5"></div>
+      <div><label class="flbl">Notes</label><input id="sem-gpa-goal" class="inp" placeholder="e.g. Dean's list goal, focus areas..."></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button>
