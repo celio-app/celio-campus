@@ -624,7 +624,15 @@ select.inp { cursor: pointer; }
 // Replace with your actual Supabase URL and anon key
 var SUPABASE_URL = "https://eeokgkzjlrrbvbpuaudd.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_nWeSGiP2eIZYoWBvPng0-A_GkISpgbE";
-var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var _memStore = {};
+var _customStorage = {
+  getItem: function(key) { return _memStore[key] || null; },
+  setItem: function(key, val) { _memStore[key] = val; },
+  removeItem: function(key) { delete _memStore[key]; }
+};
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { storage: _customStorage, persistSession: true, detectSessionInUrl: true }
+});
 
 // ===== STATE =====
 var currentUser = null;
