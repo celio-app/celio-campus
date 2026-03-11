@@ -650,6 +650,7 @@ var assignFilter = "all";
 var assignSearch = "";
 var uiExpanded = {};
 var confirmCb = null;
+var userStats = null;
 
 // ===== COURSE COLORS =====
 var COURSE_COLORS = [
@@ -657,6 +658,44 @@ var COURSE_COLORS = [
   "#ef4444","#8b5cf6","#14b8a6","#f97316","#64748b",
   "#a855f7","#10b981","#3b82f6","#e11d48","#0ea5e9"
 ];
+
+// ===== GAMIFICATION CONFIG =====
+var XP_VALUES = { assignment: 20, exam: 40, test: 30, quiz: 10, lab: 25, project: 50 };
+var LEVELS = [
+  { name: "Freshman",    min: 0,    icon: "🎒" },
+  { name: "Sophomore",   min: 200,  icon: "📖" },
+  { name: "Junior",      min: 500,  icon: "🎯" },
+  { name: "Senior",      min: 1000, icon: "🏆" },
+  { name: "Graduate",    min: 2000, icon: "🎓" },
+  { name: "Dean's List", min: 3500, icon: "⭐" },
+  { name: "Legend",      min: 5000, icon: "👑" }
+];
+var BADGES = [
+  { id: "first_done",    icon: "🌱", name: "First Step",      desc: "Complete your first assignment" },
+  { id: "streak_3",      icon: "🔥", name: "On Fire",         desc: "3 day streak" },
+  { id: "streak_7",      icon: "🌋", name: "Unstoppable",     desc: "7 day streak" },
+  { id: "early_bird",    icon: "🐦", name: "Early Bird",      desc: "Submit before the due date" },
+  { id: "exam_slayer",   icon: "⚔️",  name: "Exam Slayer",    desc: "Complete 5 exams or tests" },
+  { id: "century",       icon: "💯", name: "Century",         desc: "Reach 100 XP" },
+  { id: "scholar",       icon: "📚", name: "Scholar",         desc: "Complete 25 assignments" },
+  { id: "clean_sweep",   icon: "🧹", name: "Clean Sweep",     desc: "Clear all overdue assignments" },
+  { id: "night_owl",     icon: "🦉", name: "Night Owl",       desc: "Complete 10 assignments" },
+  { id: "speed_demon",   icon: "⚡", name: "Speed Demon",     desc: "Complete 3 assignments in one day" }
+];
+
+function getLevel(xp) {
+  var level = LEVELS[0];
+  for (var i = LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= LEVELS[i].min) { level = LEVELS[i]; break; }
+  }
+  return level;
+}
+function getNextLevel(xp) {
+  for (var i = 0; i < LEVELS.length; i++) {
+    if (LEVELS[i].min > xp) return LEVELS[i];
+  }
+  return null;
+}
 
 var TYPE_EMOJI = {
   assignment: "📝", exam: "🔥", test: "✏️", quiz: "⚡",
@@ -772,10 +811,11 @@ window.closeSidebar = function() {
 async function loadAll() {
   if (!currentUser) return;
   try {
-    var [semRes, courseRes, assignRes] = await Promise.all([
+    var [semRes, courseRes, assignRes, statsRes] = await Promise.all([
       sb.from("semesters").select("*").order("start_date", { ascending: true }),
       sb.from("courses").select("*").order("code"),
-      sb.from("assignments").select("*").order("due_date", { ascending: true })
+      sb.from("assignments").select("*").order("due_date", { ascending: true }),
+      sb.from("user_stats").select("*").eq("user_id", currentUser.id).maybeSingle()
     ]);
     if (semRes.error) throw semRes.error;
     if (courseRes.error) throw courseRes.error;
@@ -783,6 +823,7 @@ async function loadAll() {
     semesters = semRes.data || [];
     courses = courseRes.data || [];
     assignments = assignRes.data || [];
+    userStats = statsRes.data || null;
 
     // Restore last active semester
     var savedSemId = localStorage.getItem("celio-campus-sem-" + currentUser.id);
@@ -991,6 +1032,44 @@ function renderDashboard() {
   var gpa = calculateGPA(semA);
   var html = '<div class="fade-in">';
 
+  // Gamification card
+  if (userStats) {
+    var xp = userStats.xp || 0;
+    var streak = userStats.streak || 0;
+    var level = getLevel(xp);
+    var nextLevel = getNextLevel(xp);
+    var xpIntoLevel = nextLevel ? xp - level.min : xp;
+    var xpNeeded = nextLevel ? nextLevel.min - level.min : 1;
+    var levelPct = nextLevel ? Math.min(100, Math.round(xpIntoLevel / xpNeeded * 100)) : 100;
+    var earnedBadges = (userStats.badges || []).map(function(bid) {
+      return BADGES.find(function(b) { return b.id === bid; });
+    }).filter(Boolean);
+    html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
+    html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
+    html += '<div style="font-size:2.8rem;line-height:1">' + level.icon + '</div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8">Level · ' + level.name + '</div>';
+    html += '<div style="font-size:1.5rem;font-weight:900;letter-spacing:-0.5px">' + xp + ' XP</div>';
+    if (nextLevel) {
+      html += '<div style="background:rgba(255,255,255,.25);border-radius:10px;height:6px;margin-top:6px;overflow:hidden">';
+      html += '<div style="background:#fff;height:100%;width:' + levelPct + '%;border-radius:10px;transition:width .5s ease"></div></div>';
+      html += '<div style="font-size:.68rem;opacity:.8;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + '</div>';
+    }
+    html += '</div>';
+    html += '<div style="text-align:center;flex-shrink:0">';
+    html += '<div style="font-size:1.8rem;font-weight:900">' + (streak > 0 ? "🔥" : "💤") + ' ' + streak + '</div>';
+    html += '<div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.8">Day Streak</div>';
+    html += '</div></div>';
+    if (earnedBadges.length > 0) {
+      html += '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">';
+      earnedBadges.forEach(function(badge) {
+        html += '<div title="' + badge.name + ': ' + badge.desc + '" style="background:rgba(255,255,255,.2);border-radius:8px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:default">' + badge.icon + ' ' + badge.name + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
   // GPA card (if any)
   if (gpa !== null) {
     html += '<div class="gpa-card">';
@@ -1172,10 +1251,133 @@ window.toggleDone = async function(e, id) {
     var res = await sb.from("assignments").update({ status: newStatus }).eq("id", id);
     if (res.error) throw res.error;
     a.status = newStatus;
-    if (newStatus === "done") launchConfetti();
+    if (newStatus === "done") {
+      launchConfetti();
+      await awardXP(a);
+    } else {
+      await deductXP(a);
+    }
     renderActiveTab();
   } catch (err) { showToast(err.message, "error"); }
 };
+
+// ===== GAMIFICATION FUNCTIONS =====
+async function ensureStats() {
+  if (userStats) return userStats;
+  var res = await sb.from("user_stats").insert({
+    user_id: currentUser.id, xp: 0, streak: 0, badges: []
+  }).select().single();
+  if (res.error) throw res.error;
+  userStats = res.data;
+  return userStats;
+}
+
+async function awardXP(assignment) {
+  try {
+    var stats = await ensureStats();
+    var xpGain = XP_VALUES[assignment.type] || 20;
+    var today = new Date().toISOString().split("T")[0];
+    var lastDate = stats.last_completion_date;
+    var yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+    var newStreak = stats.streak || 0;
+    if (lastDate === today) {
+      // same day, streak unchanged
+    } else if (lastDate === yesterday) {
+      newStreak = newStreak + 1;
+    } else {
+      newStreak = 1;
+    }
+    var newXP = (stats.xp || 0) + xpGain;
+    var oldLevel = getLevel(stats.xp || 0);
+    var newLevel = getLevel(newXP);
+
+    // Check badges
+    var badges = stats.badges ? stats.badges.slice() : [];
+    var allDone = assignments.filter(function(a) { return a.status === "done"; });
+    var todayDone = allDone.filter(function(a) {
+      return a.status === "done";
+    });
+
+    function addBadge(id) {
+      if (badges.indexOf(id) === -1) badges.push(id);
+    }
+    if (allDone.length >= 1) addBadge("first_done");
+    if (newStreak >= 3) addBadge("streak_3");
+    if (newStreak >= 7) addBadge("streak_7");
+    if (newXP >= 100) addBadge("century");
+    if (allDone.length >= 10) addBadge("night_owl");
+    if (allDone.length >= 25) addBadge("scholar");
+    var examsDone = allDone.filter(function(a) { return a.type === "exam" || a.type === "test"; }).length;
+    if (examsDone >= 5) addBadge("exam_slayer");
+    // early bird: submitted before due date
+    if (assignment.due_date && today < assignment.due_date) addBadge("early_bird");
+    // check overdue cleared
+    var overdueLeft = assignments.filter(function(a) {
+      return a.status !== "done" && daysUntil(a.due_date) < 0;
+    }).length;
+    if (overdueLeft === 0 && allDone.length > 0) addBadge("clean_sweep");
+
+    var updates = {
+      xp: newXP,
+      streak: newStreak,
+      last_completion_date: today,
+      badges: badges
+    };
+    var upRes = await sb.from("user_stats").update(updates).eq("user_id", currentUser.id);
+    if (upRes.error) throw upRes.error;
+    userStats = Object.assign({}, stats, updates);
+
+    // Show XP toast
+    var msg = "+" + xpGain + " XP";
+    if (newLevel.name !== oldLevel.name) {
+      msg += " · Level up! " + newLevel.icon + " " + newLevel.name;
+      showLevelUpModal(newLevel);
+    } else if (newStreak > 1) {
+      msg += " · 🔥 " + newStreak + " day streak!";
+    }
+    showToast(msg, "success");
+
+    // Check for new badges
+    var newBadges = badges.filter(function(b) { return !stats.badges || stats.badges.indexOf(b) === -1; });
+    newBadges.forEach(function(bid) {
+      var badge = BADGES.find(function(b) { return b.id === bid; });
+      if (badge) {
+        setTimeout(function() {
+          showToast("🏆 Badge unlocked: " + badge.name + " " + badge.icon, "success");
+        }, 1500);
+      }
+    });
+  } catch (err) { console.error("XP error:", err); }
+}
+
+async function deductXP(assignment) {
+  try {
+    if (!userStats) return;
+    var xpLoss = XP_VALUES[assignment.type] || 20;
+    var newXP = Math.max(0, (userStats.xp || 0) - xpLoss);
+    var upRes = await sb.from("user_stats").update({ xp: newXP }).eq("user_id", currentUser.id);
+    if (upRes.error) throw upRes.error;
+    userStats = Object.assign({}, userStats, { xp: newXP });
+    showToast("-" + xpLoss + " XP");
+  } catch (err) { console.error("XP deduct error:", err); }
+}
+
+function showLevelUpModal(level) {
+  var existing = document.getElementById("levelup-modal");
+  if (existing) existing.remove();
+  var div = document.createElement("div");
+  div.id = "levelup-modal";
+  div.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  div.innerHTML = '<div style="background:var(--bg2);border:2px solid var(--accent);border-radius:20px;padding:40px;text-align:center;max-width:360px;width:90%;box-shadow:0 24px 60px rgba(108,71,255,.4);animation:fadeIn .4s ease">'
+    + '<div style="font-size:4rem;margin-bottom:10px">' + level.icon + '</div>'
+    + '<div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:6px">Level Up!</div>'
+    + '<div style="font-size:1.8rem;font-weight:900;letter-spacing:-1px;margin-bottom:8px">' + level.name + '</div>'
+    + '<div style="font-size:.85rem;color:var(--text3);margin-bottom:24px;font-weight:600">You reached a new level. Keep it up! 🚀</div>'
+    + '<button onclick="var e=document.getElementById(\'levelup-modal\');if(e)e.remove()" style="background:var(--accent);color:#fff;border:none;padding:10px 28px;border-radius:10px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:inherit">Awesome!</button>'
+    + '</div>';
+  document.body.appendChild(div);
+  div.addEventListener("click", function(e) { if (e.target === div) div.remove(); });
+}
 
 // ===== CONFETTI =====
 function launchConfetti() {
