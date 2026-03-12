@@ -1237,28 +1237,34 @@ function renderDashboard() {
       { key: "milestones",   label: "⚡ Milestones" }
     ];
     var badgesOpen = uiExpanded["badges"] || false;
-    // Header row — always visible
-    html += '<div onclick="toggleBadgesPanel()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:12px 16px;background:var(--bg2);border:1.5px solid var(--border);border-radius:' + (badgesOpen ? 'var(--radius) var(--radius) 0 0' : 'var(--radius)') + ';box-shadow:var(--card-shadow);margin-bottom:' + (badgesOpen ? '0' : '20px') + ';user-select:none">';
-    html += '<div style="display:flex;align-items:center;gap:10px">';
-    html += '<span style="font-size:1.1rem">🏅</span>';
-    html += '<span style="font-size:.88rem;font-weight:800;color:var(--text1)">Badges</span>';
-    html += '<span style="font-size:.72rem;font-weight:700;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 8px;border-radius:20px">' + earnedBadgeIds.length + ' / ' + BADGE_DEFS.length + '</span>';
-    // Mini earned icons preview (up to 5)
+    // Header — uses same section-title style as the rest of the dashboard
+    html += '<div class="section-title" onclick="toggleBadgesPanel()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;margin-bottom:' + (badgesOpen ? '8px' : '20px') + '">';
+    html += '<div style="display:flex;align-items:center;gap:8px">';
+    html += 'Badges';
+    html += '<span style="font-size:.72rem;font-weight:600;color:var(--text3)">' + earnedBadgeIds.length + ' / ' + BADGE_DEFS.length + ' earned</span>';
+    // Mini earned icon previews when collapsed
     if (!badgesOpen && earnedBadgeIds.length > 0) {
-      html += '<div style="display:flex;gap:4px;margin-left:4px">';
-      earnedBadgeIds.slice(0, 5).forEach(function(bid) {
+      html += '<div style="display:flex;gap:3px;margin-left:2px">';
+      earnedBadgeIds.slice(0, 6).forEach(function(bid) {
         var b = BADGE_DEFS.find(function(x) { return x.id === bid; });
-        if (b) html += '<div style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;font-size:.6rem" class="badge-chip" data-rarity="' + b.rarity + '"><div class="badge-chip__mark" style="width:22px;height:22px;border-radius:6px"><svg style="width:12px;height:12px" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg></div></div>';
+        if (!b) return;
+        var bg = b.rarity === 'epic' ? 'linear-gradient(135deg,#c084fc,#4a22cc)' :
+                 b.rarity === 'rare' ? 'linear-gradient(135deg,#9e74ff,#5632dd)' :
+                 b.rarity === 'uncommon' ? 'linear-gradient(135deg,#8b7cff,#5d42f2)' :
+                 'linear-gradient(135deg,#a98cff,#7e58ff)';
+        html += '<div style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;background:' + bg + '" title="' + esc(b.name) + '">';
+        html += '<svg style="width:12px;height:12px" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg>';
+        html += '</div>';
       });
-      if (earnedBadgeIds.length > 5) html += '<span style="font-size:.7rem;color:var(--text3);font-weight:700;align-self:center">+' + (earnedBadgeIds.length - 5) + '</span>';
+      if (earnedBadgeIds.length > 6) html += '<span style="font-size:.7rem;color:var(--text3);font-weight:700;align-self:center;margin-left:2px">+' + (earnedBadgeIds.length - 6) + '</span>';
       html += '</div>';
     }
     html += '</div>';
-    html += '<span style="font-size:.8rem;color:var(--text3);font-weight:700;transition:transform .2s;display:inline-block;transform:rotate(' + (badgesOpen ? '180' : '0') + 'deg)">▾</span>';
+    html += '<span style="font-size:.75rem;color:var(--text3);font-weight:700">' + (badgesOpen ? '▴ hide' : '▾ show') + '</span>';
     html += '</div>';
     // Expandable body
     if (badgesOpen) {
-      html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:16px 18px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
+      html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
       BADGE_CATS.forEach(function(cat) {
         var catBadges = BADGE_DEFS.filter(function(b) { return b.cat === cat.key; });
         html += '<div style="margin-bottom:16px">';
