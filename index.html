@@ -780,7 +780,17 @@ document.addEventListener("keydown", function(e) {
 });
 
 window.doSignOut = async function() {
-  await sb.auth.signOut();
+  try {
+    await sb.auth.signOut();
+  } catch(e) {
+    console.warn("signOut error:", e);
+  }
+  // Force UI reset regardless of signOut result
+  currentUser = null;
+  semesters = []; courses = []; assignments = [];
+  activeSemester = null; activeCourse = null;
+  document.getElementById("auth-screen").style.display = "flex";
+  document.getElementById("app-screen").style.display = "none";
 };
 
 // ===== THEME =====
