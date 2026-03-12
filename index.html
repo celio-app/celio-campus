@@ -1800,6 +1800,10 @@ sb.auth.onAuthStateChange(async function(event, session) {
       document.getElementById("tab-nav").style.display = "flex";
       document.getElementById("topbar-add-btn").style.display = "flex";
       showTab("dashboard");
+    } else {
+      // New user with no semesters — show sidebar and prompt to create one
+      document.getElementById("tab-nav").style.display = "none";
+      document.getElementById("topbar-add-btn").style.display = "none";
     }
   } else {
     document.getElementById("auth-screen").style.display = "flex";
