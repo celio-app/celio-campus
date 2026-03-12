@@ -161,8 +161,8 @@ input, select, textarea { font-family: inherit; }
 .sb-user:hover { background: var(--bg3); }
 .sb-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .75rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .sb-email { font-size: .72rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
-.sb-signout { background: none; border: none; cursor: pointer; color: var(--text4); font-size: .72rem; padding: 3px 6px; border-radius: 5px; white-space: nowrap; font-family: inherit; font-weight: 700; }
-.sb-signout:hover { background: var(--red-bg); color: var(--red); }
+.sb-signout { background: var(--bg3); border: 1.5px solid var(--border); cursor: pointer; color: var(--text3); font-size: .72rem; padding: 5px 10px; border-radius: 7px; white-space: nowrap; font-family: inherit; font-weight: 700; transition: background .15s, color .15s; }
+.sb-signout:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
 
 /* ===== MAIN CONTENT ===== */
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -467,7 +467,7 @@ select.inp { cursor: pointer; }
           <div style="flex:1;min-width:0;">
             <div class="sb-email" id="sb-email"></div>
           </div>
-          <button class="sb-signout" onclick="doSignOut()">Out</button>
+          <button class="sb-signout" onclick="doSignOut()">Sign Out</button>
         </div>
       </div>
     </nav>
@@ -1075,21 +1075,6 @@ function renderDashboard() {
     html += '</div>';
   }
 
-  // Grade card (if any weighted grades exist)
-  if (gpa !== null) {
-    var gradeColor = gpa >= 80 ? "var(--green)" : gpa >= 60 ? "var(--amber)" : "var(--red)";
-    var gradeLetter = gpa >= 90 ? "A" : gpa >= 80 ? "B" : gpa >= 70 ? "C" : gpa >= 60 ? "D" : "F";
-    html += '<div class="gpa-card">';
-    html += '<div class="gpa-icon">🎓</div>';
-    html += '<div class="gpa-info"><div class="gpa-label">Semester Grade</div>';
-    html += '<div class="gpa-value" style="color:' + gradeColor + '">' + gpa + '% <span style="font-size:1.2rem;color:var(--text3)">' + gradeLetter + '</span></div>';
-    if (activeSemester.gpa_goal) {
-      var goalMet = gpa >= activeSemester.gpa_goal;
-      html += '<div class="gpa-sub">Goal: ' + activeSemester.gpa_goal + '% &nbsp;·&nbsp; ' + (goalMet ? "✅ On track!" : "📈 Keep pushing") + '</div>';
-    }
-    html += '</div></div>';
-  }
-
   // Stat cards — clickable to jump to filtered assignments tab
   html += '<div class="stat-grid">';
   html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')" title="View all assignments"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div>';
@@ -1165,8 +1150,7 @@ function renderDashboard() {
       html += '<span style="font-size:.75rem;font-weight:800;color:' + (course.color||"var(--accent)") + '">' + cpct + '%</span>';
       if (cGrade) {
         var cColor = cGrade.grade >= 80 ? "var(--green)" : cGrade.grade >= 60 ? "var(--amber)" : "var(--red)";
-        html += '<div style="font-size:.68rem;font-weight:800;color:' + cColor + '">' + cGrade.grade + '% grade</div>';
-        html += '<div style="font-size:.62rem;color:var(--text3);font-weight:600">' + cGrade.weightCovered + '% covered</div>';
+        html += '<div style="font-size:.95rem;font-weight:900;color:' + cColor + '">' + cGrade.grade + '%</div>';
       }
       html += '</div>';
       html += '</div>';
