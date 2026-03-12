@@ -815,11 +815,10 @@ window.closeSidebar = function() {
 async function loadAll() {
   if (!currentUser) return;
   try {
-    var [semRes, courseRes, assignRes, statsRes] = await Promise.all([
+    var [semRes, courseRes, assignRes] = await Promise.all([
       sb.from("semesters").select("*").order("start_date", { ascending: true }),
       sb.from("courses").select("*").order("code"),
-      sb.from("assignments").select("*").order("due_date", { ascending: true }),
-      sb.from("user_stats").select("*").eq("user_id", currentUser.id).maybeSingle()
+      sb.from("assignments").select("*").order("due_date", { ascending: true })
     ]);
     if (semRes.error) throw semRes.error;
     if (courseRes.error) throw courseRes.error;
@@ -827,7 +826,13 @@ async function loadAll() {
     semesters = semRes.data || [];
     courses = courseRes.data || [];
     assignments = assignRes.data || [];
-    userStats = statsRes.data || null;
+    // Load stats separately so it never blocks the main data
+    try {
+      var statsRes = await sb.from("user_stats").select("*").eq("user_id", currentUser.id).maybeSingle();
+      userStats = (statsRes && statsRes.data) ? statsRes.data : null;
+    } catch(statsErr) {
+      userStats = null;
+    }
 
     // Restore last active semester
     var savedSemId = safeStorage.get("celio-campus-sem-" + currentUser.id);
