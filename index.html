@@ -1266,7 +1266,7 @@ function renderAssignments() {
           html += '<span style="font-size:.9rem;font-weight:900;color:' + gradeColor + '">' + gradePct + '%</span>';
           html += '<span style="font-size:.68rem;color:var(--text3);margin-left:4px">' + a.marks_received + '/' + a.total_marks + '</span>';
         } else {
-          html += '<input class="grade-quick-input" type="number" min="0" max="' + a.total_marks + '" step="0.5" placeholder="Score" title="Enter marks out of ' + a.total_marks + '" onkeydown="if(event.key===\'Enter\')saveInlineGrade(event,\'' + a.id + '\',' + a.total_marks + ')" onblur="saveInlineGrade(event,\'' + a.id + '\',' + a.total_marks + ')" onclick="event.stopPropagation()">';
+          html += '<input class="grade-quick-input" type="number" min="0" max="' + a.total_marks + '" step="0.5" placeholder="Score" title="Enter marks out of ' + a.total_marks + '" onchange="saveInlineGrade(event,\'' + a.id + '\',' + a.total_marks + ')" onkeydown="if(event.key===\'Enter\'){saveInlineGrade(event,\'' + a.id + '\',' + a.total_marks + ');this.blur()}" onclick="event.stopPropagation()">';
           html += '<span style="font-size:.68rem;color:var(--text3);font-weight:700;margin-left:3px">/ ' + a.total_marks + '</span>';
         }
         html += '</div>';
@@ -1292,14 +1292,13 @@ window.saveInlineGrade = async function(e, id, totalMarks) {
   if (val > totalMarks) val = totalMarks;
   var a = assignments.find(function(x) { return x.id === id; });
   if (!a) return;
-  // Update in memory immediately so toggleDone can read it right away
-  a.marks_received = val;
+  a.marks_received = val; // update memory immediately so checkbox works right away
   try {
     var res = await sb.from("assignments").update({ marks_received: val }).eq("id", id);
     if (res.error) throw res.error;
-    renderAssignments();
+    renderAssignments(); // re-render after confirmed save to show % badge
   } catch(err) {
-    a.marks_received = null; // revert on failure
+    a.marks_received = null;
     showToast(err.message, "error");
   }
 };
@@ -1898,9 +1897,9 @@ window.saveAssignment = async function() {
       due_date: document.getElementById("a-due").value || null,
       priority: document.getElementById("a-priority").value,
       status: document.getElementById("a-status").value,
-      notes: document.getElementById("a-notes").value.trim() || null,
-      user_id: currentUser.id
+      notes: document.getElementById("a-notes").value.trim() || null
     };
+    if (!editingAssignmentId) payload.user_id = currentUser.id;
     var wVal = document.getElementById("a-weight").value;
     var tmVal = document.getElementById("a-total-marks").value;
     var mrVal = document.getElementById("a-marks-received").value;
