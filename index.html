@@ -295,6 +295,12 @@ input, select, textarea { font-family: inherit; }
 .cal-event { cursor: grab; user-select: none; transition: opacity .15s; }
 .cal-event:active { cursor: grabbing; }
 .cal-event-done { opacity: .6; text-decoration: line-through; }
+.a-grade-inline { display:flex;align-items:center;gap:3px;flex-shrink:0;margin-right:10px; }
+.grade-quick-input { width:58px;padding:4px 7px;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-weight:700;background:var(--bg3);color:var(--text1);font-family:inherit;text-align:center; }
+.grade-quick-input:focus { outline:none;border-color:var(--accent);background:var(--bg2); }
+.grade-quick-input.shake { animation:shake .4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+.a-checkbox.needs-grade { border-color:var(--amber);opacity:.45;cursor:not-allowed; }
 .cal-day-num { font-size: .72rem; font-weight: 800; text-align: right; color: var(--text2); padding: 0 2px; }
 .cal-day.today .cal-day-num { color: var(--accent); }
 .cal-event { font-size: .62rem; font-weight: 700; padding: 2px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
@@ -1240,15 +1246,30 @@ function renderAssignments() {
         else if (days === 0) dueText = "Due today!";
         else if (days === 1) dueText += " (tomorrow)";
       }
+      var hasGrade = a.marks_received != null && a.total_marks != null && a.total_marks > 0;
+      var gradePct = hasGrade ? Math.round(a.marks_received / a.total_marks * 100) : null;
+      var gradeColor = gradePct != null ? (gradePct >= 80 ? "var(--green)" : gradePct >= 60 ? "var(--amber)" : "var(--red)") : "var(--text3)";
+      var needsGrade = a.total_marks != null && a.total_marks > 0 && !hasGrade && a.status !== "done";
       html += '<div class="assignment-row' + (a.status === "done" ? " done-row" : "") + '" onclick="openEditAssignment(\'' + a.id + '\')">';
-      html += '<div class="a-checkbox' + (a.status === "done" ? " checked" : "") + '" onclick="toggleDone(event,\'' + a.id + '\')"></div>';
+      html += '<div class="a-checkbox' + (a.status === "done" ? " checked" : (needsGrade ? " needs-grade" : "")) + '" title="' + (needsGrade ? "Enter marks first" : "") + '" onclick="toggleDone(event,\'' + a.id + '\')"></div>';
       html += '<div class="a-info">';
-      html += '<div class="a-title" style="' + (a.status === "done" ? "text-decoration:line-through" : "") + '">' + esc(a.title) + '</div>';
+      html += '<div class="a-title" style="' + (a.status === "done" ? "text-decoration:line-through;opacity:.6" : "") + '">' + esc(a.title) + '</div>';
       html += '<div class="a-meta">';
       if (course) html += '<span class="a-course-tag" style="background:' + (course.color||"#6c47ff") + '22;color:' + (course.color||"#6c47ff") + '">' + esc(course.code) + '</span>';
       html += '<span class="a-type-tag type-' + (a.type||"assignment") + '">' + (TYPE_EMOJI[a.type]||"📝") + ' ' + (a.type||"assignment") + '</span>';
-      if (a.grade) html += '<span style="color:var(--green);font-weight:800">📊 ' + esc(a.grade) + '</span>';
+      if (a.weight) html += '<span style="font-size:.68rem;color:var(--text3);font-weight:700">' + a.weight + '% weight</span>';
       html += '</div></div>';
+      if (a.total_marks != null && a.total_marks > 0) {
+        html += '<div class="a-grade-inline" onclick="event.stopPropagation()">';
+        if (hasGrade) {
+          html += '<span style="font-size:.9rem;font-weight:900;color:' + gradeColor + '">' + gradePct + '%</span>';
+          html += '<span style="font-size:.68rem;color:var(--text3);margin-left:4px">' + a.marks_received + '/' + a.total_marks + '</span>';
+        } else {
+          html += '<input class="grade-quick-input" type="number" min="0" max="' + a.total_marks + '" step="0.5" placeholder="Score" title="Enter marks out of ' + a.total_marks + '" onkeydown="if(event.key===\'Enter\')saveInlineGrade(event,\'' + a.id + '\',' + a.total_marks + ')" onblur="saveInlineGrade(event,\'' + a.id + '\',' + a.total_marks + ')" onclick="event.stopPropagation()">';
+          html += '<span style="font-size:.68rem;color:var(--text3);font-weight:700;margin-left:3px">/ ' + a.total_marks + '</span>';
+        }
+        html += '</div>';
+      }
       html += '<div class="' + dueClass + ' a-due">' + dueText + '</div>';
       html += '<div class="a-priority prio-' + (a.priority||"med") + '"></div>';
       html += '</div>';
@@ -1262,10 +1283,41 @@ function renderAssignments() {
 
 window.setFilter = function(f) { assignFilter = f; renderAssignments(); };
 window.setSearch = function(v) { assignSearch = v; renderAssignments(); };
+
+window.saveInlineGrade = async function(e, id, totalMarks) {
+  var val = parseFloat(e.target.value);
+  if (isNaN(val) || e.target.value === "") return;
+  if (val < 0) val = 0;
+  if (val > totalMarks) val = totalMarks;
+  var a = assignments.find(function(x) { return x.id === id; });
+  if (!a) return;
+  try {
+    var res = await sb.from("assignments").update({ marks_received: val }).eq("id", id);
+    if (res.error) throw res.error;
+    a.marks_received = val;
+    renderAssignments();
+  } catch(err) { showToast(err.message, "error"); }
+};
+
 window.toggleDone = async function(e, id) {
   e.stopPropagation();
   var a = assignments.find(function(x) { return x.id === id; });
   if (!a) return;
+  // Block completion if total_marks set but no marks_received
+  if (a.status !== "done" && a.total_marks != null && a.total_marks > 0 && (a.marks_received == null)) {
+    showToast("Enter your score first! ✏️", "error");
+    // Shake the grade input
+    var input = document.querySelector('[data-id="' + id + '"] .grade-quick-input, .assignment-row .grade-quick-input');
+    var rows = document.querySelectorAll(".assignment-row");
+    rows.forEach(function(row) {
+      var cb = row.querySelector(".a-checkbox");
+      if (cb && cb.getAttribute("onclick") && cb.getAttribute("onclick").includes(id)) {
+        var gi = row.querySelector(".grade-quick-input");
+        if (gi) { gi.classList.add("shake"); gi.focus(); setTimeout(function() { gi.classList.remove("shake"); }, 500); }
+      }
+    });
+    return;
+  }
   var newStatus = a.status === "done" ? "todo" : "done";
   try {
     var res = await sb.from("assignments").update({ status: newStatus }).eq("id", id);
