@@ -301,6 +301,7 @@ input, select, textarea { font-family: inherit; }
 .grade-quick-input:focus { outline:none;border-color:var(--accent);background:var(--bg2); }
 .grade-quick-input.shake { animation:shake .4s; }
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+@keyframes slideIn { from { transform: translateX(120%); opacity:0; } to { transform: translateX(0); opacity:1; } }
 .a-checkbox.needs-grade { border-color:var(--amber);opacity:.45;cursor:not-allowed; }
 .cal-day-num { font-size: .72rem; font-weight: 800; text-align: right; color: var(--text2); padding: 0 2px; }
 .cal-day.today .cal-day-num { color: var(--accent); }
@@ -505,6 +506,7 @@ select.inp { cursor: pointer; }
 
 <!-- TOAST -->
 <div id="toast"></div>
+<div id="toast-container" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none"></div>
 
 <!-- SEMESTER MODAL -->
 <div class="modal-bg" id="sem-modal">
@@ -713,25 +715,37 @@ var TYPE_EMOJI = {
 };
 
 // ===== GAMIFICATION =====
-var XP_VALUES = { assignment: 20, exam: 40, test: 30, quiz: 10, lab: 25, project: 50 };
+var XP_VALUES = { assignment: 20, exam: 50, test: 30, quiz: 10, lab: 25, project: 50 };
+var XP_HABIT = 10;
+var XP_GRADE_A = 25;
+var XP_GRADE_B = 15;
+var XP_SEMESTER = 200;
 var LEVELS = [
-  { name: "Freshman",    min: 0,    icon: "🎒" },
-  { name: "Sophomore",   min: 200,  icon: "📖" },
-  { name: "Junior",      min: 500,  icon: "🎯" },
-  { name: "Senior",      min: 1000, icon: "🏆" },
-  { name: "Graduate",    min: 2000, icon: "🎓" },
-  { name: "Deans List",  min: 3500, icon: "⭐" },
-  { name: "Legend",      min: 5000, icon: "👑" }
+  { name: "Freshman",   min: 0,    icon: "🎒", theme: "default" },
+  { name: "Sophomore",  min: 200,  icon: "📖", theme: "ocean" },
+  { name: "Junior",     min: 500,  icon: "🎯", theme: "sakura" },
+  { name: "Senior",     min: 1000, icon: "🏆", theme: "forest" },
+  { name: "Graduate",   min: 2000, icon: "🎓", theme: "midnight" },
+  { name: "Deans List", min: 3500, icon: "⭐", theme: "ember" },
+  { name: "Legend",     min: 5000, icon: "👑", theme: "gold" }
 ];
 var BADGES = [
-  { id: "first_done",  icon: "🌱", name: "First Step",   desc: "Complete your first assignment" },
-  { id: "streak_3",    icon: "🔥", name: "On Fire",      desc: "3 day streak" },
-  { id: "streak_7",    icon: "🌋", name: "Unstoppable",  desc: "7 day streak" },
-  { id: "early_bird",  icon: "🐦", name: "Early Bird",   desc: "Submit before the due date" },
-  { id: "exam_slayer", icon: "📋", name: "Exam Slayer",  desc: "Complete 5 exams or tests" },
-  { id: "century",     icon: "💯", name: "Century",      desc: "Reach 100 XP" },
-  { id: "scholar",     icon: "📚", name: "Scholar",      desc: "Complete 25 assignments" },
-  { id: "night_owl",   icon: "🦉", name: "Night Owl",    desc: "Complete 10 assignments" }
+  { id: "first_done",    icon: "🌱", name: "First Step",     desc: "Complete your first assignment",         cat: "assignments" },
+  { id: "night_owl",     icon: "🦉", name: "Night Owl",      desc: "Complete 10 assignments",                cat: "assignments" },
+  { id: "scholar",       icon: "📚", name: "Scholar",        desc: "Complete 25 assignments",                cat: "assignments" },
+  { id: "grinder",       icon: "💪", name: "Grinder",        desc: "Complete 50 assignments",                cat: "assignments" },
+  { id: "early_bird",    icon: "🐦", name: "Early Bird",     desc: "Submit an assignment before its due date", cat: "assignments" },
+  { id: "exam_slayer",   icon: "📋", name: "Exam Slayer",    desc: "Complete 5 exams or tests",              cat: "assignments" },
+  { id: "honour_roll",   icon: "🎓", name: "Honour Roll",    desc: "Score 80% or higher on an assignment",   cat: "grades" },
+  { id: "overachiever",  icon: "⭐", name: "Overachiever",   desc: "Score 90% or higher on an assignment",   cat: "grades" },
+  { id: "streak_3",      icon: "🔥", name: "On Fire",        desc: "3-day habit streak",                     cat: "habits" },
+  { id: "streak_7",      icon: "🌋", name: "Unstoppable",    desc: "7-day habit streak",                     cat: "habits" },
+  { id: "zen_master",    icon: "🧘", name: "Zen Master",     desc: "14-day habit streak",                    cat: "habits" },
+  { id: "perfect_week",  icon: "🌟", name: "Perfect Week",   desc: "Complete all habits for 7 days straight", cat: "habits" },
+  { id: "century",       icon: "💯", name: "Century",        desc: "Reach 100 XP",                           cat: "xp" },
+  { id: "rocket",        icon: "🚀", name: "Rocket",         desc: "Reach Junior level (500 XP)",            cat: "xp" },
+  { id: "finisher",      icon: "🏁", name: "Finisher",       desc: "Complete a full semester",               cat: "xp" },
+  { id: "legend_badge",  icon: "👑", name: "Legend",         desc: "Reach Legend level (5000 XP)",           cat: "xp" }
 ];
 function getLevel(xp) {
   var level = LEVELS[0];
@@ -1086,9 +1100,9 @@ function renderDashboard() {
     var level = getLevel(xp);
     var nextLevel = getNextLevel(xp);
     var levelPct = nextLevel ? Math.min(100, Math.round((xp - level.min) / (nextLevel.min - level.min) * 100)) : 100;
-    var earnedBadges = (userStats.badges || []).map(function(bid) {
-      return BADGES.find(function(b) { return b.id === bid; });
-    }).filter(Boolean);
+    var earnedBadgeIds = userStats.badges || [];
+
+    // XP card
     html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
     html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
     html += '<div style="font-size:2.8rem;line-height:1">' + level.icon + '</div>';
@@ -1098,20 +1112,39 @@ function renderDashboard() {
     if (nextLevel) {
       html += '<div style="background:rgba(255,255,255,.25);border-radius:10px;height:6px;margin-top:6px;overflow:hidden">';
       html += '<div style="background:#fff;height:100%;width:' + levelPct + '%;border-radius:10px"></div></div>';
-      html += '<div style="font-size:.68rem;opacity:.8;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + '</div>';
+      html += '<div style="font-size:.68rem;opacity:.8;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + ' ' + nextLevel.icon + '</div>';
     }
     html += '</div>';
     html += '<div style="text-align:center;flex-shrink:0">';
     html += '<div style="font-size:1.8rem;font-weight:900">' + (streak > 0 ? "🔥" : "💤") + ' ' + streak + '</div>';
     html += '<div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.8">Day Streak</div>';
     html += '</div></div>';
-    if (earnedBadges.length > 0) {
-      html += '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">';
-      earnedBadges.forEach(function(badge) {
-        html += '<div title="' + badge.desc + '" style="background:rgba(255,255,255,.2);border-radius:8px;padding:4px 10px;font-size:.75rem;font-weight:700">' + badge.icon + ' ' + badge.name + '</div>';
+    html += '</div>';
+
+    // Badges section
+    var BADGE_CATS = [
+      { key: "assignments", label: "📝 Assignments" },
+      { key: "grades",      label: "🎓 Grades" },
+      { key: "habits",      label: "🧘 Habits" },
+      { key: "xp",          label: "⚡ Milestones" }
+    ];
+    html += '<div class="section-title">Badges <span style="font-size:.75rem;font-weight:600;color:var(--text3)">' + earnedBadgeIds.length + ' / ' + BADGES.length + ' earned</span></div>';
+    html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
+    BADGE_CATS.forEach(function(cat) {
+      var catBadges = BADGES.filter(function(b) { return b.cat === cat.key; });
+      html += '<div style="margin-bottom:14px">';
+      html += '<div style="font-size:.72rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">' + cat.label + '</div>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:8px">';
+      catBadges.forEach(function(badge) {
+        var earned = earnedBadgeIds.indexOf(badge.id) > -1;
+        html += '<div title="' + esc(badge.desc) + '" style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;border:1.5px solid ' + (earned ? "var(--accent)" : "var(--border)") + ';background:' + (earned ? "var(--accent-bg)" : "var(--bg3)") + ';opacity:' + (earned ? "1" : ".45") + ';transition:all .15s">';
+        html += '<span style="font-size:1.1rem">' + badge.icon + '</span>';
+        html += '<div><div style="font-size:.75rem;font-weight:800;color:' + (earned ? "var(--accent)" : "var(--text2)") + '">' + esc(badge.name) + '</div>';
+        html += '<div style="font-size:.62rem;color:var(--text3);font-weight:600">' + esc(badge.desc) + '</div></div>';
+        html += '</div>';
       });
-      html += '</div>';
-    }
+      html += '</div></div>';
+    });
     html += '</div>';
   }
 
@@ -1372,54 +1405,90 @@ async function ensureStats() {
   return userStats;
 }
 
+function checkAndAddBadges(badges, allDone, newXP, newStreak, assignment) {
+  function add(bid) { if (badges.indexOf(bid) === -1) badges.push(bid); }
+  var today = new Date().toISOString().split("T")[0];
+  // Assignment badges
+  if (allDone.length >= 1) add("first_done");
+  if (allDone.length >= 10) add("night_owl");
+  if (allDone.length >= 25) add("scholar");
+  if (allDone.length >= 50) add("grinder");
+  var examsDone = allDone.filter(function(a) { return a.type === "exam" || a.type === "test"; }).length;
+  if (examsDone >= 5) add("exam_slayer");
+  if (assignment && assignment.due_date && today < assignment.due_date) add("early_bird");
+  // Grade badges
+  if (assignment && assignment.marks_received != null && assignment.total_marks > 0) {
+    var pct = assignment.marks_received / assignment.total_marks * 100;
+    if (pct >= 80) add("honour_roll");
+    if (pct >= 90) add("overachiever");
+  }
+  // Streak badges
+  if (newStreak >= 3) add("streak_3");
+  if (newStreak >= 7) add("streak_7");
+  if (newStreak >= 14) add("zen_master");
+  // XP badges
+  if (newXP >= 100) add("century");
+  if (newXP >= 500) add("rocket");
+  if (newXP >= 5000) add("legend_badge");
+  return badges;
+}
+
 async function awardXP(assignment) {
   try {
     var stats = await ensureStats();
     var xpGain = XP_VALUES[assignment.type] || 20;
+    // Bonus XP for grade
+    if (assignment.marks_received != null && assignment.total_marks > 0) {
+      var pct = assignment.marks_received / assignment.total_marks * 100;
+      if (pct >= 90) xpGain += XP_GRADE_A;
+      else if (pct >= 80) xpGain += XP_GRADE_B;
+    }
     var today = new Date().toISOString().split("T")[0];
     var yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
     var lastDate = stats.last_completion_date;
     var newStreak = stats.streak || 0;
-    if (lastDate === today) {
-      // same day, no streak change
-    } else if (lastDate === yesterday) {
-      newStreak = newStreak + 1;
-    } else {
-      newStreak = 1;
-    }
+    if (lastDate === today) { /* same day */ }
+    else if (lastDate === yesterday) { newStreak++; }
+    else { newStreak = 1; }
     var newXP = (stats.xp || 0) + xpGain;
     var oldLevel = getLevel(stats.xp || 0);
     var newLevel = getLevel(newXP);
-    var badges = stats.badges ? stats.badges.slice() : [];
+    var oldBadges = stats.badges ? stats.badges.slice() : [];
     var allDone = assignments.filter(function(a) { return a.status === "done"; });
-    function addBadge(bid) { if (badges.indexOf(bid) === -1) badges.push(bid); }
-    if (allDone.length >= 1) addBadge("first_done");
-    if (newStreak >= 3) addBadge("streak_3");
-    if (newStreak >= 7) addBadge("streak_7");
-    if (newXP >= 100) addBadge("century");
-    if (allDone.length >= 10) addBadge("night_owl");
-    if (allDone.length >= 25) addBadge("scholar");
-    var examsDone = allDone.filter(function(a) { return a.type === "exam" || a.type === "test"; }).length;
-    if (examsDone >= 5) addBadge("exam_slayer");
-    if (assignment.due_date && today < assignment.due_date) addBadge("early_bird");
+    var badges = checkAndAddBadges(oldBadges.slice(), allDone, newXP, newStreak, assignment);
     var updates = { xp: newXP, streak: newStreak, last_completion_date: today, badges: badges };
     var upRes = await sb.from("user_stats").update(updates).eq("user_id", currentUser.id);
     if (upRes.error) throw upRes.error;
-    var oldStats = userStats;
     userStats = Object.assign({}, stats, updates);
+    // Toast: XP gain
     var msg = "+" + xpGain + " XP";
     if (newLevel.name !== oldLevel.name) {
-      msg += " · Level up! " + newLevel.icon + " " + newLevel.name;
+      // Level up — show special badge toast
+      setTimeout(function() {
+        showBadgeToast({ icon: newLevel.icon, name: "Level Up! " + newLevel.name, desc: "You reached " + newLevel.name + " · " + newXP + " XP total" });
+      }, 500);
+      if (activeTab === "dashboard") renderDashboard();
     } else if (newStreak > 1) {
-      msg += " · " + newStreak + " day streak!";
+      msg += " · " + newStreak + " day streak! 🔥";
     }
     showToast(msg, "success");
-    var newBadges = badges.filter(function(b) { return !oldStats.badges || oldStats.badges.indexOf(b) === -1; });
+    // Toast: new badges
+    var newBadges = badges.filter(function(b) { return oldBadges.indexOf(b) === -1; });
     newBadges.forEach(function(bid, i) {
       var badge = BADGES.find(function(b) { return b.id === bid; });
-      if (badge) setTimeout(function() { showToast("Badge: " + badge.name + " " + badge.icon, "success"); }, 1500 * (i+1));
+      if (badge) setTimeout(function() { showBadgeToast(badge); if (activeTab === "dashboard") renderDashboard(); }, 1800 * (i + 1));
     });
   } catch(err) { console.warn("XP error:", err); }
+}
+
+function showBadgeToast(badge) {
+  var container = document.getElementById("toast-container");
+  if (!container) return;
+  var el = document.createElement("div");
+  el.style.cssText = "background:linear-gradient(135deg,#6c47ff,#ec4899);color:#fff;padding:12px 18px;border-radius:14px;box-shadow:0 6px 24px rgba(108,71,255,.4);display:flex;align-items:center;gap:10px;font-family:inherit;animation:slideIn .3s ease;max-width:280px;";
+  el.innerHTML = '<div style="font-size:1.8rem">' + badge.icon + '</div><div><div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.85">Badge Unlocked!</div><div style="font-size:.95rem;font-weight:900">' + badge.name + '</div><div style="font-size:.7rem;opacity:.8;margin-top:1px">' + badge.desc + '</div></div>';
+  container.appendChild(el);
+  setTimeout(function() { el.style.opacity = "0"; el.style.transition = "opacity .4s"; setTimeout(function() { el.remove(); }, 400); }, 4000);
 }
 
 async function deductXP(assignment) {
