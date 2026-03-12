@@ -624,13 +624,15 @@ select.inp { cursor: pointer; }
       <span id="habit-modal-title">New Habit</span>
       <button class="modal-close" onclick="closeHabitModal()">✕</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div><label class="flbl">Habit Name</label><input id="h-name" class="inp" placeholder="e.g. Review notes, Study 1 hour"></div>
-      <div class="form-grid-2">
-        <div><label class="flbl">Icon</label><input id="h-icon" class="inp" placeholder="⭐" maxlength="2" style="font-size:1.4rem;text-align:center"></div>
-        <div><label class="flbl">Colour</label>
-          <div class="color-swatches" id="h-color-picker"></div>
-        </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div><label class="flbl">Habit Name</label><input id="h-name" class="inp" placeholder="e.g. Meditate, Review notes, Exercise"></div>
+      <div><label class="flbl">Description <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional)</span></label><input id="h-notes" class="inp" placeholder="e.g. 5 minutes of deep breathing"></div>
+      <div><label class="flbl">Icon</label>
+        <div id="h-icon-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+        <input type="hidden" id="h-icon" value="🧘">
+      </div>
+      <div><label class="flbl">Colour</label>
+        <div class="color-swatches" id="h-color-picker"></div>
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
@@ -2023,8 +2025,8 @@ function renderHabits() {
       html += '<div style="font-size:1.4rem;flex-shrink:0">' + icon + '</div>';
       html += '<div style="flex:1;min-width:0">';
       html += '<div style="font-size:.95rem;font-weight:800;' + (done ? "text-decoration:line-through;color:var(--text3)" : "color:var(--text1)") + '">' + esc(h.name) + '</div>';
-      // Streak
-      html += '<div style="font-size:.72rem;color:var(--text3);font-weight:600;margin-top:2px" id="streak-' + h.id + '">loading streak...</div>';
+      if (h.notes) html += '<div style="font-size:.75rem;color:var(--text3);font-weight:600;margin-top:1px">' + esc(h.notes) + '</div>';
+      html += '<div style="font-size:.72rem;color:' + color + ';font-weight:700;margin-top:3px;opacity:.8" id="streak-' + h.id + '">...</div>';
       html += '</div>';
       // Edit button
       html += '<button onclick="openEditHabitModal(\'' + h.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:.8rem;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'none\'">Edit</button>';
@@ -2112,6 +2114,35 @@ async function awardHabitXP(habitId) {
 }
 
 // Habit modal
+var HABIT_ICONS = [
+  "🧘","🏃","📖","✍️","💧","🥗","😴","🧠","🎵","🌿",
+  "🌅","🙏","💪","🎯","📝","🌊","🔥","⭐","💡","🎨",
+  "🧹","📵","🥤","🫁","🌙","☀️","🤸","📚","✅","💬"
+];
+
+function populateHabitIconPicker(selected) {
+  var el = document.getElementById("h-icon-picker");
+  if (!el) return;
+  el.innerHTML = "";
+  HABIT_ICONS.forEach(function(icon) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = icon;
+    btn.title = icon;
+    btn.style.cssText = "width:36px;height:36px;border-radius:8px;border:2px solid " + (icon === selected ? "var(--accent)" : "var(--border)") + ";background:" + (icon === selected ? "var(--accent-bg)" : "var(--bg3)") + ";cursor:pointer;font-size:1.1rem;transition:all .12s;";
+    btn.onclick = function() {
+      document.getElementById("h-icon").value = icon;
+      document.querySelectorAll("#h-icon-picker button").forEach(function(b) {
+        b.style.borderColor = "var(--border)";
+        b.style.background = "var(--bg3)";
+      });
+      btn.style.borderColor = "var(--accent)";
+      btn.style.background = "var(--accent-bg)";
+    };
+    el.appendChild(btn);
+  });
+}
+
 function populateHabitColorPicker(selected) {
   var el = document.getElementById("h-color-picker");
   if (!el) return;
@@ -2139,8 +2170,10 @@ window.openAddHabitModal = function() {
   editingHabitId = null;
   document.getElementById("habit-modal-title").textContent = "New Habit";
   document.getElementById("h-name").value = "";
-  document.getElementById("h-icon").value = "⭐";
+  document.getElementById("h-notes").value = "";
+  document.getElementById("h-icon").value = "🧘";
   document.getElementById("habit-delete-btn").style.display = "none";
+  populateHabitIconPicker("🧘");
   populateHabitColorPicker("#6c47ff");
   document.getElementById("habit-modal").classList.add("open");
 };
@@ -2151,7 +2184,9 @@ window.openEditHabitModal = function(id) {
   editingHabitId = id;
   document.getElementById("habit-modal-title").textContent = "Edit Habit";
   document.getElementById("h-name").value = h.name || "";
-  document.getElementById("h-icon").value = h.icon || "⭐";
+  document.getElementById("h-notes").value = h.notes || "";
+  document.getElementById("h-icon").value = h.icon || "🧘";
+  populateHabitIconPicker(h.icon || "🧘");
   document.getElementById("habit-delete-btn").style.display = "inline-flex";
   populateHabitColorPicker(h.color || "#6c47ff");
   document.getElementById("habit-modal").classList.add("open");
@@ -2168,7 +2203,8 @@ window.saveHabit = async function() {
   var colorEl = document.querySelector("#h-color-picker .color-swatch.selected");
   var color = colorEl ? colorEl.getAttribute("data-color") : "#6c47ff";
   try {
-    var payload = { name: name, icon: icon, color: color };
+    var notes = document.getElementById("h-notes").value.trim() || null;
+  var payload = { name: name, icon: icon, color: color, notes: notes };
     var res;
     if (editingHabitId) {
       res = await sb.from("habits").update(payload).eq("id", editingHabitId).select().single();
