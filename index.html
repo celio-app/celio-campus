@@ -1882,7 +1882,7 @@ window.addEventListener("DOMContentLoaded", function() {
 });
 
 // ===== AUTH STATE LISTENER =====
-sb.auth.onAuthStateChange(async function(event, session) {
+async function applySession(session) {
   currentUser = session ? session.user : null;
   if (currentUser) {
     document.getElementById("auth-screen").style.display = "none";
@@ -1905,6 +1905,16 @@ sb.auth.onAuthStateChange(async function(event, session) {
     semesters = []; courses = []; assignments = [];
     activeSemester = null; activeCourse = null;
   }
+}
+
+// Bootstrap session on page load
+sb.auth.getSession().then(function(result) {
+  applySession(result.data.session);
+});
+
+// Handle auth changes (login, logout)
+sb.auth.onAuthStateChange(async function(event, session) {
+  await applySession(session);
 });
 
 })();
