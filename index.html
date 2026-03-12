@@ -65,6 +65,76 @@
   --card-shadow: none;
 }
 
+/* ===== LEVEL PALETTES ===== */
+/* Each palette overrides accent colours only — light/dark still works independently */
+
+[data-palette="ocean"] {
+  --accent:    #0ea5e9;
+  --accent2:   #38bdf8;
+  --accent-bg: #e0f7ff;
+}
+[data-theme="dark"][data-palette="ocean"] {
+  --accent:    #38bdf8;
+  --accent2:   #7dd3fc;
+  --accent-bg: #0c2535;
+}
+
+[data-palette="sakura"] {
+  --accent:    #e11d78;
+  --accent2:   #f43f9a;
+  --accent-bg: #fce7f3;
+}
+[data-theme="dark"][data-palette="sakura"] {
+  --accent:    #f472b6;
+  --accent2:   #f9a8d4;
+  --accent-bg: #2d0a1e;
+}
+
+[data-palette="forest"] {
+  --accent:    #16a34a;
+  --accent2:   #22c55e;
+  --accent-bg: #dcfce7;
+}
+[data-theme="dark"][data-palette="forest"] {
+  --accent:    #34d399;
+  --accent2:   #6ee7b7;
+  --accent-bg: #052e16;
+}
+
+[data-palette="midnight"] {
+  --accent:    #4f46e5;
+  --accent2:   #6366f1;
+  --accent-bg: #eef2ff;
+}
+[data-theme="dark"][data-palette="midnight"] {
+  --accent:    #818cf8;
+  --accent2:   #a5b4fc;
+  --accent-bg: #1e1b4b;
+}
+
+[data-palette="ember"] {
+  --accent:    #ea580c;
+  --accent2:   #f97316;
+  --accent-bg: #fff7ed;
+}
+[data-theme="dark"][data-palette="ember"] {
+  --accent:    #fb923c;
+  --accent2:   #fdba74;
+  --accent-bg: #1c0a00;
+}
+
+[data-palette="gold"] {
+  --accent:    #b45309;
+  --accent2:   #d97706;
+  --accent-bg: #fffbeb;
+}
+[data-theme="dark"][data-palette="gold"] {
+  --accent:    #fbbf24;
+  --accent2:   #fcd34d;
+  --accent-bg: #1c1200;
+}
+
+
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: "Nunito", system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
@@ -941,6 +1011,18 @@ window.toggleTheme = function() {
   document.querySelector(".theme-btn").textContent = next === "dark" ? "☀" : "🌙";
 };
 
+function applyLevelPalette(xp) {
+  var level = getLevel(xp);
+  var palette = (level.theme && level.theme !== "default") ? level.theme : "";
+  var html = document.documentElement;
+  if (palette) {
+    html.setAttribute("data-palette", palette);
+  } else {
+    html.removeAttribute("data-palette");
+  }
+  localStorage.setItem("celio-campus-palette", palette || "");
+}
+
 // ===== SIDEBAR TOGGLE =====
 window.toggleSidebar = function() {
   var sb = document.getElementById("sidebar");
@@ -977,6 +1059,7 @@ async function loadAll() {
     try {
       var statsRes = await sb.from("user_stats").select("*").eq("user_id", currentUser.id).maybeSingle();
       userStats = (statsRes && statsRes.data) ? statsRes.data : null;
+      if (userStats) applyLevelPalette(userStats.xp || 0);
     } catch(e) { userStats = null; }
     try {
       var habitsRes = await sb.from("habits").select("*").eq("user_id", currentUser.id).order("created_at");
@@ -1204,6 +1287,11 @@ function renderDashboard() {
     html += '<div style="flex:1;min-width:0">';
     html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8">Level · ' + level.name + '</div>';
     html += '<div style="font-size:1.5rem;font-weight:900;letter-spacing:-0.5px">' + xp + ' XP</div>';
+    // Palette unlock indicator
+    var paletteLabels = { default:"Purple", ocean:"🌊 Ocean", sakura:"🌸 Sakura", forest:"🌲 Forest", midnight:"🌙 Midnight", ember:"🔥 Ember", gold:"👑 Gold" };
+    if (level.theme && level.theme !== "default") {
+      html += '<div style="font-size:.65rem;font-weight:800;opacity:.9;margin-top:2px">Theme unlocked: ' + (paletteLabels[level.theme] || level.theme) + '</div>';
+    }
     if (nextLevel) {
       html += '<div style="background:rgba(255,255,255,.25);border-radius:10px;height:6px;margin-top:6px;overflow:hidden">';
       html += '<div style="background:#fff;height:100%;width:' + levelPct + '%;border-radius:10px"></div></div>';
@@ -1700,6 +1788,7 @@ async function awardXP(assignment) {
     // Toast: XP gain
     var msg = "+" + xpGain + " XP";
     if (newLevel.name !== oldLevel.name) {
+      applyLevelPalette(newXP);
       setTimeout(function() {
         showBadgeToast({ icon: newLevel.icon, name: "Level Up! " + newLevel.name, desc: "You reached " + newLevel.name + " · " + newXP + " XP total" });
       }, 500);
@@ -2573,6 +2662,9 @@ sb.auth.onAuthStateChange(async function(event, session) {
     var savedTheme = localStorage.getItem("celio-campus-theme") || "light";
     document.documentElement.setAttribute("data-theme", savedTheme);
     document.querySelector(".theme-btn").textContent = savedTheme === "dark" ? "☀" : "🌙";
+    var savedPalette = localStorage.getItem("celio-campus-palette") || "";
+    if (savedPalette) document.documentElement.setAttribute("data-palette", savedPalette);
+    else document.documentElement.removeAttribute("data-palette");
     if (localStorage.getItem("celio-campus-sb-collapsed") === "1") {
       document.getElementById("sidebar").classList.add("collapsed");
     }
