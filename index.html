@@ -618,18 +618,18 @@ select.inp { cursor: pointer; }
 </div>
 
 <!-- HABIT MODAL -->
-<div id="habit-modal" class="modal-overlay">
-  <div class="modal-box" style="max-width:400px">
-    <div class="modal-header">
-      <h2 class="modal-title" id="habit-modal-title">New Habit</h2>
+<div class="modal-bg" id="habit-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title">
+      <span id="habit-modal-title">New Habit</span>
       <button class="modal-close" onclick="closeHabitModal()">✕</button>
     </div>
-    <div class="modal-body">
+    <div style="display:flex;flex-direction:column;gap:12px">
       <div><label class="flbl">Habit Name</label><input id="h-name" class="inp" placeholder="e.g. Review notes, Study 1 hour"></div>
-      <div class="form-grid-2" style="margin-top:12px">
+      <div class="form-grid-2">
         <div><label class="flbl">Icon</label><input id="h-icon" class="inp" placeholder="⭐" maxlength="2" style="font-size:1.4rem;text-align:center"></div>
         <div><label class="flbl">Colour</label>
-          <div class="color-picker" id="h-color-picker"></div>
+          <div class="color-swatches" id="h-color-picker"></div>
         </div>
       </div>
     </div>
@@ -1962,7 +1962,7 @@ window.deleteAssignment = function() {
 
 // ===== MODAL BACKDROP CLOSE =====
 window.addEventListener("DOMContentLoaded", function() {
-  ["sem-modal","course-modal","assign-modal"].forEach(function(id) {
+  ["sem-modal","course-modal","assign-modal","habit-modal"].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     el.addEventListener("click", function(e) {
