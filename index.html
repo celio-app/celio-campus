@@ -1353,7 +1353,23 @@ function renderDashboard() {
           html += '<div class="badge-chip__meta">';
           html += '<div class="badge-chip__name">' + esc(badge.name) + '</div>';
           html += '<div class="badge-chip__desc">' + esc(badge.desc) + '</div>';
-          html += '<div class="badge-chip__xp">+' + badge.xpBonus + ' XP · <span class="rarity-label rarity-' + badge.rarity + '">' + badge.rarity + '</span></div>';
+          if (!earned) {
+            var prog = getBadgeProgress(badge.id);
+            if (prog && prog.target > 0) {
+              var pct = Math.min(100, Math.round(prog.current / prog.target * 100));
+              var label = prog.unit === "%" ? prog.current + "%" : prog.current + " / " + prog.target + (prog.unit ? " " + prog.unit : "");
+              html += '<div style="margin-top:5px">';
+              html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
+              html += '<div style="font-size:.6rem;font-weight:700;color:var(--text3)">' + label + '</div>';
+              html += '<div style="font-size:.6rem;font-weight:800;color:var(--accent)">' + pct + '%</div>';
+              html += '</div>';
+              html += '<div style="height:4px;background:var(--bg4);border-radius:4px;overflow:hidden">';
+              html += '<div style="height:100%;width:' + pct + '%;background:var(--accent);border-radius:4px;transition:width .3s"></div>';
+              html += '</div></div>';
+            }
+          } else {
+            html += '<div class="badge-chip__xp">+' + badge.xpBonus + ' XP · <span class="rarity-label rarity-' + badge.rarity + '">' + badge.rarity + '</span></div>';
+          }
           html += '</div></div>';
         });
         html += '</div></div>';
@@ -1617,6 +1633,77 @@ async function ensureStats() {
   if (res.error) throw res.error;
   userStats = res.data;
   return userStats;
+}
+
+
+function getBadgeProgress(badgeId) {
+  // Returns { current, target } for badges with trackable numeric progress.
+  // Returns null for badges that aren't trackable (timing, one-off events).
+  var doneCount = assignments.filter(function(a) { return a.status === "done"; }).length;
+  var streak    = (userStats && userStats.streak) || 0;
+  var xp        = (userStats && userStats.xp) || 0;
+  var levelIdx  = getLevelIndex(xp);
+  var semCourses = activeSemester ? courses.filter(function(c) { return c.semester_id === activeSemester.id; }) : [];
+  var withNotes  = assignments.filter(function(a) { return a.notes && a.notes.trim().length > 0; }).length;
+
+  switch (badgeId) {
+    // Productivity — assignment count
+    case "first_step":     return { current: doneCount, target: 1 };
+    case "focused_finish": return { current: doneCount, target: 10 };
+    case "task_titan":     return { current: doneCount, target: 25 };
+    case "legend":         return { current: doneCount, target: 100 };
+    // Streaks
+    case "on_fire":           return { current: streak, target: 5 };
+    case "relentless":        return { current: streak, target: 10 };
+    case "unstoppable":       return { current: streak, target: 30 };
+    case "semester_ironman":  return { current: streak, target: 60 };
+    // Setup
+    case "semester_architect": return { current: semesters.length, target: 1 };
+    case "course_starter":     return { current: courses.length,   target: 1 };
+    case "full_load":          return { current: semCourses.length, target: 5 };
+    case "organized_mind":     return { current: withNotes, target: 10 };
+    case "planner_mode":       return { current: assignments.length, target: 20 };
+    // Course completion
+    case "course_master": {
+      var best = 0;
+      courses.forEach(function(c) {
+        var ca = assignments.filter(function(a) { return a.course_id === c.id; });
+        if (ca.length > 0) {
+          var donePct = ca.filter(function(a) { return a.status === "done"; }).length / ca.length;
+          if (donePct > best) best = donePct;
+        }
+      });
+      return { current: Math.round(best * 100), target: 100, unit: "%" };
+    }
+    case "double_major": {
+      var completed = courses.filter(function(c) {
+        var ca = assignments.filter(function(a) { return a.course_id === c.id; });
+        return ca.length > 0 && ca.every(function(a) { return a.status === "done"; });
+      }).length;
+      return { current: completed, target: 2 };
+    }
+    case "final_boss": {
+      var semA2 = activeSemester ? assignments.filter(function(a) {
+        var c = courses.find(function(c2) { return c2.id === a.course_id; });
+        return c && c.semester_id === activeSemester.id;
+      }) : [];
+      var doneSem = semA2.filter(function(a) { return a.status === "done"; }).length;
+      return semA2.length > 0 ? { current: doneSem, target: semA2.length } : null;
+    }
+    // Habits
+    case "routine_builder":   return { current: Math.min(streak, 3),  target: 3 };
+    case "consistency_king":  return { current: Math.min(streak, 7),  target: 7 };
+    case "discipline_mode":   return { current: Math.min(streak, 30), target: 30 };
+    case "habit_garden": {
+      return { current: habits.length, target: 5 };
+    }
+    // Levels
+    case "level_up":    return { current: Math.min(levelIdx, 2),  target: 2,  unit: "lvl" };
+    case "scholar":     return { current: Math.min(levelIdx, 5),  target: 5,  unit: "lvl" };
+    case "grandmaster": return { current: Math.min(levelIdx, 7),  target: 7,  unit: "lvl" };
+    // Not trackable (time-of-day, weekend, perfect week, dean's list, momentum/speed_runner)
+    default: return null;
+  }
 }
 
 // ===== BADGE SYSTEM =====
