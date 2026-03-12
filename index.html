@@ -815,9 +815,20 @@ var SUPABASE_URL = "https://eeokgkzjlrrbvbpuaudd.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_nWeSGiP2eIZYoWBvPng0-A_GkISpgbE";
 var _memStore = {};
 var _customStorage = {
-  getItem: function(key) { return _memStore[key] || null; },
-  setItem: function(key, val) { _memStore[key] = val; },
-  removeItem: function(key) { delete _memStore[key]; }
+  getItem: function(key) {
+    // Try memory first (Edge tracking prevention safe), then localStorage
+    if (_memStore[key] != null) return _memStore[key];
+    try { var v = localStorage.getItem(key); if (v) { _memStore[key] = v; } return v; } catch(e) {}
+    return null;
+  },
+  setItem: function(key, val) {
+    _memStore[key] = val;
+    try { localStorage.setItem(key, val); } catch(e) {}
+  },
+  removeItem: function(key) {
+    delete _memStore[key];
+    try { localStorage.removeItem(key); } catch(e) {}
+  }
 };
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { storage: _customStorage, persistSession: true, detectSessionInUrl: true }
@@ -1081,6 +1092,8 @@ async function loadAll() {
     }
     renderSidebar();
     renderActiveTab();
+    // Silently check for any badges earned while offline / not yet evaluated
+    setTimeout(function() { evaluateBadges({ trigger: "load" }); }, 800);
   } catch (err) {
     showToast("Error loading data: " + err.message, "error");
   }
@@ -1691,16 +1704,16 @@ function getBadgeProgress(badgeId) {
       return semA2.length > 0 ? { current: doneSem, target: semA2.length } : null;
     }
     // Habits
-    case "routine_builder":   return { current: Math.min(streak, 3),  target: 3 };
-    case "consistency_king":  return { current: Math.min(streak, 7),  target: 7 };
-    case "discipline_mode":   return { current: Math.min(streak, 30), target: 30 };
+    case "routine_builder":   return { current: Math.min(streak, 3),  target: 3,  unit: "days" };
+    case "consistency_king":  return { current: Math.min(streak, 7),  target: 7,  unit: "days" };
+    case "discipline_mode":   return { current: Math.min(streak, 30), target: 30, unit: "days" };
     case "habit_garden": {
       return { current: habits.length, target: 5 };
     }
     // Levels
-    case "level_up":    return { current: Math.min(levelIdx, 2),  target: 2,  unit: "lvl" };
-    case "scholar":     return { current: Math.min(levelIdx, 5),  target: 5,  unit: "lvl" };
-    case "grandmaster": return { current: Math.min(levelIdx, 7),  target: 7,  unit: "lvl" };
+    case "level_up":    return { current: Math.min(levelIdx, 2),  target: 2 };
+    case "scholar":     return { current: Math.min(levelIdx, 5),  target: 5 };
+    case "grandmaster": return { current: Math.min(levelIdx, 7),  target: 7 };
     // Not trackable (time-of-day, weekend, perfect week, dean's list, momentum/speed_runner)
     default: return null;
   }
@@ -2741,6 +2754,12 @@ window.deleteHabit = function() {
 };
 
 // ===== AUTH STATE LISTENER =====
+// getSession() triggers INITIAL_SESSION event in onAuthStateChange,
+// which restores the session from the URL hash (magic links / OAuth)
+// or from whatever the custom storage has. Without this call the
+// listener never fires on a plain page reload.
+sb.auth.getSession();
+
 sb.auth.onAuthStateChange(async function(event, session) {
   currentUser = session ? session.user : null;
   if (currentUser) {
