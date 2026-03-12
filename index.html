@@ -402,7 +402,6 @@ select.inp { cursor: pointer; }
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
@@ -432,14 +431,11 @@ select.inp { cursor: pointer; }
   </div>
 </div>
 
-<!-- APP SCREEN -->
 <div id="app-screen">
   <div class="app-layout">
 
-    <!-- SIDEBAR OVERLAY (mobile) -->
     <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
 
-    <!-- SIDEBAR -->
     <nav class="sidebar" id="sidebar">
       <div class="sb-top">
         <div class="sb-logo" id="sb-logo-text">
@@ -465,7 +461,6 @@ select.inp { cursor: pointer; }
       </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
       <div class="topbar">
         <button class="hamburger" onclick="openSidebar()" id="hamburger-btn">☰</button>
@@ -495,10 +490,8 @@ select.inp { cursor: pointer; }
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- SEMESTER MODAL -->
 <div class="modal-bg" id="sem-modal">
   <div class="modal" style="max-width:440px">
     <div class="modal-title">
@@ -511,7 +504,7 @@ select.inp { cursor: pointer; }
         <div><label class="flbl">Start Date</label><input id="sem-start" class="inp" type="date"></div>
         <div><label class="flbl">End Date</label><input id="sem-end" class="inp" type="date"></div>
       </div>
-      <div><label class="flbl">GPA Goal (optional)</label><input id="sem-gpa-goal" class="inp" type="number" min="0" max="4.0" step="0.1" placeholder="e.g. 3.7"></div>
+      <div><label class="flbl">Notes</label><input id="sem-gpa-goal" class="inp" placeholder="e.g. Dean's list goal, focus areas..."></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button>
@@ -520,7 +513,6 @@ select.inp { cursor: pointer; }
   </div>
 </div>
 
-<!-- COURSE MODAL -->
 <div class="modal-bg" id="course-modal">
   <div class="modal" style="max-width:460px">
     <div class="modal-title">
@@ -546,7 +538,6 @@ select.inp { cursor: pointer; }
   </div>
 </div>
 
-<!-- ASSIGNMENT MODAL -->
 <div class="modal-bg" id="assign-modal">
   <div class="modal" style="max-width:500px">
     <div class="modal-title">
@@ -604,7 +595,6 @@ select.inp { cursor: pointer; }
   </div>
 </div>
 
-<!-- CONFIRM MODAL -->
 <div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:28px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4);">
     <div style="font-size:2.5rem;text-align:center;margin-bottom:10px;">⚠️</div>
@@ -780,17 +770,7 @@ document.addEventListener("keydown", function(e) {
 });
 
 window.doSignOut = async function() {
-  try {
-    await sb.auth.signOut();
-  } catch(e) {
-    console.warn("signOut error:", e);
-  }
-  // Force UI reset regardless of signOut result
-  currentUser = null;
-  semesters = []; courses = []; assignments = [];
-  activeSemester = null; activeCourse = null;
-  document.getElementById("auth-screen").style.display = "flex";
-  document.getElementById("app-screen").style.display = "none";
+  await sb.auth.signOut();
 };
 
 // ===== THEME =====
@@ -1891,23 +1871,40 @@ window.addEventListener("DOMContentLoaded", function() {
   if (overlay) overlay.addEventListener("click", function(e) { if (e.target === this) closeConfirm(); });
 });
 
-// ===== AUTH STATE LISTENER =====
-async function applySession(session) {
+// ===== AUTH STATE LISTENER (FIXED) =====
+sb.auth.onAuthStateChange(async function(event, session) {
   currentUser = session ? session.user : null;
   if (currentUser) {
     document.getElementById("auth-screen").style.display = "none";
     document.getElementById("app-screen").style.display = "block";
+    
+    // UI Restoration
     var savedTheme = safeStorage.get("celio-campus-theme") || "light";
     document.documentElement.setAttribute("data-theme", savedTheme);
     document.querySelector(".theme-btn").textContent = savedTheme === "dark" ? "☀" : "🌙";
     if (safeStorage.get("celio-campus-sb-collapsed") === "1") {
       document.getElementById("sidebar").classList.add("collapsed");
     }
+    
+    // Load Database Info
     await loadAll();
+    
+    // ** THE FIX IS HERE ** // Show nav elements regardless of whether the user has a semester yet or not.
+    document.getElementById("tab-nav").style.display = "flex";
+    document.getElementById("topbar-add-btn").style.display = "flex";
+    
+    // If they have data, show the dashboard. If they are new, show a welcome message.
     if (semesters.length > 0 && activeSemester) {
-      document.getElementById("tab-nav").style.display = "flex";
-      document.getElementById("topbar-add-btn").style.display = "flex";
       showTab("dashboard");
+    } else {
+      document.getElementById("topbar-title").textContent = "Welcome to Celio Campus";
+      document.getElementById("content-area").innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🎓</div>
+          <div class="empty-title">Welcome to your new workspace!</div>
+          <div class="empty-sub">To get started, click the "＋ New Semester" button in the sidebar to begin tracking your courses.</div>
+        </div>
+      `;
     }
   } else {
     document.getElementById("auth-screen").style.display = "flex";
@@ -1915,16 +1912,6 @@ async function applySession(session) {
     semesters = []; courses = []; assignments = [];
     activeSemester = null; activeCourse = null;
   }
-}
-
-// Bootstrap session on page load
-sb.auth.getSession().then(function(result) {
-  applySession(result.data.session);
-});
-
-// Handle auth changes (login, logout)
-sb.auth.onAuthStateChange(async function(event, session) {
-  await applySession(session);
 });
 
 })();
