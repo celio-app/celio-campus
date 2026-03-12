@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Celio Campus</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ===== VARIABLES ===== */
@@ -295,6 +295,10 @@ input, select, textarea { font-family: inherit; }
 .cal-day.today .cal-day-num { color: var(--accent); }
 .cal-event { font-size: .62rem; font-weight: 700; padding: 2px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
 .cal-more { font-size: .6rem; font-weight: 700; color: var(--text4); padding: 1px 3px; }
+.cal-event[draggable] { cursor: grab; }
+.cal-event[draggable]:active { cursor: grabbing; opacity: .7; }
+.cal-day.drag-over { border-color: var(--accent); background: var(--accent-bg); transform: scale(1.02); transition: all .1s; }
+.cal-day.drag-over .cal-day-num { color: var(--accent); }
 
 /* ===== GANTT ===== */
 .gantt-wrap { overflow-x: auto; }
@@ -507,7 +511,7 @@ select.inp { cursor: pointer; }
         <div><label class="flbl">Start Date</label><input id="sem-start" class="inp" type="date"></div>
         <div><label class="flbl">End Date</label><input id="sem-end" class="inp" type="date"></div>
       </div>
-      <div><label class="flbl">Notes</label><input id="sem-gpa-goal" class="inp" placeholder="e.g. Dean's list goal, focus areas..."></div>
+      <div><label class="flbl">GPA Goal (optional)</label><input id="sem-gpa-goal" class="inp" type="number" min="0" max="4.0" step="0.1" placeholder="e.g. 3.7"></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button>
@@ -620,19 +624,19 @@ select.inp { cursor: pointer; }
 (function() {
 "use strict";
 
+// ===== SAFE STORAGE (avoids Edge tracking prevention) =====
+var _store = {};
+var safeStorage = {
+  get: function(key) { try { return localStorage.getItem(key); } catch(e) { return _store[key] || null; } },
+  set: function(key, val) { try { localStorage.setItem(key, val); } catch(e) { _store[key] = val; } },
+  remove: function(key) { try { localStorage.removeItem(key); } catch(e) { delete _store[key]; } }
+};
+
 // ===== SUPABASE CONFIG =====
 // Replace with your actual Supabase URL and anon key
 var SUPABASE_URL = "https://eeokgkzjlrrbvbpuaudd.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_nWeSGiP2eIZYoWBvPng0-A_GkISpgbE";
-var _memStore = {};
-var _customStorage = {
-  getItem: function(key) { return _memStore[key] || null; },
-  setItem: function(key, val) { _memStore[key] = val; },
-  removeItem: function(key) { delete _memStore[key]; }
-};
-var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { storage: _customStorage, persistSession: true, detectSessionInUrl: true }
-});
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ===== STATE =====
 var currentUser = null;
@@ -650,6 +654,7 @@ var assignFilter = "all";
 var assignSearch = "";
 var uiExpanded = {};
 var confirmCb = null;
+var userStats = null;
 
 // ===== COURSE COLORS =====
 var COURSE_COLORS = [
@@ -657,6 +662,44 @@ var COURSE_COLORS = [
   "#ef4444","#8b5cf6","#14b8a6","#f97316","#64748b",
   "#a855f7","#10b981","#3b82f6","#e11d48","#0ea5e9"
 ];
+
+// ===== GAMIFICATION CONFIG =====
+var XP_VALUES = { assignment: 20, exam: 40, test: 30, quiz: 10, lab: 25, project: 50 };
+var LEVELS = [
+  { name: "Freshman",    min: 0,    icon: "🎒" },
+  { name: "Sophomore",   min: 200,  icon: "📖" },
+  { name: "Junior",      min: 500,  icon: "🎯" },
+  { name: "Senior",      min: 1000, icon: "🏆" },
+  { name: "Graduate",    min: 2000, icon: "🎓" },
+  { name: "Dean's List", min: 3500, icon: "⭐" },
+  { name: "Legend",      min: 5000, icon: "👑" }
+];
+var BADGES = [
+  { id: "first_done",    icon: "🌱", name: "First Step",      desc: "Complete your first assignment" },
+  { id: "streak_3",      icon: "🔥", name: "On Fire",         desc: "3 day streak" },
+  { id: "streak_7",      icon: "🌋", name: "Unstoppable",     desc: "7 day streak" },
+  { id: "early_bird",    icon: "🐦", name: "Early Bird",      desc: "Submit before the due date" },
+  { id: "exam_slayer",   icon: "⚔️",  name: "Exam Slayer",    desc: "Complete 5 exams or tests" },
+  { id: "century",       icon: "💯", name: "Century",         desc: "Reach 100 XP" },
+  { id: "scholar",       icon: "📚", name: "Scholar",         desc: "Complete 25 assignments" },
+  { id: "clean_sweep",   icon: "🧹", name: "Clean Sweep",     desc: "Clear all overdue assignments" },
+  { id: "night_owl",     icon: "🦉", name: "Night Owl",       desc: "Complete 10 assignments" },
+  { id: "speed_demon",   icon: "⚡", name: "Speed Demon",     desc: "Complete 3 assignments in one day" }
+];
+
+function getLevel(xp) {
+  var level = LEVELS[0];
+  for (var i = LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= LEVELS[i].min) { level = LEVELS[i]; break; }
+  }
+  return level;
+}
+function getNextLevel(xp) {
+  for (var i = 0; i < LEVELS.length; i++) {
+    if (LEVELS[i].min > xp) return LEVELS[i];
+  }
+  return null;
+}
 
 var TYPE_EMOJI = {
   assignment: "📝", exam: "🔥", test: "✏️", quiz: "⚡",
@@ -737,7 +780,17 @@ document.addEventListener("keydown", function(e) {
 });
 
 window.doSignOut = async function() {
-  await sb.auth.signOut();
+  try {
+    await sb.auth.signOut();
+  } catch(e) {
+    console.warn("signOut error:", e);
+  }
+  // Force UI reset regardless of signOut result
+  currentUser = null;
+  semesters = []; courses = []; assignments = [];
+  activeSemester = null; activeCourse = null;
+  document.getElementById("auth-screen").style.display = "flex";
+  document.getElementById("app-screen").style.display = "none";
 };
 
 // ===== THEME =====
@@ -746,7 +799,7 @@ window.toggleTheme = function() {
   var current = html.getAttribute("data-theme");
   var next = current === "dark" ? "light" : "dark";
   html.setAttribute("data-theme", next);
-  localStorage.setItem("celio-campus-theme", next);
+  safeStorage.set("celio-campus-theme", next);
   document.querySelector(".theme-btn").textContent = next === "dark" ? "☀" : "🌙";
 };
 
@@ -754,7 +807,7 @@ window.toggleTheme = function() {
 window.toggleSidebar = function() {
   var sb = document.getElementById("sidebar");
   sb.classList.toggle("collapsed");
-  localStorage.setItem("celio-campus-sb-collapsed", sb.classList.contains("collapsed") ? "1" : "0");
+  safeStorage.set("celio-campus-sb-collapsed", sb.classList.contains("collapsed") ? "1" : "0");
 };
 window.openSidebar = function() {
   var sb = document.getElementById("sidebar");
@@ -783,9 +836,16 @@ async function loadAll() {
     semesters = semRes.data || [];
     courses = courseRes.data || [];
     assignments = assignRes.data || [];
+    // Load stats separately so it never blocks the main data
+    try {
+      var statsRes = await sb.from("user_stats").select("*").eq("user_id", currentUser.id).maybeSingle();
+      userStats = (statsRes && statsRes.data) ? statsRes.data : null;
+    } catch(statsErr) {
+      userStats = null;
+    }
 
     // Restore last active semester
-    var savedSemId = localStorage.getItem("celio-campus-sem-" + currentUser.id);
+    var savedSemId = safeStorage.get("celio-campus-sem-" + currentUser.id);
     if (savedSemId) {
       activeSemester = semesters.find(function(s) { return s.id === savedSemId; }) || null;
     }
@@ -849,7 +909,7 @@ window.selectSemester = function(semId) {
   activeSemester = semesters.find(function(s) { return s.id === semId; }) || null;
   activeCourse = null;
   uiExpanded[semId] = true;
-  if (currentUser) localStorage.setItem("celio-campus-sem-" + currentUser.id, semId);
+  if (currentUser) safeStorage.set("celio-campus-sem-" + currentUser.id, semId);
   document.getElementById("tab-nav").style.display = "flex";
   document.getElementById("topbar-add-btn").style.display = "flex";
   updateTopbar();
@@ -990,6 +1050,44 @@ function renderDashboard() {
   var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
   var gpa = calculateGPA(semA);
   var html = '<div class="fade-in">';
+
+  // Gamification card
+  if (userStats) {
+    var xp = userStats.xp || 0;
+    var streak = userStats.streak || 0;
+    var level = getLevel(xp);
+    var nextLevel = getNextLevel(xp);
+    var xpIntoLevel = nextLevel ? xp - level.min : xp;
+    var xpNeeded = nextLevel ? nextLevel.min - level.min : 1;
+    var levelPct = nextLevel ? Math.min(100, Math.round(xpIntoLevel / xpNeeded * 100)) : 100;
+    var earnedBadges = (userStats.badges || []).map(function(bid) {
+      return BADGES.find(function(b) { return b.id === bid; });
+    }).filter(Boolean);
+    html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
+    html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
+    html += '<div style="font-size:2.8rem;line-height:1">' + level.icon + '</div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8">Level · ' + level.name + '</div>';
+    html += '<div style="font-size:1.5rem;font-weight:900;letter-spacing:-0.5px">' + xp + ' XP</div>';
+    if (nextLevel) {
+      html += '<div style="background:rgba(255,255,255,.25);border-radius:10px;height:6px;margin-top:6px;overflow:hidden">';
+      html += '<div style="background:#fff;height:100%;width:' + levelPct + '%;border-radius:10px;transition:width .5s ease"></div></div>';
+      html += '<div style="font-size:.68rem;opacity:.8;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + '</div>';
+    }
+    html += '</div>';
+    html += '<div style="text-align:center;flex-shrink:0">';
+    html += '<div style="font-size:1.8rem;font-weight:900">' + (streak > 0 ? "🔥" : "💤") + ' ' + streak + '</div>';
+    html += '<div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.8">Day Streak</div>';
+    html += '</div></div>';
+    if (earnedBadges.length > 0) {
+      html += '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">';
+      earnedBadges.forEach(function(badge) {
+        html += '<div title="' + badge.name + ': ' + badge.desc + '" style="background:rgba(255,255,255,.2);border-radius:8px;padding:4px 10px;font-size:.75rem;font-weight:700;cursor:default">' + badge.icon + ' ' + badge.name + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
 
   // GPA card (if any)
   if (gpa !== null) {
@@ -1172,10 +1270,133 @@ window.toggleDone = async function(e, id) {
     var res = await sb.from("assignments").update({ status: newStatus }).eq("id", id);
     if (res.error) throw res.error;
     a.status = newStatus;
-    if (newStatus === "done") launchConfetti();
+    if (newStatus === "done") {
+      launchConfetti();
+      await awardXP(a);
+    } else {
+      await deductXP(a);
+    }
     renderActiveTab();
   } catch (err) { showToast(err.message, "error"); }
 };
+
+// ===== GAMIFICATION FUNCTIONS =====
+async function ensureStats() {
+  if (userStats) return userStats;
+  var res = await sb.from("user_stats").insert({
+    user_id: currentUser.id, xp: 0, streak: 0, badges: []
+  }).select().single();
+  if (res.error) throw res.error;
+  userStats = res.data;
+  return userStats;
+}
+
+async function awardXP(assignment) {
+  try {
+    var stats = await ensureStats();
+    var xpGain = XP_VALUES[assignment.type] || 20;
+    var today = new Date().toISOString().split("T")[0];
+    var lastDate = stats.last_completion_date;
+    var yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+    var newStreak = stats.streak || 0;
+    if (lastDate === today) {
+      // same day, streak unchanged
+    } else if (lastDate === yesterday) {
+      newStreak = newStreak + 1;
+    } else {
+      newStreak = 1;
+    }
+    var newXP = (stats.xp || 0) + xpGain;
+    var oldLevel = getLevel(stats.xp || 0);
+    var newLevel = getLevel(newXP);
+
+    // Check badges
+    var badges = stats.badges ? stats.badges.slice() : [];
+    var allDone = assignments.filter(function(a) { return a.status === "done"; });
+    var todayDone = allDone.filter(function(a) {
+      return a.status === "done";
+    });
+
+    function addBadge(id) {
+      if (badges.indexOf(id) === -1) badges.push(id);
+    }
+    if (allDone.length >= 1) addBadge("first_done");
+    if (newStreak >= 3) addBadge("streak_3");
+    if (newStreak >= 7) addBadge("streak_7");
+    if (newXP >= 100) addBadge("century");
+    if (allDone.length >= 10) addBadge("night_owl");
+    if (allDone.length >= 25) addBadge("scholar");
+    var examsDone = allDone.filter(function(a) { return a.type === "exam" || a.type === "test"; }).length;
+    if (examsDone >= 5) addBadge("exam_slayer");
+    // early bird: submitted before due date
+    if (assignment.due_date && today < assignment.due_date) addBadge("early_bird");
+    // check overdue cleared
+    var overdueLeft = assignments.filter(function(a) {
+      return a.status !== "done" && daysUntil(a.due_date) < 0;
+    }).length;
+    if (overdueLeft === 0 && allDone.length > 0) addBadge("clean_sweep");
+
+    var updates = {
+      xp: newXP,
+      streak: newStreak,
+      last_completion_date: today,
+      badges: badges
+    };
+    var upRes = await sb.from("user_stats").update(updates).eq("user_id", currentUser.id);
+    if (upRes.error) throw upRes.error;
+    userStats = Object.assign({}, stats, updates);
+
+    // Show XP toast
+    var msg = "+" + xpGain + " XP";
+    if (newLevel.name !== oldLevel.name) {
+      msg += " · Level up! " + newLevel.icon + " " + newLevel.name;
+      showLevelUpModal(newLevel);
+    } else if (newStreak > 1) {
+      msg += " · 🔥 " + newStreak + " day streak!";
+    }
+    showToast(msg, "success");
+
+    // Check for new badges
+    var newBadges = badges.filter(function(b) { return !stats.badges || stats.badges.indexOf(b) === -1; });
+    newBadges.forEach(function(bid) {
+      var badge = BADGES.find(function(b) { return b.id === bid; });
+      if (badge) {
+        setTimeout(function() {
+          showToast("🏆 Badge unlocked: " + badge.name + " " + badge.icon, "success");
+        }, 1500);
+      }
+    });
+  } catch (err) { console.error("XP error:", err); }
+}
+
+async function deductXP(assignment) {
+  try {
+    if (!userStats) return;
+    var xpLoss = XP_VALUES[assignment.type] || 20;
+    var newXP = Math.max(0, (userStats.xp || 0) - xpLoss);
+    var upRes = await sb.from("user_stats").update({ xp: newXP }).eq("user_id", currentUser.id);
+    if (upRes.error) throw upRes.error;
+    userStats = Object.assign({}, userStats, { xp: newXP });
+    showToast("-" + xpLoss + " XP");
+  } catch (err) { console.error("XP deduct error:", err); }
+}
+
+function showLevelUpModal(level) {
+  var existing = document.getElementById("levelup-modal");
+  if (existing) existing.remove();
+  var div = document.createElement("div");
+  div.id = "levelup-modal";
+  div.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  div.innerHTML = '<div style="background:var(--bg2);border:2px solid var(--accent);border-radius:20px;padding:40px;text-align:center;max-width:360px;width:90%;box-shadow:0 24px 60px rgba(108,71,255,.4);animation:fadeIn .4s ease">'
+    + '<div style="font-size:4rem;margin-bottom:10px">' + level.icon + '</div>'
+    + '<div style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:6px">Level Up!</div>'
+    + '<div style="font-size:1.8rem;font-weight:900;letter-spacing:-1px;margin-bottom:8px">' + level.name + '</div>'
+    + '<div style="font-size:.85rem;color:var(--text3);margin-bottom:24px;font-weight:600">You reached a new level. Keep it up! 🚀</div>'
+    + '<button onclick="var e=document.getElementById(\'levelup-modal\');if(e)e.remove()" style="background:var(--accent);color:#fff;border:none;padding:10px 28px;border-radius:10px;font-size:.9rem;font-weight:800;cursor:pointer;font-family:inherit">Awesome!</button>'
+    + '</div>';
+  document.body.appendChild(div);
+  div.addEventListener("click", function(e) { if (e.target === div) div.remove(); });
+}
 
 // ===== CONFETTI =====
 function launchConfetti() {
@@ -1213,17 +1434,17 @@ function renderCalendar() {
 
   var html = '<div class="fade-in">';
   html += '<div class="cal-header">';
-  html += '<button class="cal-nav" onclick="calNav(-1)">◀</button>';
+  html += '<button class="cal-nav" onclick="calNav(-1)">\u25c4</button>';
   html += '<div class="cal-month">' + monthNames[month] + ' ' + year + '</div>';
-  html += '<button class="cal-nav" onclick="calNav(1)">▶</button>';
+  html += '<button class="cal-nav" onclick="calNav(1)">\u25ba</button>';
   html += '<button class="btn btn-ghost btn-sm" onclick="calToday()">Today</button>';
   html += '</div>';
+  html += '<div style="font-size:.7rem;color:var(--text4);font-weight:600;margin-bottom:8px;text-align:right">\u{1F4A1} Drag assignments to reschedule</div>';
   html += '<div class="cal-grid">';
   ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) {
     html += '<div class="cal-dow">' + d + '</div>';
   });
 
-  // blank cells before first day
   for (var i = 0; i < firstDay; i++) {
     html += '<div class="cal-day other-month"><div class="cal-day-num">' + (new Date(year, month, -firstDay + i + 1).getDate()) + '</div></div>';
   }
@@ -1234,7 +1455,7 @@ function renderCalendar() {
     var isToday = d.getTime() === today.getTime();
     var dateStr = year + "-" + String(month+1).padStart(2,"0") + "-" + String(day).padStart(2,"0");
     var dayAssigns = semA.filter(function(a) { return a.due_date === dateStr; });
-    html += '<div class="cal-day' + (isToday ? " today" : "") + '">';
+    html += '<div class="cal-day' + (isToday ? " today" : "") + '" data-date="' + dateStr + '" ondragover="calDragOver(event)" ondragleave="calDragLeave(event)" ondrop="calDrop(event,\'' + dateStr + '\')">';
     html += '<div class="cal-day-num">' + day + '</div>';
     var shown = 0;
     dayAssigns.forEach(function(a) {
@@ -1242,13 +1463,12 @@ function renderCalendar() {
       shown++;
       var course = getCourseById(a.course_id);
       var color = (course && course.color) || "#6c47ff";
-      html += '<div class="cal-event" style="background:' + color + '22;color:' + color + '" onclick="event.stopPropagation();openEditAssignment(\'' + a.id + '\')">' + esc(a.title) + '</div>';
+      html += '<div class="cal-event" draggable="true" ondragstart="calDragStart(event,\'' + a.id + '\')" style="background:' + color + '22;color:' + color + '" onclick="event.stopPropagation();openEditAssignment(\'' + a.id + '\')">' + esc(a.title) + '</div>';
     });
     if (dayAssigns.length > 3) html += '<div class="cal-more">+' + (dayAssigns.length-3) + ' more</div>';
     html += '</div>';
   }
 
-  // trailing blank cells
   var total = firstDay + daysInMonth;
   var trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
   for (var t = 1; t <= trailing; t++) {
@@ -1258,6 +1478,46 @@ function renderCalendar() {
   html += '</div></div>';
   ca.innerHTML = html;
 }
+
+// ===== CALENDAR DRAG AND DROP =====
+var calDraggingId = null;
+
+window.calDragStart = function(e, id) {
+  calDraggingId = id;
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", id);
+  setTimeout(function() { if (e.target) e.target.style.opacity = "0.4"; }, 0);
+};
+
+window.calDragOver = function(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+  var day = e.currentTarget;
+  if (day && !day.classList.contains("other-month")) day.classList.add("drag-over");
+};
+
+window.calDragLeave = function(e) {
+  if (e.currentTarget) e.currentTarget.classList.remove("drag-over");
+};
+
+window.calDrop = async function(e, dateStr) {
+  e.preventDefault();
+  if (e.currentTarget) e.currentTarget.classList.remove("drag-over");
+  var id = calDraggingId || e.dataTransfer.getData("text/plain");
+  calDraggingId = null;
+  if (!id || !dateStr) return;
+  var a = assignments.find(function(x) { return x.id === id; });
+  if (!a || a.due_date === dateStr) return;
+  try {
+    var res = await sb.from("assignments").update({ due_date: dateStr }).eq("id", id);
+    if (res.error) throw res.error;
+    a.due_date = dateStr;
+    showToast("Moved to " + formatDate(dateStr) + " \u{1F4C5}");
+    renderCalendar();
+  } catch (err) {
+    showToast("Could not reschedule: " + err.message, "error");
+  }
+};
 
 window.calNav = function(dir) {
   calViewDate.setMonth(calViewDate.getMonth() + dir);
@@ -1632,15 +1892,15 @@ window.addEventListener("DOMContentLoaded", function() {
 });
 
 // ===== AUTH STATE LISTENER =====
-sb.auth.onAuthStateChange(async function(event, session) {
+async function applySession(session) {
   currentUser = session ? session.user : null;
   if (currentUser) {
     document.getElementById("auth-screen").style.display = "none";
     document.getElementById("app-screen").style.display = "block";
-    var savedTheme = localStorage.getItem("celio-campus-theme") || "light";
+    var savedTheme = safeStorage.get("celio-campus-theme") || "light";
     document.documentElement.setAttribute("data-theme", savedTheme);
     document.querySelector(".theme-btn").textContent = savedTheme === "dark" ? "☀" : "🌙";
-    if (localStorage.getItem("celio-campus-sb-collapsed") === "1") {
+    if (safeStorage.get("celio-campus-sb-collapsed") === "1") {
       document.getElementById("sidebar").classList.add("collapsed");
     }
     await loadAll();
@@ -1655,6 +1915,16 @@ sb.auth.onAuthStateChange(async function(event, session) {
     semesters = []; courses = []; assignments = [];
     activeSemester = null; activeCourse = null;
   }
+}
+
+// Bootstrap session on page load
+sb.auth.getSession().then(function(result) {
+  applySession(result.data.session);
+});
+
+// Handle auth changes (login, logout)
+sb.auth.onAuthStateChange(async function(event, session) {
+  await applySession(session);
 });
 
 })();
