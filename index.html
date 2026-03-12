@@ -994,7 +994,11 @@ window.doAuth = async function() {
     if (currentAuthTab === "signup" && result.data && !result.data.session) {
       msgEl.className = "auth-msg success";
       msgEl.textContent = "Check your email to confirm your account!";
+      return;
     }
+    // Sign-in succeeded — boot the app directly
+    var user = result.data && result.data.user ? result.data.user : null;
+    await applySession(user);
   } catch (err) {
     msgEl.className = "auth-msg error";
     msgEl.textContent = err.message || "Authentication failed.";
@@ -1010,6 +1014,7 @@ document.addEventListener("keydown", function(e) {
 
 window.doSignOut = async function() {
   await sb.auth.signOut();
+  applySession(null);
 };
 
 // ===== THEME =====
@@ -2753,15 +2758,9 @@ window.deleteHabit = function() {
   });
 };
 
-// ===== AUTH STATE LISTENER =====
-// getSession() triggers INITIAL_SESSION event in onAuthStateChange,
-// which restores the session from the URL hash (magic links / OAuth)
-// or from whatever the custom storage has. Without this call the
-// listener never fires on a plain page reload.
-sb.auth.getSession();
-
-sb.auth.onAuthStateChange(async function(event, session) {
-  currentUser = session ? session.user : null;
+// ===== AUTH BOOT =====
+async function applySession(user) {
+  currentUser = user || null;
   if (currentUser) {
     document.getElementById("auth-screen").style.display = "none";
     document.getElementById("app-screen").style.display = "block";
@@ -2780,7 +2779,6 @@ sb.auth.onAuthStateChange(async function(event, session) {
       document.getElementById("topbar-add-btn").style.display = "flex";
       showTab("dashboard");
     } else {
-      // New user with no semesters — show sidebar and prompt to create one
       document.getElementById("tab-nav").style.display = "none";
       document.getElementById("topbar-add-btn").style.display = "none";
     }
@@ -2790,6 +2788,25 @@ sb.auth.onAuthStateChange(async function(event, session) {
     semesters = []; courses = []; assignments = [];
     activeSemester = null; activeCourse = null;
   }
+}
+
+// On page load — try to restore existing session first
+(async function() {
+  try {
+    var res = await sb.auth.getSession();
+    var user = (res.data && res.data.session) ? res.data.session.user : null;
+    if (user) { await applySession(user); return; }
+  } catch(e) {}
+  // No session found — show sign-in
+  applySession(null);
+})();
+
+// Keep session in sync for sign-in / sign-out / token refresh
+sb.auth.onAuthStateChange(async function(event, session) {
+  var user = session ? session.user : null;
+  // Ignore INITIAL_SESSION if we already booted via getSession above
+  if (event === "INITIAL_SESSION") return;
+  await applySession(user);
 });
 
 })();
