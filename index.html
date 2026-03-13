@@ -64,10 +64,10 @@
   --cyan-bg: #021e2b;
   --card-shadow: none;
 }
-
+ 
 /* ===== LEVEL PALETTES ===== */
 /* Each palette overrides accent colours only — light/dark still works independently */
-
+ 
 [data-palette="ocean"] {
   --accent:    #0ea5e9;
   --accent2:   #38bdf8;
@@ -78,7 +78,7 @@
   --accent2:   #7dd3fc;
   --accent-bg: #0c2535;
 }
-
+ 
 [data-palette="sakura"] {
   --accent:    #e11d78;
   --accent2:   #f43f9a;
@@ -89,7 +89,7 @@
   --accent2:   #f9a8d4;
   --accent-bg: #2d0a1e;
 }
-
+ 
 [data-palette="forest"] {
   --accent:    #16a34a;
   --accent2:   #22c55e;
@@ -100,7 +100,7 @@
   --accent2:   #6ee7b7;
   --accent-bg: #052e16;
 }
-
+ 
 [data-palette="midnight"] {
   --accent:    #4f46e5;
   --accent2:   #6366f1;
@@ -111,7 +111,7 @@
   --accent2:   #a5b4fc;
   --accent-bg: #1e1b4b;
 }
-
+ 
 [data-palette="ember"] {
   --accent:    #ea580c;
   --accent2:   #f97316;
@@ -122,7 +122,7 @@
   --accent2:   #fdba74;
   --accent-bg: #1c0a00;
 }
-
+ 
 [data-palette="gold"] {
   --accent:    #b45309;
   --accent2:   #d97706;
@@ -133,21 +133,21 @@
   --accent2:   #fcd34d;
   --accent-bg: #1c1200;
 }
-
-
+ 
+ 
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: "Nunito", system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; }
 input, select, textarea { font-family: inherit; }
-
+ 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text4); }
-
+ 
 /* ===== AUTH ===== */
 #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); position: relative; overflow: hidden; }
 #auth-screen::before { content: ""; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,71,255,.15) 0%, transparent 70%); pointer-events: none; }
@@ -169,11 +169,11 @@ input, select, textarea { font-family: inherit; }
 .auth-msg { text-align: center; font-size: .78rem; margin-top: 12px; min-height: 18px; font-weight: 600; }
 .auth-msg.error { color: var(--red); }
 .auth-msg.success { color: var(--green); }
-
+ 
 /* ===== APP LAYOUT ===== */
 #app-screen { display: none; height: 100vh; overflow: hidden; }
 .app-layout { display: flex; height: 100vh; }
-
+ 
 /* ===== SIDEBAR ===== */
 .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 39; }
 .sb-overlay.show { display: block; }
@@ -188,14 +188,14 @@ input, select, textarea { font-family: inherit; }
 .sb-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
 .sb-sect { padding: 10px 14px 4px; font-size: .61rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text4); font-weight: 800; white-space: nowrap; }
 .sidebar.collapsed .sb-sect { opacity: 0; pointer-events: none; }
-
+ 
 /* Sidebar new semester button */
 .sb-new-btn { margin: 4px 8px 6px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; cursor: pointer; background: var(--accent); color: #fff; border: none; font-size: .78rem; font-weight: 800; white-space: nowrap; width: calc(100% - 16px); transition: all .15s; }
 .sb-new-btn:hover { background: var(--accent2); }
 .sb-new-btn-icon { display: none; margin: 4px auto 6px; width: 36px; height: 36px; border-radius: 10px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-size: 1.3rem; align-items: center; justify-content: center; }
 .sidebar.collapsed .sb-new-btn-icon { display: flex; }
 .sidebar.collapsed .sb-new-btn { display: none; }
-
+ 
 /* Semester rows */
 .sem-row { display: flex; align-items: center; gap: 0; margin: 1px 8px; border-radius: 10px; overflow: hidden; cursor: pointer; transition: background .15s; position: relative; }
 .sem-row:hover { background: var(--bg3); }
@@ -209,7 +209,7 @@ input, select, textarea { font-family: inherit; }
 .sem-chevron.open { transform: rotate(90deg); }
 .sidebar.collapsed .sem-row-name, .sidebar.collapsed .sem-chevron, .sidebar.collapsed .sb-sect { visibility: hidden; }
 .sidebar.collapsed .sem-tree { display: none; }
-
+ 
 /* Course rows (inside semester) */
 .sem-tree { padding: 0 0 4px; border-bottom: 1.5px solid var(--border2); margin-bottom: 2px; }
 .course-row { display: flex; align-items: center; gap: 5px; padding: 5px 8px 5px 24px; margin: 1px 8px; border-radius: 8px; cursor: pointer; transition: background .15s; }
@@ -224,7 +224,7 @@ input, select, textarea { font-family: inherit; }
 .tree-btn:hover { background: var(--bg4); color: var(--text2); }
 .add-course-row { display: flex; align-items: center; gap: 5px; padding: 5px 8px 5px 24px; margin: 1px 8px; border-radius: 8px; cursor: pointer; color: var(--text4); font-size: .71rem; border: none; background: none; width: calc(100% - 16px); font-weight: 700; font-family: inherit; }
 .add-course-row:hover { background: var(--bg3); color: var(--text2); }
-
+ 
 /* Sidebar bottom */
 .sb-bottom { padding: 10px 8px; border-top: 1.5px solid var(--border); flex-shrink: 0; }
 .sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; overflow: hidden; cursor: pointer; border-radius: 8px; }
@@ -233,10 +233,10 @@ input, select, textarea { font-family: inherit; }
 .sb-email { font-size: .72rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .sb-signout { background: var(--bg3); border: 1.5px solid var(--border); cursor: pointer; color: var(--text3); font-size: .72rem; padding: 5px 10px; border-radius: 7px; white-space: nowrap; font-family: inherit; font-weight: 700; transition: background .15s, color .15s; }
 .sb-signout:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
-
+ 
 /* ===== MAIN CONTENT ===== */
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
+ 
 /* TOPBAR */
 .topbar { display: flex; align-items: center; gap: 10px; padding: 0 18px; height: 56px; border-bottom: 1.5px solid var(--border); background: var(--bg2); flex-shrink: 0; }
 .topbar-title { font-size: 1rem; font-weight: 800; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: -0.3px; }
@@ -246,23 +246,23 @@ input, select, textarea { font-family: inherit; }
 .topbar-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 .topbar-btn.primary:hover { background: var(--accent2); }
 .hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--text2); font-size: 1.3rem; padding: 4px 6px; }
-
+ 
 /* TAB NAV */
 .tab-nav { display: flex; gap: 2px; padding: 10px 18px 0; border-bottom: 1.5px solid var(--border); background: var(--bg2); flex-shrink: 0; overflow-x: auto; }
 .tab-btn { padding: 8px 14px; border: none; background: none; cursor: pointer; font-size: .8rem; font-weight: 700; color: var(--text3); border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; white-space: nowrap; transition: all .15s; font-family: inherit; display: flex; align-items: center; gap: 6px; border-radius: 8px 8px 0 0; }
 .tab-btn:hover { color: var(--text); background: var(--bg3); }
 .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 .tab-icon { font-size: .95rem; }
-
+ 
 /* CONTENT AREA */
 .content-area { flex: 1; overflow-y: auto; padding: 20px 18px; }
-
+ 
 /* ===== EMPTY STATE ===== */
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; gap: 12px; }
 .empty-icon { font-size: 3rem; opacity: .5; }
 .empty-title { font-size: 1.1rem; font-weight: 800; color: var(--text2); }
 .empty-sub { font-size: .82rem; color: var(--text3); max-width: 320px; line-height: 1.6; }
-
+ 
 /* ===== DASHBOARD ===== */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
 .stat-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px 18px 16px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; transition: transform .12s, box-shadow .12s; }
@@ -286,11 +286,11 @@ input, select, textarea { font-family: inherit; }
 .stat-card.red .stat-value { color: var(--red); }
 .stat-card.pink .stat-value { color: var(--pink); }
 .stat-sub { font-size: .72rem; color: var(--text3); margin-top: 4px; font-weight: 600; }
-
+ 
 /* Upcoming section */
 .section-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .section-title::after { content: ""; flex: 1; height: 1.5px; background: var(--border); }
-
+ 
 /* Countdown chips */
 .countdown-grid { display: flex; flex-direction: column; gap: 8px; }
 .countdown-item { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--card-shadow); cursor: pointer; transition: all .15s; }
@@ -305,7 +305,7 @@ input, select, textarea { font-family: inherit; }
 .badge-soon { background: var(--cyan-bg); color: var(--cyan); }
 .badge-upcoming { background: var(--accent-bg); color: var(--accent); }
 .badge-done { background: var(--green-bg); color: var(--green); }
-
+ 
 /* GPA display */
 .gpa-card { background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%); border-radius: var(--radius); padding: 20px; color: #fff; margin-bottom: 22px; display: flex; align-items: center; gap: 16px; box-shadow: 0 6px 24px rgba(108,71,255,.3); }
 .gpa-icon { font-size: 2.5rem; }
@@ -313,7 +313,7 @@ input, select, textarea { font-family: inherit; }
 .gpa-label { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: .8; margin-bottom: 2px; }
 .gpa-value { font-size: 2.4rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
 .gpa-sub { font-size: .75rem; opacity: .8; font-weight: 600; margin-top: 2px; }
-
+ 
 /* ===== ASSIGNMENT LIST ===== */
 .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
 .filter-pill { padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg2); color: var(--text3); font-size: .74rem; font-weight: 700; cursor: pointer; transition: all .15s; font-family: inherit; }
@@ -321,7 +321,7 @@ input, select, textarea { font-family: inherit; }
 .filter-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(108,71,255,.3); }
 .filter-search { flex: 1; min-width: 150px; max-width: 280px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; color: var(--text); font-size: .82rem; outline: none; font-family: inherit; }
 .filter-search:focus { border-color: var(--accent); }
-
+ 
 /* Assignment rows */
 .assignment-list { display: flex; flex-direction: column; gap: 6px; }
 .assignment-row { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all .15s; box-shadow: var(--card-shadow); }
@@ -350,7 +350,7 @@ input, select, textarea { font-family: inherit; }
 .prio-high { background: var(--red); }
 .prio-med { background: var(--amber); }
 .prio-low { background: var(--green); }
-
+ 
 /* ===== CALENDAR ===== */
 .cal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .cal-month { font-size: 1.1rem; font-weight: 800; flex: 1; letter-spacing: -0.3px; }
@@ -377,7 +377,7 @@ input, select, textarea { font-family: inherit; }
 .cal-day.today .cal-day-num { color: var(--accent); }
 .cal-event { font-size: .62rem; font-weight: 700; padding: 2px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
 .cal-more { font-size: .6rem; font-weight: 700; color: var(--text4); padding: 1px 3px; }
-
+ 
 /* ===== GANTT ===== */
 .gantt-wrap { overflow-x: auto; }
 .gantt-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; }
@@ -391,7 +391,7 @@ input, select, textarea { font-family: inherit; }
 .gantt-bar { height: 20px; border-radius: 10px; display: block; opacity: .85; transition: opacity .15s; cursor: pointer; }
 .gantt-bar:hover { opacity: 1; }
 .gantt-today-line { border-right: 2px dashed var(--red); position: relative; }
-
+ 
 /* ===== COURSE DETAIL ===== */
 .course-header-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; box-shadow: var(--card-shadow); }
 .course-color-block { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; font-weight: 900; }
@@ -405,7 +405,7 @@ input, select, textarea { font-family: inherit; }
 .course-stat-lbl { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); }
 .progress-bar-wrap { background: var(--bg3); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 8px; }
 .progress-bar { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--pink)); transition: width .5s ease; }
-
+ 
 /* ===== MODALS ===== */
 .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
 .modal-bg.open { display: flex; }
@@ -413,7 +413,7 @@ input, select, textarea { font-family: inherit; }
 .modal-title { font-size: 1rem; font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
 .modal-close { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--text3); padding: 2px 6px; border-radius: 6px; line-height: 1; }
 .modal-close:hover { background: var(--bg3); color: var(--text); }
-
+ 
 /* Form elements inside modals */
 .flbl { display: block; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); margin-bottom: 5px; }
 .inp { width: 100%; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text); font-size: .87rem; outline: none; font-family: inherit; transition: border-color .15s; }
@@ -421,7 +421,7 @@ input, select, textarea { font-family: inherit; }
 select.inp { cursor: pointer; }
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-
+ 
 /* Buttons */
 .btn { padding: 8px 16px; border-radius: 10px; font-size: .82rem; font-weight: 700; cursor: pointer; border: none; transition: all .15s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
 .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(108,71,255,.3); }
@@ -431,25 +431,25 @@ select.inp { cursor: pointer; }
 .btn-danger { background: var(--red); color: #fff; }
 .btn-danger:hover { opacity: .85; }
 .btn-sm { padding: 5px 12px; font-size: .75rem; }
-
+ 
 /* ===== TOAST ===== */
 #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 20px; font-size: .82rem; font-weight: 700; z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s; opacity: 0; white-space: nowrap; max-width: 90vw; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 #toast.error { background: var(--red); color: #fff; }
 #toast.success { background: var(--green); color: #fff; }
-
+ 
 /* ===== THEME TOGGLE ===== */
 .theme-btn { background: none; border: 1.5px solid var(--border); cursor: pointer; color: var(--text2); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .9rem; transition: all .15s; }
 .theme-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
-
+ 
 /* ===== NOTES ===== */
 .notes-area { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: .87rem; color: var(--text); line-height: 1.7; outline: none; width: 100%; min-height: 200px; font-family: "DM Mono", monospace; resize: vertical; }
 .notes-area:focus { border-color: var(--accent); }
-
+ 
 /* ===== CONFETTI ===== */
 @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 .confetti-piece { position: fixed; width: 10px; height: 10px; top: -20px; z-index: 9999; animation: confettiFall linear forwards; pointer-events: none; }
-
+ 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .sidebar { position: fixed; left: -280px; top: 0; bottom: 0; transition: left .25s ease, width .22s ease; z-index: 40; }
@@ -464,19 +464,19 @@ select.inp { cursor: pointer; }
   .tab-btn { padding: 8px 10px; font-size: .75rem; }
   .course-stats { display: none; }
 }
-
+ 
 /* ===== ANIMATIONS ===== */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .fade-in { animation: fadeIn .25s ease forwards; }
 @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(108,71,255,.3); } 50% { box-shadow: 0 0 0 8px rgba(108,71,255,0); } }
 .pulse { animation: pulseGlow 2s infinite; }
-
+ 
 /* ===== COLOR SWATCHES for course picker ===== */
 .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .color-swatch { width: 28px; height: 28px; border-radius: 7px; cursor: pointer; transition: transform .15s; border: 2px solid transparent; }
 .color-swatch:hover { transform: scale(1.15); }
 .color-swatch.selected { border-color: var(--text); }
-
+ 
 /* ===== BADGE CHIPS ===== */
 .badge-chip {
   display: inline-flex;
@@ -516,7 +516,7 @@ select.inp { cursor: pointer; }
 .rarity-uncommon { background: var(--accent-bg); color: var(--accent); }
 .rarity-rare     { background: var(--accent-bg); color: var(--accent2); }
 .rarity-epic     { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
-
+ 
 </style>
 </head>
 <body>
@@ -581,14 +581,14 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 </div>
-
+ 
 <!-- APP SCREEN -->
 <div id="app-screen">
   <div class="app-layout">
-
+ 
     <!-- SIDEBAR OVERLAY (mobile) -->
     <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
-
+ 
     <!-- SIDEBAR -->
     <nav class="sidebar" id="sidebar">
       <div class="sb-top">
@@ -614,7 +614,7 @@ select.inp { cursor: pointer; }
         </div>
       </div>
     </nav>
-
+ 
     <!-- MAIN CONTENT -->
     <div class="main-content">
       <div class="topbar">
@@ -624,7 +624,7 @@ select.inp { cursor: pointer; }
         <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
         <button class="topbar-btn primary" id="topbar-add-btn" onclick="topbarAdd()" style="display:none">＋ Add</button>
       </div>
-
+ 
       <div class="tab-nav" id="tab-nav" style="display:none">
         <button class="tab-btn active" data-tab="dashboard" onclick="showTab('dashboard')"><span class="tab-icon">📊</span>Dashboard</button>
         <button class="tab-btn" data-tab="assignments" onclick="showTab('assignments')"><span class="tab-icon">📝</span>Assignments</button>
@@ -633,7 +633,7 @@ select.inp { cursor: pointer; }
         <button class="tab-btn" data-tab="courses" onclick="showTab('courses')"><span class="tab-icon">📚</span>Courses</button>
         <button class="tab-btn" data-tab="habits" onclick="showTab('habits')"><span class="tab-icon">🔥</span>Habits</button>
       </div>
-
+ 
       <div class="content-area" id="content-area">
         <div class="empty-state">
           <div class="empty-icon">🎓</div>
@@ -642,14 +642,14 @@ select.inp { cursor: pointer; }
         </div>
       </div>
     </div>
-
+ 
   </div>
 </div>
-
+ 
 <!-- TOAST -->
 <div id="toast"></div>
 <div id="toast-container" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none"></div>
-
+ 
 <!-- SEMESTER MODAL -->
 <div class="modal-bg" id="sem-modal">
   <div class="modal" style="max-width:440px">
@@ -671,7 +671,7 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 </div>
-
+ 
 <!-- COURSE MODAL -->
 <div class="modal-bg" id="course-modal">
   <div class="modal" style="max-width:460px">
@@ -697,7 +697,7 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 </div>
-
+ 
 <!-- ASSIGNMENT MODAL -->
 <div class="modal-bg" id="assign-modal">
   <div class="modal" style="max-width:500px">
@@ -760,7 +760,7 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 </div>
-
+ 
 <!-- HABIT MODAL -->
 <div class="modal-bg" id="habit-modal">
   <div class="modal" style="max-width:400px">
@@ -788,7 +788,7 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 </div>
-
+ 
 <!-- CONFIRM MODAL -->
 <div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:28px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4);">
@@ -801,14 +801,14 @@ select.inp { cursor: pointer; }
     </div>
   </div>
 </div>
-
+ 
 <script>
 // =============================================
 // CELIO CAMPUS — MAIN SCRIPT
 // =============================================
 (function() {
 "use strict";
-
+ 
 // ===== SUPABASE CONFIG =====
 // Replace with your actual Supabase URL and anon key
 var SUPABASE_URL = "https://eeokgkzjlrrbvbpuaudd.supabase.co";
@@ -833,7 +833,7 @@ var _customStorage = {
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { storage: _customStorage, persistSession: true, detectSessionInUrl: true }
 });
-
+ 
 // ===== STATE =====
 var currentUser = null;
 var semesters = [];
@@ -854,19 +854,19 @@ var userStats = null;
 var habits = [];
 var habitLogs = []; // today's logs
 var editingHabitId = null;
-
+ 
 // ===== COURSE COLORS =====
 var COURSE_COLORS = [
   "#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4",
   "#ef4444","#8b5cf6","#14b8a6","#f97316","#64748b",
   "#a855f7","#10b981","#3b82f6","#e11d48","#0ea5e9"
 ];
-
+ 
 var TYPE_EMOJI = {
   assignment: "📝", exam: "🔥", test: "✏️", quiz: "⚡",
   lab: "🔬", project: "🚀"
 };
-
+ 
 // ===== GAMIFICATION =====
 var XP_VALUES = { assignment: 20, exam: 50, test: 30, quiz: 10, lab: 25, project: 50 };
 var XP_HABIT = 10;
@@ -934,7 +934,7 @@ function getNextLevel(xp) {
   }
   return null;
 }
-
+ 
 // ===== TOAST =====
 var toastTimer = null;
 function showToast(msg, type) {
@@ -946,7 +946,7 @@ function showToast(msg, type) {
     el.className = "";
   }, 3000);
 }
-
+ 
 // ===== CONFIRM =====
 window.showConfirm = function(title, msg, cb) {
   document.getElementById("confirm-title").textContent = title;
@@ -963,7 +963,7 @@ window.confirmOk = function() {
   if (confirmCb) { var fn = confirmCb; confirmCb = null; fn(); }
   document.getElementById("confirm-overlay").style.display = "none";
 };
-
+ 
 // ===== AUTH =====
 var currentAuthTab = "login";
 window.switchAuthTab = function(tab) {
@@ -975,7 +975,7 @@ window.switchAuthTab = function(tab) {
   document.getElementById("auth-submit-btn").textContent = tab === "login" ? "Sign In" : "Create Account";
   document.getElementById("auth-msg").textContent = "";
 };
-
+ 
 window.doAuth = async function() {
   var email = document.getElementById("auth-email").value.trim();
   var password = document.getElementById("auth-password").value;
@@ -1004,19 +1004,19 @@ window.doAuth = async function() {
     msgEl.textContent = err.message || "Authentication failed.";
   }
 };
-
+ 
 // Enter key on auth
 document.addEventListener("keydown", function(e) {
   if (e.key === "Enter" && document.getElementById("auth-screen").style.display !== "none") {
     doAuth();
   }
 });
-
+ 
 window.doSignOut = async function() {
   await sb.auth.signOut();
   applySession(null);
 };
-
+ 
 // ===== THEME =====
 window.toggleTheme = function() {
   var html = document.documentElement;
@@ -1026,7 +1026,7 @@ window.toggleTheme = function() {
   localStorage.setItem("celio-campus-theme", next);
   document.querySelector(".theme-btn").textContent = next === "dark" ? "☀" : "🌙";
 };
-
+ 
 function applyLevelPalette(xp) {
   var level = getLevel(xp);
   var palette = (level.theme && level.theme !== "default") ? level.theme : "";
@@ -1038,7 +1038,7 @@ function applyLevelPalette(xp) {
   }
   localStorage.setItem("celio-campus-palette", palette || "");
 }
-
+ 
 // ===== SIDEBAR TOGGLE =====
 window.toggleSidebar = function() {
   var sb = document.getElementById("sidebar");
@@ -1056,7 +1056,7 @@ window.closeSidebar = function() {
   sb.classList.remove("mobile-open");
   document.getElementById("sb-overlay").classList.remove("show");
 };
-
+ 
 // ===== LOAD ALL DATA =====
 async function loadAll() {
   if (!currentUser) return;
@@ -1086,7 +1086,7 @@ async function loadAll() {
     } catch(e) { habits = []; habitLogs = []; }
     // Load badge IDs (non-blocking)
     try { await fetchUserBadgeIds(); } catch(e) { _unlockedBadgeIds = null; }
-
+ 
     // Restore last active semester
     var savedSemId = localStorage.getItem("celio-campus-sem-" + currentUser.id);
     if (savedSemId) {
@@ -1103,7 +1103,7 @@ async function loadAll() {
     showToast("Error loading data: " + err.message, "error");
   }
 }
-
+ 
 // ===== RENDER SIDEBAR =====
 function renderSidebar() {
   var el = document.getElementById("sb-semesters");
@@ -1148,7 +1148,7 @@ function renderSidebar() {
     document.getElementById("sb-avatar").textContent = (name[0] || "?").toUpperCase();
   }
 }
-
+ 
 // ===== SELECT SEMESTER =====
 window.selectSemester = function(semId) {
   activeSemester = semesters.find(function(s) { return s.id === semId; }) || null;
@@ -1162,7 +1162,7 @@ window.selectSemester = function(semId) {
   renderActiveTab();
   closeSidebar();
 };
-
+ 
 window.selectCourse = function(courseId) {
   activeCourse = courses.find(function(c) { return c.id === courseId; }) || null;
   if (activeCourse) {
@@ -1174,19 +1174,19 @@ window.selectCourse = function(courseId) {
   renderSidebar();
   closeSidebar();
 };
-
+ 
 window.toggleSemExpand = function(e, semId) {
   e.stopPropagation();
   uiExpanded[semId] = !uiExpanded[semId];
   renderSidebar();
 };
-
+ 
 function updateTopbar() {
   var title = "Celio Campus";
   if (activeSemester) title = activeSemester.name;
   document.getElementById("topbar-title").textContent = title;
 }
-
+ 
 // ===== TABS =====
 window.showTab = function(tab) {
   activeTab = tab;
@@ -1195,7 +1195,7 @@ window.showTab = function(tab) {
   });
   renderActiveTab();
 };
-
+ 
 function renderActiveTab() {
   if (!activeSemester && activeTab !== "habits") return;
   updateTopbar();
@@ -1209,7 +1209,7 @@ function renderActiveTab() {
   };
   if (fns[activeTab]) fns[activeTab]();
 }
-
+ 
 // ===== HELPERS =====
 function esc(str) {
   if (!str) return "";
@@ -1219,13 +1219,13 @@ function esc(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
-
+ 
 function formatDate(dateStr) {
   if (!dateStr) return "";
   var d = new Date(dateStr + "T00:00:00");
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
-
+ 
 function daysUntil(dateStr) {
   if (!dateStr) return null;
   var now = new Date();
@@ -1233,7 +1233,7 @@ function daysUntil(dateStr) {
   var d = new Date(dateStr + "T00:00:00");
   return Math.round((d - now) / 86400000);
 }
-
+ 
 function getDueBadge(days, status) {
   if (status === "done") return { cls: "badge-done", text: "Done" };
   if (days === null) return { cls: "badge-upcoming", text: "No date" };
@@ -1242,7 +1242,7 @@ function getDueBadge(days, status) {
   if (days <= 3) return { cls: "badge-soon", text: "In " + days + "d" };
   return { cls: "badge-upcoming", text: "In " + days + "d" };
 }
-
+ 
 function getDueClass(days, status) {
   if (status === "done") return "due-upcoming";
   if (days === null) return "due-upcoming";
@@ -1251,17 +1251,17 @@ function getDueClass(days, status) {
   if (days <= 3) return "due-soon";
   return "due-upcoming";
 }
-
+ 
 function getSemAssignments() {
   if (!activeSemester) return [];
   var semCourseIds = courses.filter(function(c) { return c.semester_id === activeSemester.id; }).map(function(c) { return c.id; });
   return assignments.filter(function(a) { return semCourseIds.indexOf(a.course_id) > -1; });
 }
-
+ 
 function getCourseById(id) {
   return courses.find(function(c) { return c.id === id; }) || null;
 }
-
+ 
 function calculateGPA(semAssignments) {
   // Use weighted marks if available, fall back to null
   var graded = semAssignments.filter(function(a) {
@@ -1275,7 +1275,7 @@ function calculateGPA(semAssignments) {
   });
   return totalWeight > 0 ? Math.round(weightedScore / totalWeight * 100) : null;
 }
-
+ 
 // ===== RENDER DASHBOARD =====
 function renderDashboard() {
   var ca = document.getElementById("content-area");
@@ -1288,7 +1288,7 @@ function renderDashboard() {
   var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
   var gpa = calculateGPA(semA);
   var html = '<div class="fade-in">';
-
+ 
   // Gamification card
   if (userStats) {
     var xp = userStats.xp || 0;
@@ -1297,7 +1297,7 @@ function renderDashboard() {
     var nextLevel = getNextLevel(xp);
     var levelPct = nextLevel ? Math.min(100, Math.round((xp - level.min) / (nextLevel.min - level.min) * 100)) : 100;
     var earnedBadgeIds = _unlockedBadgeIds ? Array.from(_unlockedBadgeIds) : (userStats.badges || []);
-
+ 
     // XP card
     html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
     html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
@@ -1321,7 +1321,7 @@ function renderDashboard() {
     html += '<div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.8">Day Streak</div>';
     html += '</div></div>';
     html += '</div>';
-
+ 
     // Badges section — collapsible
     var BADGE_CATS = [
       { key: "productivity", label: "📝 Productivity" },
@@ -1395,7 +1395,7 @@ function renderDashboard() {
       html += '</div>';
     }
   }
-
+ 
   // Stat cards — clickable to jump to filtered assignments tab
   html += '<div class="stat-grid">';
   html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')" title="View all assignments"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div>';
@@ -1404,7 +1404,7 @@ function renderDashboard() {
   html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')" title="View due today"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div>';
   html += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')" title="View this week"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div>';
   html += '</div>';
-
+ 
   // Progress
   if (total > 0) {
     var pct = Math.round(done / total * 100);
@@ -1414,7 +1414,7 @@ function renderDashboard() {
     html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + pct + '%"></div></div>';
     html += '</div>';
   }
-
+ 
   // Upcoming items
   var upcoming7 = semA.filter(function(a) {
     var d = daysUntil(a.due_date);
@@ -1422,7 +1422,7 @@ function renderDashboard() {
   }).sort(function(a, b) {
     return (daysUntil(a.due_date)||99) - (daysUntil(b.due_date)||99);
   }).slice(0, 8);
-
+ 
   // Also add overdue
   var overdueItems = semA.filter(function(a) {
     return a.status !== "done" && daysUntil(a.due_date) < 0;
@@ -1430,7 +1430,7 @@ function renderDashboard() {
   var combined = overdueItems.concat(upcoming7).filter(function(a, i, arr) {
     return arr.findIndex(function(x) { return x.id === a.id; }) === i;
   }).slice(0, 10);
-
+ 
   if (combined.length > 0) {
     html += '<div class="section-title">Upcoming & Overdue</div>';
     html += '<div class="countdown-grid">';
@@ -1450,7 +1450,7 @@ function renderDashboard() {
     });
     html += '</div>';
   }
-
+ 
   // Course overview
   if (semCourses.length > 0) {
     html += '<div class="section-title" style="margin-top:20px">Courses</div>';
@@ -1479,11 +1479,11 @@ function renderDashboard() {
     });
     html += '</div>';
   }
-
+ 
   html += '</div>';
   ca.innerHTML = html;
 }
-
+ 
 // ===== RENDER ASSIGNMENTS =====
 function renderAssignments() {
   var ca = document.getElementById("content-area");
@@ -1491,7 +1491,7 @@ function renderAssignments() {
   if (activeCourse) {
     semA = assignments.filter(function(a) { return a.course_id === activeCourse.id; });
   }
-
+ 
   // Filter
   var filtered = semA.filter(function(a) {
     if (assignFilter === "todo") return a.status === "todo";
@@ -1505,7 +1505,7 @@ function renderAssignments() {
     var q = assignSearch.toLowerCase();
     return (a.title||"").toLowerCase().includes(q) || (a.notes||"").toLowerCase().includes(q);
   });
-
+ 
   var html = '<div class="fade-in">';
   if (activeCourse) {
     var course = activeCourse;
@@ -1529,7 +1529,7 @@ function renderAssignments() {
     html += '<div class="course-stats"><div class="course-stat"><div class="course-stat-val" style="color:' + (course.color||"var(--accent)") + '">' + cdone + '/' + ca2.length + '</div><div class="course-stat-lbl">Done</div></div></div>';
     html += '</div>';
   }
-
+ 
   // Filter bar
   html += '<div class="filter-bar">';
   ["all","todo","inprogress","done","overdue","upcoming"].forEach(function(f) {
@@ -1538,7 +1538,7 @@ function renderAssignments() {
   });
   html += '<input class="filter-search" placeholder="Search..." value="' + esc(assignSearch) + '" oninput="setSearch(this.value)">';
   html += '</div>';
-
+ 
   if (filtered.length === 0) {
     html += '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nothing here</div><div class="empty-sub">No assignments match your filter. Try changing the filter or add a new one!</div></div>';
   } else {
@@ -1583,14 +1583,14 @@ function renderAssignments() {
     });
     html += '</div>';
   }
-
+ 
   html += '</div>';
   ca.innerHTML = html;
 }
-
+ 
 window.setFilter = function(f) { assignFilter = f; renderAssignments(); };
 window.setSearch = function(v) { assignSearch = v; renderAssignments(); };
-
+ 
 window.saveInlineGrade = async function(e, id, totalMarks) {
   var val = parseFloat(e.target.value);
   if (isNaN(val) || e.target.value === "") return;
@@ -1608,7 +1608,7 @@ window.saveInlineGrade = async function(e, id, totalMarks) {
     showToast(err.message, "error");
   }
 };
-
+ 
 window.toggleDone = async function(e, id) {
   e.stopPropagation();
   var a = assignments.find(function(x) { return x.id === id; });
@@ -1642,7 +1642,7 @@ window.toggleDone = async function(e, id) {
     renderActiveTab();
   } catch (err) { showToast(err.message, "error"); }
 };
-
+ 
 async function ensureStats() {
   if (userStats) return userStats;
   var res = await sb.from("user_stats").insert({
@@ -1652,8 +1652,8 @@ async function ensureStats() {
   userStats = res.data;
   return userStats;
 }
-
-
+ 
+ 
 function getBadgeProgress(badgeId) {
   // Returns { current, target } for badges with trackable numeric progress.
   // Returns null for badges that aren't trackable (timing, one-off events).
@@ -1663,7 +1663,7 @@ function getBadgeProgress(badgeId) {
   var levelIdx  = getLevelIndex(xp);
   var semCourses = activeSemester ? courses.filter(function(c) { return c.semester_id === activeSemester.id; }) : [];
   var withNotes  = assignments.filter(function(a) { return a.notes && a.notes.trim().length > 0; }).length;
-
+ 
   switch (badgeId) {
     // Productivity — assignment count
     case "first_step":     return { current: doneCount, target: 1 };
@@ -1723,17 +1723,17 @@ function getBadgeProgress(badgeId) {
     default: return null;
   }
 }
-
+ 
 // ===== BADGE SYSTEM =====
 var _unlockedBadgeIds = null; // in-memory cache
-
+ 
 async function fetchUserBadgeIds() {
   var res = await sb.from("user_badges").select("badge_id").eq("user_id", currentUser.id);
   if (res.error) { console.warn("fetchUserBadgeIds:", res.error); return new Set(); }
   _unlockedBadgeIds = new Set((res.data || []).map(function(x) { return x.badge_id; }));
   return _unlockedBadgeIds;
 }
-
+ 
 async function grantBadge(badgeId) {
   var res = await sb.rpc("unlock_badge", { p_user_id: currentUser.id, p_badge_id: badgeId, p_context: {} });
   if (res.error) { console.warn("grantBadge", badgeId, res.error); return false; }
@@ -1752,14 +1752,14 @@ async function grantBadge(badgeId) {
   }
   return true;
 }
-
+ 
 function sameLocalDay(dateLike, refDate) {
   var d = new Date(dateLike);
   return d.getFullYear() === refDate.getFullYear() &&
          d.getMonth() === refDate.getMonth() &&
          d.getDate() === refDate.getDate();
 }
-
+ 
 function getLevelIndex(xp) {
   var idx = 0;
   for (var i = LEVELS.length - 1; i >= 0; i--) {
@@ -1767,7 +1767,7 @@ function getLevelIndex(xp) {
   }
   return idx; // 1-based (Freshman=1, Sophomore=2, …)
 }
-
+ 
 async function evaluateBadges(context) {
   // context = { trigger: "assignment"|"habit"|"semester"|"course"|"xp", data: {} }
   try {
@@ -1778,19 +1778,19 @@ async function evaluateBadges(context) {
     var now = new Date();
     var hour = now.getHours();
     var dow = now.getDay(); // 0=Sun, 6=Sat
-
+ 
     // --- Productivity ---
     var allDone = assignments.filter(function(a) { return a.status === "done"; });
     var doneCount = allDone.length;
     var doneToday = allDone.filter(function(a) { return a.updated_at && sameLocalDay(a.updated_at, now); }).length;
-
+ 
     if (doneCount >= 1   && !unlocked.has("first_step"))     await grantBadge("first_step");
     if (doneToday >= 3   && !unlocked.has("momentum"))       await grantBadge("momentum");
     if (doneToday >= 5   && !unlocked.has("speed_runner"))   await grantBadge("speed_runner");
     if (doneCount >= 10  && !unlocked.has("focused_finish")) await grantBadge("focused_finish");
     if (doneCount >= 25  && !unlocked.has("task_titan"))     await grantBadge("task_titan");
     if (doneCount >= 100 && !unlocked.has("legend"))         await grantBadge("legend");
-
+ 
     // Timing badges (triggered on assignment completion)
     if (context && context.trigger === "assignment") {
       if (hour < 8  && !unlocked.has("early_bird"))       await grantBadge("early_bird");
@@ -1809,35 +1809,35 @@ async function evaluateBadges(context) {
         }
       }
     }
-
+ 
     // --- Streaks ---
     if (streak >= 5  && !unlocked.has("on_fire"))          await grantBadge("on_fire");
     if (streak >= 10 && !unlocked.has("relentless"))        await grantBadge("relentless");
     if (streak >= 30 && !unlocked.has("unstoppable"))       await grantBadge("unstoppable");
     if (streak >= 60 && !unlocked.has("semester_ironman"))  await grantBadge("semester_ironman");
-
+ 
     // --- Habits ---
     // routine_builder, consistency_king, discipline_mode: checked in toggleHabit based on habit streak
     var habRes = await sb.from("habits").select("id",{count:"exact",head:true}).eq("user_id", currentUser.id);
     if (!habRes.error && habRes.count >= 5 && !unlocked.has("habit_garden")) await grantBadge("habit_garden");
-
+ 
     // --- Setup ---
     if (semesters.length >= 1 && !unlocked.has("semester_architect")) await grantBadge("semester_architect");
     if (courses.length >= 1   && !unlocked.has("course_starter"))     await grantBadge("course_starter");
     if (assignments.length >= 20 && !unlocked.has("planner_mode"))    await grantBadge("planner_mode");
-
+ 
     // Full Load: 5 courses in one semester
     if (!unlocked.has("full_load") && activeSemester) {
       var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
       if (semCourses.length >= 5) await grantBadge("full_load");
     }
-
+ 
     // Organized Mind: 10 assignments with notes
     if (!unlocked.has("organized_mind")) {
       var withNotes = assignments.filter(function(a) { return a.notes && a.notes.trim().length > 0; }).length;
       if (withNotes >= 10) await grantBadge("organized_mind");
     }
-
+ 
     // Course Master: all assignments done in any course
     if (!unlocked.has("course_master")) {
       var completedCourses = 0;
@@ -1848,7 +1848,7 @@ async function evaluateBadges(context) {
       if (completedCourses >= 1) await grantBadge("course_master");
       if (completedCourses >= 2 && !unlocked.has("double_major")) await grantBadge("double_major");
     }
-
+ 
     // Final Boss: all assignments in semester done
     if (!unlocked.has("final_boss") && activeSemester) {
       var semA = assignments.filter(function(a) {
@@ -1857,15 +1857,15 @@ async function evaluateBadges(context) {
       });
       if (semA.length > 0 && semA.every(function(a) { return a.status === "done"; })) await grantBadge("final_boss");
     }
-
+ 
     // --- Milestones (level) ---
     if (levelIdx >= 2  && !unlocked.has("level_up"))    await grantBadge("level_up");
     if (levelIdx >= 5  && !unlocked.has("scholar"))     await grantBadge("scholar");
     if (levelIdx >= 7  && !unlocked.has("grandmaster")) await grantBadge("grandmaster");
-
+ 
   } catch(err) { console.warn("evaluateBadges:", err); }
 }
-
+ 
 async function awardXP(assignment) {
   try {
     var stats = await ensureStats();
@@ -1906,12 +1906,12 @@ async function awardXP(assignment) {
     evaluateBadges({ trigger: "assignment", data: { assignment: assignment } });
   } catch(err) { console.warn("XP error:", err); }
 }
-
+ 
 window.toggleBadgesPanel = function() {
   uiExpanded["badges"] = !uiExpanded["badges"];
   renderDashboard();
 };
-
+ 
 function showBadgeToast(badge) {
   var container = document.getElementById("toast-container");
   if (!container) return;
@@ -1921,7 +1921,7 @@ function showBadgeToast(badge) {
   container.appendChild(el);
   setTimeout(function() { el.style.opacity = "0"; el.style.transition = "opacity .4s"; setTimeout(function() { el.remove(); }, 400); }, 4000);
 }
-
+ 
 async function deductXP(assignment) {
   try {
     if (!userStats) return;
@@ -1932,7 +1932,7 @@ async function deductXP(assignment) {
     showToast("-" + xpLoss + " XP");
   } catch(err) { console.warn("XP deduct error:", err); }
 }
-
+ 
 // ===== CONFETTI =====
 function launchConfetti() {
   var colors = ["#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4","#ef4444"];
@@ -1954,10 +1954,10 @@ function launchConfetti() {
     })(i);
   }
 }
-
+ 
 // ===== RENDER CALENDAR =====
 var calDragId = null;
-
+ 
 function renderCalendar() {
   var ca = document.getElementById("content-area");
   var semA = getSemAssignments();
@@ -1968,7 +1968,7 @@ function renderCalendar() {
   var today = new Date();
   today.setHours(0,0,0,0);
   var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
+ 
   var html = '<div class="fade-in">';
   html += '<div class="cal-header">';
   html += '<button class="cal-nav" onclick="calNav(-1)">◀</button>';
@@ -1980,12 +1980,12 @@ function renderCalendar() {
   ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) {
     html += '<div class="cal-dow">' + d + '</div>';
   });
-
+ 
   // blank cells before first day
   for (var i = 0; i < firstDay; i++) {
     html += '<div class="cal-day other-month"><div class="cal-day-num">' + (new Date(year, month, -firstDay + i + 1).getDate()) + '</div></div>';
   }
-
+ 
   for (var day = 1; day <= daysInMonth; day++) {
     var d = new Date(year, month, day);
     d.setHours(0,0,0,0);
@@ -2006,18 +2006,18 @@ function renderCalendar() {
     if (dayAssigns.length > 3) html += '<div class="cal-more">+' + (dayAssigns.length-3) + ' more</div>';
     html += '</div>';
   }
-
+ 
   // trailing blank cells
   var total = firstDay + daysInMonth;
   var trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
   for (var t = 1; t <= trailing; t++) {
     html += '<div class="cal-day other-month"><div class="cal-day-num">' + t + '</div></div>';
   }
-
+ 
   html += '</div></div>';
   ca.innerHTML = html;
 }
-
+ 
 window.calNav = function(dir) {
   calViewDate.setMonth(calViewDate.getMonth() + dir);
   renderCalendar();
@@ -2061,7 +2061,7 @@ window.calDrop = async function(e, dateStr) {
     renderCalendar();
   }
 };
-
+ 
 // ===== RENDER GANTT =====
 function renderGantt() {
   var ca = document.getElementById("content-area");
@@ -2069,7 +2069,7 @@ function renderGantt() {
     ca.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Set semester dates</div><div class="empty-sub">Add start and end dates to your semester to see the timeline view.</div></div>';
     return;
   }
-
+ 
   var start = new Date(activeSemester.start_date + "T00:00:00");
   var end = new Date(activeSemester.end_date + "T00:00:00");
   var totalDays = Math.ceil((end - start) / 86400000) + 1;
@@ -2077,7 +2077,7 @@ function renderGantt() {
   var semA = getSemAssignments();
   var today = new Date(); today.setHours(0,0,0,0);
   var todayOffset = Math.ceil((today - start) / 86400000);
-
+ 
   // Build week columns
   var weeks = [];
   var weekMs = 7 * 86400000;
@@ -2086,7 +2086,7 @@ function renderGantt() {
     var wStart = new Date(start.getTime() + w * weekMs);
     weeks.push("W" + (w+1));
   }
-
+ 
   var html = '<div class="fade-in"><div class="gantt-wrap">';
   html += '<table class="gantt-table"><thead><tr class="gantt-header-row">';
   html += '<th class="gantt-name-col">Assignment</th>';
@@ -2095,7 +2095,7 @@ function renderGantt() {
     html += '<th class="gantt-week-col' + (isTodayWeek ? " gantt-today-line" : "") + '">' + w + '</th>';
   });
   html += '</tr></thead><tbody>';
-
+ 
   semCourses.forEach(function(course) {
     var cAssigns = semA.filter(function(a) { return a.course_id === course.id; });
     if (cAssigns.length === 0) return;
@@ -2123,17 +2123,17 @@ function renderGantt() {
       html += '</tr>';
     });
   });
-
+ 
   html += '</tbody></table></div></div>';
   ca.innerHTML = html;
 }
-
+ 
 // ===== RENDER COURSES TAB =====
 function renderCoursesTab() {
   var ca = document.getElementById("content-area");
   var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
   var html = '<div class="fade-in">';
-
+ 
   if (semCourses.length === 0) {
     html += '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No courses yet</div><div class="empty-sub">Add your courses for this semester to start tracking assignments.</div></div>';
     html += '<div style="text-align:center;margin-top:12px"><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
@@ -2169,11 +2169,11 @@ function renderCoursesTab() {
     });
     html += '</div>';
   }
-
+ 
   html += '</div>';
   ca.innerHTML = html;
 }
-
+ 
 // ===== SEMESTER MODAL =====
 window.openSemesterModal = function() {
   editingSemesterId = null;
@@ -2233,11 +2233,11 @@ window.saveSemester = async function() {
     if (!editingSemesterId) evaluateBadges({ trigger: "semester" });
   } catch (err) { showToast(err.message, "error"); }
 };
-
+ 
 // ===== COURSE MODAL =====
 var currentCourseColorPick = COURSE_COLORS[0];
 var currentCourseSemesterId = null;
-
+ 
 window.openAddCourseModal = function(e, semId) {
   if (e) e.stopPropagation();
   editingCourseId = null;
@@ -2324,7 +2324,7 @@ window.openDeleteCourse = function(e, courseId) {
     } catch (err) { showToast(err.message, "error"); }
   });
 };
-
+ 
 // ===== ASSIGNMENT MODAL =====
 window.openAddAssignmentModal = function() {
   editingAssignmentId = null;
@@ -2373,7 +2373,7 @@ function populateCourseDropdown(selected) {
 window.closeAssignModal = function() {
   document.getElementById("assign-modal").classList.remove("open");
 };
-
+ 
 window.updateGradeCalc = function() {
   var marks = parseFloat(document.getElementById("a-marks-received").value);
   var total = parseFloat(document.getElementById("a-total-marks").value);
@@ -2392,7 +2392,7 @@ window.updateGradeCalc = function() {
     el.innerHTML = "";
   }
 };
-
+ 
 function calculateCourseGrade(courseId) {
   var courseAssignments = assignments.filter(function(a) {
     return a.course_id === courseId && a.marks_received != null && a.total_marks != null && a.total_marks > 0 && a.weight != null && a.weight > 0;
@@ -2463,7 +2463,7 @@ window.deleteAssignment = function() {
     } catch (err) { showToast(err.message, "error"); }
   });
 };
-
+ 
 // ===== MODAL BACKDROP CLOSE =====
 window.addEventListener("DOMContentLoaded", function() {
   ["sem-modal","course-modal","assign-modal","habit-modal"].forEach(function(id) {
@@ -2478,19 +2478,19 @@ window.addEventListener("DOMContentLoaded", function() {
   var overlay = document.getElementById("confirm-overlay");
   if (overlay) overlay.addEventListener("click", function(e) { if (e.target === this) closeConfirm(); });
 });
-
+ 
 // ===== HABITS =====
 var HABIT_COLORS = ["#6c47ff","#ec4899","#f59e0b","#10b981","#3b82f6","#ef4444","#8b5cf6","#06b6d4","#f97316","#84cc16"];
-
+ 
 function renderHabits() {
   var ca = document.getElementById("content-area");
   var today = new Date().toISOString().split("T")[0];
   var completedToday = habitLogs.map(function(l) { return l.habit_id; });
   var totalDone = completedToday.length;
   var totalHabits = habits.length;
-
+ 
   var html = '<div class="fade-in">';
-
+ 
   // Header with progress
   html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">';
   html += '<div>';
@@ -2499,7 +2499,7 @@ function renderHabits() {
   html += '</div>';
   html += '<button class="btn btn-primary btn-sm" onclick="openAddHabitModal()">＋ New Habit</button>';
   html += '</div>';
-
+ 
   if (totalHabits > 0) {
     // Progress bar
     var pct = totalHabits > 0 ? Math.round(totalDone / totalHabits * 100) : 0;
@@ -2511,7 +2511,7 @@ function renderHabits() {
     html += '</div>';
     html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + pct + '%;background:' + (allDone ? "var(--green)" : "var(--accent)") + '"></div></div>';
     html += '</div>';
-
+ 
     // Habit list
     html += '<div style="display:flex;flex-direction:column;gap:10px">';
     habits.forEach(function(h) {
@@ -2538,14 +2538,14 @@ function renderHabits() {
   } else {
     html += '<div class="empty-state"><div class="empty-icon">🔥</div><div class="empty-title">No habits yet</div><div class="empty-sub">Build daily study habits to stay on track and earn XP!</div></div>';
   }
-
+ 
   html += '</div>';
   ca.innerHTML = html;
-
+ 
   // Load streaks async after render
   habits.forEach(function(h) { loadHabitStreak(h.id); });
 }
-
+ 
 async function loadHabitStreak(habitId) {
   try {
     var res = await sb.from("habit_logs").select("completed_date").eq("habit_id", habitId).order("completed_date", { ascending: false }).limit(60);
@@ -2566,7 +2566,7 @@ async function loadHabitStreak(habitId) {
     if (el) el.textContent = streak > 0 ? "🔥 " + streak + " day streak" : "Start your streak today!";
   } catch(e) {}
 }
-
+ 
 window.toggleHabit = async function(e, habitId) {
   e.stopPropagation();
   var today = new Date().toISOString().split("T")[0];
@@ -2595,7 +2595,7 @@ window.toggleHabit = async function(e, habitId) {
     renderHabits();
   } catch(err) { showToast(err.message, "error"); }
 };
-
+ 
 async function awardHabitXP(habitId) {
   var stats = await ensureStats();
   var today = new Date().toISOString().split("T")[0];
@@ -2633,14 +2633,14 @@ async function awardHabitXP(habitId) {
   } catch(be) { console.warn("habit badge check:", be); }
   evaluateBadges({ trigger: "habit" });
 }
-
+ 
 // Habit modal
 var HABIT_ICONS = [
   "🧘","🏃","📖","✍️","💧","🥗","😴","🧠","🎵","🌿",
   "🌅","🙏","💪","🎯","📝","🌊","🔥","⭐","💡","🎨",
   "🧹","📵","🥤","🫁","🌙","☀️","🤸","📚","✅","💬"
 ];
-
+ 
 function populateHabitIconPicker(selected) {
   var el = document.getElementById("h-icon-picker");
   if (!el) return;
@@ -2663,7 +2663,7 @@ function populateHabitIconPicker(selected) {
     el.appendChild(btn);
   });
 }
-
+ 
 function populateHabitColorPicker(selected) {
   var el = document.getElementById("h-color-picker");
   if (!el) return;
@@ -2680,13 +2680,13 @@ function populateHabitColorPicker(selected) {
     el.appendChild(s);
   });
 }
-
+ 
 window.topbarAdd = function() {
   if (activeTab === "habits") { openAddHabitModal(); }
   else if (activeTab === "courses") { openAddCourseModal(null, activeSemester ? activeSemester.id : null); }
   else { openAddAssignmentModal(); }
 };
-
+ 
 window.openAddHabitModal = function() {
   editingHabitId = null;
   document.getElementById("habit-modal-title").textContent = "New Habit";
@@ -2698,7 +2698,7 @@ window.openAddHabitModal = function() {
   populateHabitColorPicker("#6c47ff");
   document.getElementById("habit-modal").classList.add("open");
 };
-
+ 
 window.openEditHabitModal = function(id) {
   var h = habits.find(function(x) { return x.id === id; });
   if (!h) return;
@@ -2712,11 +2712,11 @@ window.openEditHabitModal = function(id) {
   populateHabitColorPicker(h.color || "#6c47ff");
   document.getElementById("habit-modal").classList.add("open");
 };
-
+ 
 window.closeHabitModal = function() {
   document.getElementById("habit-modal").classList.remove("open");
 };
-
+ 
 window.saveHabit = async function() {
   var name = document.getElementById("h-name").value.trim();
   if (!name) { showToast("Habit name is required", "error"); return; }
@@ -2742,7 +2742,7 @@ window.saveHabit = async function() {
     showToast(editingHabitId ? "Habit updated!" : "Habit added! 🔥", "success");
   } catch(err) { showToast(err.message, "error"); }
 };
-
+ 
 window.deleteHabit = function() {
   if (!editingHabitId) return;
   var h = habits.find(function(x) { return x.id === editingHabitId; });
@@ -2757,7 +2757,7 @@ window.deleteHabit = function() {
     } catch(err) { showToast(err.message, "error"); }
   });
 };
-
+ 
 // ===== AUTH BOOT =====
 async function applySession(user) {
   currentUser = user || null;
@@ -2789,7 +2789,7 @@ async function applySession(user) {
     activeSemester = null; activeCourse = null;
   }
 }
-
+ 
 // On page load — try to restore existing session first
 (async function() {
   try {
@@ -2800,7 +2800,7 @@ async function applySession(user) {
   // No session found — show sign-in
   applySession(null);
 })();
-
+ 
 // Keep session in sync for sign-in / sign-out / token refresh
 sb.auth.onAuthStateChange(async function(event, session) {
   var user = session ? session.user : null;
@@ -2808,7 +2808,7 @@ sb.auth.onAuthStateChange(async function(event, session) {
   if (event === "INITIAL_SESSION") return;
   await applySession(user);
 });
-
+ 
 })();
 </script>
 </body>
