@@ -1100,6 +1100,7 @@ async function loadAll() {
     // Silently check for any badges earned while offline / not yet evaluated
     setTimeout(function() { evaluateBadges({ trigger: "load" }); }, 800);
   } catch (err) {
+    console.error("loadAll error:", err);
     showToast("Error loading data: " + err.message, "error");
   }
 }
@@ -2794,9 +2795,14 @@ async function applySession(user) {
 (async function() {
   try {
     var res = await sb.auth.getSession();
-    var user = (res.data && res.data.session) ? res.data.session.user : null;
-    if (user) { await applySession(user); return; }
-  } catch(e) {}
+    var session = res.data && res.data.session ? res.data.session : null;
+    if (session && session.user) {
+      // Explicitly re-set the session so RLS tokens are live in the client
+      await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+      await applySession(session.user);
+      return;
+    }
+  } catch(e) { console.warn("Session restore failed:", e); }
   // No session found — show sign-in
   applySession(null);
 })();
@@ -2813,3 +2819,4 @@ sb.auth.onAuthStateChange(async function(event, session) {
 </script>
 </body>
 </html>
+ 
