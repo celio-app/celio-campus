@@ -996,7 +996,8 @@ window.doAuth = async function() {
       msgEl.textContent = "Check your email to confirm your account!";
       return;
     }
-    // onAuthStateChange SIGNED_IN will fire and call applySession automatically
+    var user = result.data && result.data.user ? result.data.user : null;
+    await applySession(user);
   } catch (err) {
     msgEl.className = "auth-msg error";
     msgEl.textContent = err.message || "Authentication failed.";
@@ -1012,7 +1013,7 @@ document.addEventListener("keydown", function(e) {
 
 window.doSignOut = async function() {
   await sb.auth.signOut();
-  // onAuthStateChange SIGNED_OUT will fire and call applySession(null)
+  await applySession(null);
 };
 
 // ===== THEME =====
@@ -2789,16 +2790,16 @@ async function applySession(user) {
   }
 }
 
-// Single source of truth: onAuthStateChange handles all transitions.
-// SIGNED_IN  — after signInWithPassword() or token refresh
-// INITIAL_SESSION — fired on page load if a stored session exists
-// SIGNED_OUT — after signOut()
-sb.auth.onAuthStateChange(async function(event, session) {
-  var user = session ? session.user : null;
-  if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
+// Boot: manually check for existing session on page load
+(async function boot() {
+  try {
+    var r = await sb.auth.getSession();
+    var user = r && r.data && r.data.session && r.data.session.user ? r.data.session.user : null;
     await applySession(user);
+  } catch(e) {
+    await applySession(null);
   }
-});
+})();
 
 })();
 </script>
