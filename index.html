@@ -1078,7 +1078,12 @@ async function loadAll() {
     courses = courseRes.data || [];
     assignments = assignRes.data || [];
     // Badges — loaded in parallel, available before first render
-    _unlockedBadgeIds = new Set((badgeRes.data || []).map(function(x) { return x.badge_id; }));
+    if (!badgeRes.error) {
+      _unlockedBadgeIds = new Set((badgeRes.data || []).map(function(x) { return x.badge_id; }));
+    } else {
+      console.warn("user_badges fetch error:", badgeRes.error);
+      _unlockedBadgeIds = new Set();
+    }
     // Stats
     try {
       userStats = (statsRes && statsRes.data) ? statsRes.data : null;
@@ -1102,13 +1107,13 @@ async function loadAll() {
     }
     renderSidebar();
     renderActiveTab();
-    // Re-fetch badge IDs fresh from DB, evaluate, then re-render so earned badges show
+    // After render: evaluate any newly earned badges, then re-render dashboard
     setTimeout(async function() {
-      await fetchUserBadgeIds();
-      await evaluateBadges({ trigger: "load" });
-      await fetchUserBadgeIds();
-      if (activeTab === "dashboard") renderDashboard();
-    }, 600);
+      try {
+        await evaluateBadges({ trigger: "load" });
+        if (activeTab === "dashboard") renderDashboard();
+      } catch(e) { console.warn("badge eval:", e); }
+    }, 500);
   } catch (err) {
     console.error("loadAll error:", err);
     showToast("Error loading data: " + err.message, "error");
