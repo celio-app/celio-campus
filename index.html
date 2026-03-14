@@ -2845,9 +2845,20 @@ async function applySession(user) {
   }
 }
 
-// Native Supabase listener — handles boot, sign-in, sign-out, token refresh
+// Boot: restore session on page load
+(async function boot() {
+  try {
+    var r = await sb.auth.getSession();
+    var user = r && r.data && r.data.session && r.data.session.user ? r.data.session.user : null;
+    await applySession(user);
+  } catch(e) {
+    await applySession(null);
+  }
+})();
+
+// Handle sign-in events (fired after signInWithPassword succeeds)
 sb.auth.onAuthStateChange(async function(event, session) {
-  if (event === "TOKEN_REFRESHED") return;
+  if (event !== "SIGNED_IN") return;
   var user = session ? session.user : null;
   await applySession(user);
 });
