@@ -1083,7 +1083,7 @@ async function loadAll() {
     try {
       var habitsRes = await sb.from("habits").select("*").eq("user_id", currentUser.id).order("created_at");
       habits = (habitsRes && habitsRes.data) ? habitsRes.data : [];
-      var today = new Date().toISOString().split("T")[0];
+      var today = localDateStr();
       var logsRes = await sb.from("habit_logs").select("*").eq("user_id", currentUser.id).eq("completed_date", today);
       habitLogs = (logsRes && logsRes.data) ? logsRes.data : [];
     } catch(e) { habits = []; habitLogs = []; }
@@ -1225,6 +1225,11 @@ function esc(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function localDateStr(d) {
+  d = d || new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
 }
 
 function formatDate(dateStr) {
@@ -1637,14 +1642,17 @@ window.toggleDone = async function(e, id) {
   }
   var newStatus = a.status === "done" ? "todo" : "done";
   try {
-    var res = await sb.from("assignments").update({ status: newStatus }).eq("id", id);
+    var updatePayload = { status: newStatus };
+    if (newStatus === "done") updatePayload.updated_at = new Date().toISOString();
+    var res = await sb.from("assignments").update(updatePayload).eq("id", id);
     if (res.error) throw res.error;
     a.status = newStatus;
+    if (newStatus === "done") a.updated_at = updatePayload.updated_at;
     if (newStatus === "done") {
       launchConfetti();
-      awardXP(a);
+      await awardXP(a);
     } else {
-      deductXP(a);
+      await deductXP(a);
     }
     renderActiveTab();
   } catch (err) { showToast(err.message, "error"); }
@@ -1716,9 +1724,18 @@ function getBadgeProgress(badgeId) {
       return semA2.length > 0 ? { current: doneSem, target: semA2.length } : null;
     }
     // Habits
-    case "routine_builder":   return { current: Math.min(streak, 3),  target: 3,  unit: "days" };
-    case "consistency_king":  return { current: Math.min(streak, 7),  target: 7,  unit: "days" };
-    case "discipline_mode":   return { current: Math.min(streak, 30), target: 30, unit: "days" };
+    case "routine_builder":
+    case "consistency_king":
+    case "discipline_mode": {
+      var maxHabitStreak = 0;
+      habits.forEach(function(h) {
+        var el = document.getElementById("streak-" + h.id);
+        if (el) { var num = parseInt(el.textContent); if (!isNaN(num) && num > maxHabitStreak) maxHabitStreak = num; }
+      });
+      if (badgeId === "routine_builder") return { current: Math.min(maxHabitStreak, 3),  target: 3,  unit: "days" };
+      if (badgeId === "consistency_king") return { current: Math.min(maxHabitStreak, 7),  target: 7,  unit: "days" };
+      return { current: Math.min(maxHabitStreak, 30), target: 30, unit: "days" };
+    }
     case "habit_garden": {
       return { current: habits.length, target: 5 };
     }
@@ -1893,8 +1910,8 @@ async function awardXP(assignment) {
       if (pct >= 90) xpGain += XP_GRADE_A;
       else if (pct >= 80) xpGain += XP_GRADE_B;
     }
-    var today = new Date().toISOString().split("T")[0];
-    var yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+    var today = localDateStr();
+    var yesterday = localDateStr(new Date(Date.now() - 86400000));
     var lastDate = stats.last_completion_date;
     var newStreak = stats.streak || 0;
     if (lastDate === today) { /* same day */ }
@@ -2501,7 +2518,7 @@ var HABIT_COLORS = ["#6c47ff","#ec4899","#f59e0b","#10b981","#3b82f6","#ef4444",
 
 function renderHabits() {
   var ca = document.getElementById("content-area");
-  var today = new Date().toISOString().split("T")[0];
+  var today = localDateStr();
   var completedToday = habitLogs.map(function(l) { return l.habit_id; });
   var totalDone = completedToday.length;
   var totalHabits = habits.length;
@@ -2571,11 +2588,11 @@ async function loadHabitStreak(habitId) {
     var d = new Date();
     d.setHours(0,0,0,0);
     // Check from today or yesterday
-    var todayStr = d.toISOString().split("T")[0];
+    var todayStr = localDateStr(d);
     var checkDate = new Date(d);
     if (logs.indexOf(todayStr) === -1) checkDate.setDate(checkDate.getDate() - 1);
     while (true) {
-      var ds = checkDate.toISOString().split("T")[0];
+      var ds = localDateStr(checkDate);
       if (logs.indexOf(ds) > -1) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
       else break;
     }
@@ -2586,7 +2603,7 @@ async function loadHabitStreak(habitId) {
 
 window.toggleHabit = async function(e, habitId) {
   e.stopPropagation();
-  var today = new Date().toISOString().split("T")[0];
+  var today = localDateStr();
   var idx = habitLogs.findIndex(function(l) { return l.habit_id === habitId; });
   var isDone = idx > -1;
   try {
@@ -2615,8 +2632,8 @@ window.toggleHabit = async function(e, habitId) {
 
 async function awardHabitXP(habitId) {
   var stats = await ensureStats();
-  var today = new Date().toISOString().split("T")[0];
-  var yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  var today = localDateStr();
+  var yesterday = localDateStr(new Date(Date.now() - 86400000));
   var lastDate = stats.last_completion_date;
   var newStreak = stats.streak || 0;
   if (lastDate === yesterday) newStreak++;
@@ -2752,7 +2769,7 @@ window.saveHabit = async function() {
     }
     if (res.error) throw res.error;
     closeHabitModal();
-    var today = new Date().toISOString().split("T")[0];
+    var today = localDateStr();
     var habitsRes = await sb.from("habits").select("*").eq("user_id", currentUser.id).order("created_at");
     habits = (habitsRes && habitsRes.data) ? habitsRes.data : [];
     renderHabits();
