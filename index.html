@@ -782,6 +782,9 @@ select.inp { cursor: pointer; }
       <div><label class="flbl">Colour</label>
         <div class="color-swatches" id="h-color-picker"></div>
       </div>
+      <div><label class="flbl">Timer Duration <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional — minutes)</span></label>
+        <input id="h-duration" class="inp" type="number" min="1" max="120" step="1" placeholder="e.g. 25 for a 25-min session">
+      </div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
       <button class="btn btn-danger btn-sm" id="habit-delete-btn" onclick="deleteHabit()" style="display:none">Delete</button>
@@ -2581,16 +2584,26 @@ function renderHabits() {
       var color = h.color || "#6c47ff";
       var icon = h.icon || "⭐";
       html += '<div style="background:var(--bg2);border:1.5px solid ' + (done ? color : "var(--border)") + ';border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--card-shadow);transition:border-color .2s;' + (done ? "opacity:.75" : "") + '">';
-      // Checkbox
-      html += '<div onclick="toggleHabit(event,\'' + h.id + '\')" style="width:28px;height:28px;border-radius:50%;border:2.5px solid ' + (done ? color : "var(--border)") + ';background:' + (done ? color : "transparent") + ';display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s">';
-      if (done) html += '<span style="color:#fff;font-size:.85rem;font-weight:900">✓</span>';
-      html += '</div>';
+      // Checkbox or Start button depending on duration
+      var hasTimer = h.duration_minutes && h.duration_minutes > 0;
+      var isRunning = _timerHabitId === h.id;
+      if (done) {
+        html += '<div style="width:28px;height:28px;border-radius:50%;border:2.5px solid ' + color + ';background:' + color + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer" onclick="toggleHabit(event,\'' + h.id + '\')">';
+        html += '<span style="color:#fff;font-size:.85rem;font-weight:900">✓</span>';
+        html += '</div>';
+      } else if (hasTimer && !done) {
+        html += '<button onclick="startHabitTimer(\'' + h.id + '\')" style="flex-shrink:0;padding:5px 10px;border-radius:20px;border:2px solid ' + color + ';background:' + (isRunning ? color : "transparent") + ';color:' + (isRunning ? "#fff" : color) + ';font-size:.72rem;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">' + (isRunning ? "⏱ Running" : "▶ Start") + '</button>';
+      } else {
+        html += '<div onclick="toggleHabit(event,\'' + h.id + '\')" style="width:28px;height:28px;border-radius:50%;border:2.5px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s">';
+        html += '</div>';
+      }
       // Icon + name
       html += '<div style="font-size:1.4rem;flex-shrink:0">' + icon + '</div>';
       html += '<div style="flex:1;min-width:0">';
       html += '<div style="font-size:.95rem;font-weight:800;' + (done ? "text-decoration:line-through;color:var(--text3)" : "color:var(--text1)") + '">' + esc(h.name) + '</div>';
       if (h.notes) html += '<div style="font-size:.75rem;color:var(--text3);font-weight:600;margin-top:1px">' + esc(h.notes) + '</div>';
       html += '<div style="font-size:.72rem;color:' + color + ';font-weight:700;margin-top:3px;opacity:.8" id="streak-' + h.id + '">...</div>';
+      if (h.duration_minutes) html += '<div style="font-size:.68rem;color:var(--text3);font-weight:600;margin-top:1px">⏱ ' + h.duration_minutes + ' min session</div>';
       html += '</div>';
       // Edit button
       html += '<button onclick="openEditHabitModal(\'' + h.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:.8rem;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'none\'">Edit</button>';
@@ -2756,6 +2769,7 @@ window.openAddHabitModal = function() {
   document.getElementById("h-notes").value = "";
   document.getElementById("h-icon").value = "🧘";
   document.getElementById("habit-delete-btn").style.display = "none";
+  document.getElementById("h-duration").value = "";
   populateHabitIconPicker("🧘");
   populateHabitColorPicker("#6c47ff");
   document.getElementById("habit-modal").classList.add("open");
@@ -2769,6 +2783,7 @@ window.openEditHabitModal = function(id) {
   document.getElementById("h-name").value = h.name || "";
   document.getElementById("h-notes").value = h.notes || "";
   document.getElementById("h-icon").value = h.icon || "🧘";
+  document.getElementById("h-duration").value = h.duration_minutes || "";
   populateHabitIconPicker(h.icon || "🧘");
   document.getElementById("habit-delete-btn").style.display = "inline-flex";
   populateHabitColorPicker(h.color || "#6c47ff");
@@ -2787,7 +2802,9 @@ window.saveHabit = async function() {
   var color = colorEl ? colorEl.getAttribute("data-color") : "#6c47ff";
   try {
     var notes = document.getElementById("h-notes").value.trim() || null;
-  var payload = { name: name, icon: icon, color: color, notes: notes };
+  var durVal = document.getElementById("h-duration").value;
+  var duration_minutes = durVal ? parseInt(durVal) : null;
+  var payload = { name: name, icon: icon, color: color, notes: notes, duration_minutes: duration_minutes };
     var res;
     if (editingHabitId) {
       res = await sb.from("habits").update(payload).eq("id", editingHabitId).select().single();
@@ -2819,6 +2836,145 @@ window.deleteHabit = function() {
     } catch(err) { showToast(err.message, "error"); }
   });
 };
+
+
+// ===== HABIT TIMER =====
+var _timerHabitId = null;
+var _timerInterval = null;
+var _timerSecondsLeft = 0;
+var _timerTotalSeconds = 0;
+var _timerPaused = false;
+
+function playChime() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Singing bowl — layered sine waves with slow decay
+    [[220, 0.5], [440, 0.3], [660, 0.15], [880, 0.08]].forEach(function(pair) {
+      var freq = pair[0], gain = pair[1];
+      var osc = ctx.createOscillator();
+      var env = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      env.gain.setValueAtTime(0, ctx.currentTime);
+      env.gain.linearRampToValueAtTime(gain, ctx.currentTime + 0.05);
+      env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.5);
+      osc.connect(env);
+      env.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 3.5);
+    });
+  } catch(e) {}
+}
+
+function updateTimerWidget() {
+  var mins = Math.floor(_timerSecondsLeft / 60);
+  var secs = _timerSecondsLeft % 60;
+  var display = String(mins).padStart(2,"0") + ":" + String(secs).padStart(2,"0");
+  var dispEl = document.getElementById("timer-display");
+  var ringEl = document.getElementById("timer-ring");
+  var statusEl = document.getElementById("timer-status");
+  var pauseBtn = document.getElementById("timer-pause-btn");
+  if (dispEl) dispEl.textContent = display;
+  if (statusEl) statusEl.textContent = _timerPaused ? "Paused" : "Focus";
+  if (pauseBtn) pauseBtn.textContent = _timerPaused ? "▶ Resume" : "⏸ Pause";
+  // Ring: 263.9 = 2π × 42
+  if (ringEl && _timerTotalSeconds > 0) {
+    var progress = _timerSecondsLeft / _timerTotalSeconds;
+    ringEl.style.strokeDashoffset = 263.9 * (1 - progress);
+    // Colour shift: green → amber → red as time runs out
+    ringEl.style.stroke = progress > 0.5 ? "var(--accent)" : progress > 0.25 ? "var(--amber)" : "var(--red)";
+  }
+}
+
+window.startHabitTimer = function(habitId) {
+  var h = habits.find(function(x) { return x.id === habitId; });
+  if (!h || !h.duration_minutes) return;
+  // If already running this habit, just show widget
+  if (_timerHabitId === habitId && _timerInterval) {
+    document.getElementById("habit-timer-widget").style.display = "block";
+    return;
+  }
+  // Cancel any existing timer
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  _timerHabitId = habitId;
+  _timerTotalSeconds = h.duration_minutes * 60;
+  _timerSecondsLeft = _timerTotalSeconds;
+  _timerPaused = false;
+  // Populate widget
+  var nameEl = document.getElementById("timer-habit-name");
+  var iconEl = document.getElementById("timer-habit-icon");
+  if (nameEl) nameEl.textContent = h.name;
+  if (iconEl) iconEl.textContent = h.icon || "⏱";
+  var ringEl = document.getElementById("timer-ring");
+  if (ringEl) ringEl.style.stroke = "var(--accent)";
+  document.getElementById("habit-timer-widget").style.display = "block";
+  updateTimerWidget();
+  // Re-render habits so button shows "Running"
+  if (activeTab === "habits") renderHabits();
+  _timerInterval = setInterval(function() {
+    if (_timerPaused) return;
+    _timerSecondsLeft--;
+    updateTimerWidget();
+    if (_timerSecondsLeft <= 0) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+      completeHabitTimer();
+    }
+  }, 1000);
+};
+
+window.toggleHabitTimer = function() {
+  _timerPaused = !_timerPaused;
+  updateTimerWidget();
+};
+
+window.cancelHabitTimer = function() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  _timerHabitId = null;
+  _timerPaused = false;
+  document.getElementById("habit-timer-widget").style.display = "none";
+  if (activeTab === "habits") renderHabits();
+};
+
+window.skipHabitTimer = function() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  completeHabitTimer();
+};
+
+async function completeHabitTimer() {
+  var habitId = _timerHabitId;
+  _timerHabitId = null;
+  _timerPaused = false;
+  // Hide widget with a brief flash
+  var widget = document.getElementById("habit-timer-widget");
+  if (widget) {
+    widget.style.transition = "opacity .4s";
+    widget.style.opacity = "0";
+    setTimeout(function() {
+      widget.style.display = "none";
+      widget.style.opacity = "1";
+      widget.style.transition = "";
+    }, 400);
+  }
+  // Play chime
+  playChime();
+  // Confetti
+  launchConfetti();
+  // Mark habit as done (reuse toggleHabit logic but directly)
+  var already = habitLogs.findIndex(function(l) { return l.habit_id === habitId; });
+  if (already === -1) {
+    try {
+      var today = localDateStr();
+      var res = await sb.from("habit_logs").insert({ habit_id: habitId, completed_date: today, user_id: currentUser.id }).select().single();
+      if (!res.error) {
+        habitLogs.push(res.data);
+        await awardHabitXP(habitId);
+      }
+    } catch(e) { console.warn("timer complete:", e); }
+  }
+  showToast("Session complete! 🎉 Great work!", "success");
+  if (activeTab === "habits") renderHabits();
+}
 
 // ===== AUTH BOOT =====
 async function applySession(user) {
@@ -2865,5 +3021,32 @@ async function applySession(user) {
 
 })();
 </script>
+
+<!-- FLOATING HABIT TIMER -->
+<div id="habit-timer-widget" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.2);width:220px;font-family:inherit">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="timer-habit-icon" style="font-size:1.2rem">⏱</span>
+      <span id="timer-habit-name" style="font-size:.82rem;font-weight:800;color:var(--text);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    </div>
+    <button onclick="cancelHabitTimer()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:1.1rem;padding:2px 5px;border-radius:6px;line-height:1" title="Cancel">✕</button>
+  </div>
+  <!-- SVG ring progress -->
+  <div style="display:flex;justify-content:center;margin-bottom:12px;position:relative">
+    <svg width="100" height="100" style="transform:rotate(-90deg)">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="7"/>
+      <circle id="timer-ring" cx="50" cy="50" r="42" fill="none" stroke="var(--accent)" stroke-width="7"
+        stroke-dasharray="263.9" stroke-dashoffset="0" stroke-linecap="round" style="transition:stroke-dashoffset .5s linear"/>
+    </svg>
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+      <div id="timer-display" style="font-size:1.4rem;font-weight:900;letter-spacing:-1px;color:var(--text)">00:00</div>
+      <div id="timer-status" style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--text3)">Focus</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button id="timer-pause-btn" onclick="toggleHabitTimer()" style="flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text);font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit">⏸ Pause</button>
+    <button onclick="skipHabitTimer()" style="padding:8px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text3);font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit" title="Mark done now">✓ Skip</button>
+  </div>
+</div>
 </body>
 </html>
