@@ -1338,29 +1338,66 @@ function renderDashboard() {
     var levelPct = nextLevel ? Math.min(100, Math.round((xp - level.min) / (nextLevel.min - level.min) * 100)) : 100;
     var earnedBadgeIds = _unlockedBadgeIds ? Array.from(_unlockedBadgeIds) : (userStats.badges || []);
 
-    // XP card
-    html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
-    html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
-    html += '<div style="font-size:2.8rem;line-height:1">' + level.icon + '</div>';
-    html += '<div style="flex:1;min-width:0">';
-    html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8">Level · ' + level.name + '</div>';
-    html += '<div style="font-size:1.5rem;font-weight:900;letter-spacing:-0.5px">' + xp + ' XP</div>';
-    // Palette unlock indicator
+    // Profile + XP card (combined)
+    var userName = currentUser ? ((currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split("@")[0]) : "";
+    var lvlIdx = getLevelIndex(xp);
+    var rings = ["none","none","0 0 0 3px #0ea5e9","0 0 0 3px #e11d78","0 0 0 3px #16a34a","0 0 0 3px #4f46e5","0 0 0 3px #ea580c","0 0 0 3px #b45309"];
+    var avatarRing = rings[Math.min(lvlIdx, rings.length-1)] || "none";
     var paletteLabels = { default:"Purple", ocean:"🌊 Ocean", sakura:"🌸 Sakura", forest:"🌲 Forest", midnight:"🌙 Midnight", ember:"🔥 Ember", gold:"👑 Gold" };
+    // Recent badges (last 3 earned)
+    var recentBadges = earnedBadgeIds.slice(-3).map(function(bid) {
+      return BADGE_DEFS.find(function(b) { return b.id === bid; });
+    }).filter(Boolean);
+
+    html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
+    html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
+
+    // Avatar
+    html += '<div style="position:relative;flex-shrink:0">';
+    html += '<div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.2)">';
+    html += (userName[0] || "?").toUpperCase();
+    html += '</div>';
+    if (lvlIdx >= 2) {
+      html += '<div style="position:absolute;bottom:-4px;right:-4px;font-size:.8rem;background:rgba(0,0,0,.3);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center">' + level.icon + '</div>';
+    }
+    html += '</div>';
+
+    // Name + level + XP
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="font-size:1.1rem;font-weight:900;letter-spacing:-.3px;line-height:1.1">' + esc(userName) + '</div>';
+    html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-top:2px">' + level.icon + ' ' + level.name + ' · ' + xp + ' XP</div>';
     if (level.theme && level.theme !== "default") {
-      html += '<div style="font-size:.65rem;font-weight:800;opacity:.9;margin-top:2px">Theme unlocked: ' + (paletteLabels[level.theme] || level.theme) + '</div>';
+      html += '<div style="font-size:.63rem;font-weight:700;opacity:.75;margin-top:1px">Theme: ' + (paletteLabels[level.theme] || level.theme) + '</div>';
     }
     if (nextLevel) {
-      html += '<div style="background:rgba(255,255,255,.25);border-radius:10px;height:6px;margin-top:6px;overflow:hidden">';
-      html += '<div style="background:#fff;height:100%;width:' + levelPct + '%;border-radius:10px"></div></div>';
-      html += '<div style="font-size:.68rem;opacity:.8;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + ' ' + nextLevel.icon + '</div>';
+      html += '<div style="background:rgba(255,255,255,.25);border-radius:10px;height:5px;margin-top:7px;overflow:hidden">';
+      html += '<div style="background:#fff;height:100%;width:' + levelPct + '%;border-radius:10px;transition:width .5s"></div></div>';
+      html += '<div style="font-size:.62rem;opacity:.75;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + '</div>';
     }
     html += '</div>';
-    html += '<div style="text-align:center;flex-shrink:0">';
-    html += '<div style="font-size:1.8rem;font-weight:900">' + (streak > 0 ? "🔥" : "💤") + ' ' + streak + '</div>';
-    html += '<div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.8">Day Streak</div>';
-    html += '</div></div>';
+
+    // Streak
+    html += '<div style="text-align:center;flex-shrink:0;padding:0 4px">';
+    html += '<div style="font-size:2rem;font-weight:900;line-height:1">' + (streak > 0 ? "🔥" : "💤") + '</div>';
+    html += '<div style="font-size:1.4rem;font-weight:900;line-height:1;margin-top:2px">' + streak + '</div>';
+    html += '<div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.75">Streak</div>';
     html += '</div>';
+
+    // Recent badges
+    if (recentBadges.length > 0) {
+      html += '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px">';
+      html += '<div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.75;margin-bottom:2px">Recent</div>';
+      html += '<div style="display:flex;gap:5px">';
+      recentBadges.forEach(function(b) {
+        var bg = b.rarity === "epic" ? "rgba(192,132,252,.4)" : b.rarity === "rare" ? "rgba(158,116,255,.35)" : "rgba(255,255,255,.2)";
+        html += '<div title="' + esc(b.name) + '" style="width:32px;height:32px;border-radius:9px;background:' + bg + ';display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.3)">';
+        html += '<svg style="width:16px;height:16px;color:#fff" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    html += '</div></div>';
 
     // Badges section — collapsible
     var BADGE_CATS = [
@@ -2040,6 +2077,7 @@ function renderCalendar() {
   html += '<div class="cal-month">' + monthNames[month] + ' ' + year + '</div>';
   html += '<button class="cal-nav" onclick="calNav(1)">▶</button>';
   html += '<button class="btn btn-ghost btn-sm" onclick="calToday()">Today</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="openIcalModal()" style="margin-left:auto">📅 Import Calendar</button>';
   html += '</div>';
   html += '<div class="cal-grid">';
   ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) {
@@ -2844,6 +2882,8 @@ var _timerInterval = null;
 var _timerSecondsLeft = 0;
 var _timerTotalSeconds = 0;
 var _timerPaused = false;
+var _timerEndTime = null;   // wall-clock time when timer should finish
+var _timerPausedAt = null;  // wall-clock time when paused
 
 function playChime() {
   try {
@@ -2900,6 +2940,7 @@ window.startHabitTimer = function(habitId) {
   _timerTotalSeconds = h.duration_minutes * 60;
   _timerSecondsLeft = _timerTotalSeconds;
   _timerPaused = false;
+  _timerPausedAt = null;
   // Populate widget
   var nameEl = document.getElementById("timer-habit-name");
   var iconEl = document.getElementById("timer-habit-icon");
@@ -2911,22 +2952,51 @@ window.startHabitTimer = function(habitId) {
   updateTimerWidget();
   // Re-render habits so button shows "Running"
   if (activeTab === "habits") renderHabits();
+  _timerEndTime = Date.now() + _timerTotalSeconds * 1000;
   _timerInterval = setInterval(function() {
     if (_timerPaused) return;
-    _timerSecondsLeft--;
+    // Recalculate from wall clock — survives background/minimize
+    var remaining = Math.max(0, Math.round((_timerEndTime - Date.now()) / 1000));
+    _timerSecondsLeft = remaining;
     updateTimerWidget();
-    if (_timerSecondsLeft <= 0) {
+    if (remaining <= 0) {
       clearInterval(_timerInterval);
       _timerInterval = null;
       completeHabitTimer();
     }
-  }, 1000);
+  }, 500); // Poll every 500ms so we catch the exact second reliably
 };
 
 window.toggleHabitTimer = function() {
-  _timerPaused = !_timerPaused;
+  if (!_timerPaused) {
+    // Pausing — record how much time is left
+    _timerPaused = true;
+    _timerPausedAt = Date.now();
+  } else {
+    // Resuming — shift end time forward by how long we were paused
+    _timerPaused = false;
+    if (_timerPausedAt) {
+      var pausedDuration = Date.now() - _timerPausedAt;
+      _timerEndTime += pausedDuration;
+      _timerPausedAt = null;
+    }
+  }
   updateTimerWidget();
 };
+
+// Re-sync timer when app returns to foreground (mobile background fix)
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden && _timerInterval && !_timerPaused && _timerEndTime) {
+    var remaining = Math.max(0, Math.round((_timerEndTime - Date.now()) / 1000));
+    _timerSecondsLeft = remaining;
+    updateTimerWidget();
+    if (remaining <= 0) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+      completeHabitTimer();
+    }
+  }
+});
 
 window.cancelHabitTimer = function() {
   if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
