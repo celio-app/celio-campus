@@ -227,7 +227,7 @@ input, select, textarea { font-family: inherit; }
 
 /* Sidebar bottom */
 .sb-bottom { padding: 10px 8px; border-top: 1.5px solid var(--border); flex-shrink: 0; }
-.sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; overflow: hidden; cursor: pointer; border-radius: 8px; transition: all .2s; }
+.sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; cursor: pointer; border-radius: 8px; transition: all .2s; }
 .sb-user:hover { background: var(--bg3); }
 .sb-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; position: relative; }
 .sidebar.collapsed .sb-bottom { padding: 10px 4px; }
@@ -2845,21 +2845,10 @@ async function applySession(user) {
   }
 }
 
-// Boot: manually check for existing session on page load
-(async function boot() {
-  try {
-    var r = await sb.auth.getSession();
-    var user = r && r.data && r.data.session && r.data.session.user ? r.data.session.user : null;
-    await applySession(user);
-  } catch(e) {
-    await applySession(null);
-  }
-})();
-
-// Keep session in sync for token refresh
+// Native Supabase listener — handles boot, sign-in, sign-out, token refresh
 sb.auth.onAuthStateChange(async function(event, session) {
+  if (event === "TOKEN_REFRESHED") return;
   var user = session ? session.user : null;
-  if (event === "INITIAL_SESSION") return;
   await applySession(user);
 });
 
