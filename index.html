@@ -1102,9 +1102,13 @@ async function loadAll() {
     }
     renderSidebar();
     renderActiveTab();
-    // Evaluate badges after render — in own try/catch so it never blocks the UI
-    try { await evaluateBadges({ trigger: "load" }); } catch(e) { console.warn("evaluateBadges:", e); }
-    if (activeTab === "dashboard") renderDashboard();
+    // Re-fetch badge IDs fresh from DB, evaluate, then re-render so earned badges show
+    setTimeout(async function() {
+      await fetchUserBadgeIds();
+      await evaluateBadges({ trigger: "load" });
+      await fetchUserBadgeIds();
+      if (activeTab === "dashboard") renderDashboard();
+    }, 600);
   } catch (err) {
     console.error("loadAll error:", err);
     showToast("Error loading data: " + err.message, "error");
@@ -1748,10 +1752,7 @@ function getBadgeProgress(badgeId) {
         var el = document.getElementById("streak-" + h.id);
         if (el) {
           var numMatch = el.textContent.match(/\d+/);
-          if (numMatch) {
-            var num = parseInt(numMatch[0]);
-            if (!isNaN(num) && num > maxHabitStreak) maxHabitStreak = num;
-          }
+          if (numMatch) { var num = parseInt(numMatch[0]); if (!isNaN(num) && num > maxHabitStreak) maxHabitStreak = num; }
         }
       });
       if (badgeId === "routine_builder") return { current: Math.min(maxHabitStreak, 3),  target: 3,  unit: "days" };
@@ -2846,7 +2847,7 @@ async function applySession(user) {
   }
 }
 
-// Boot: restore session on page load
+// Boot: manually check for existing session on page load
 (async function boot() {
   try {
     var r = await sb.auth.getSession();
@@ -2856,13 +2857,6 @@ async function applySession(user) {
     await applySession(null);
   }
 })();
-
-// Handle sign-in events (fired after signInWithPassword succeeds)
-sb.auth.onAuthStateChange(async function(event, session) {
-  if (event !== "SIGNED_IN") return;
-  var user = session ? session.user : null;
-  await applySession(user);
-});
 
 })();
 </script>
