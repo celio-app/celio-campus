@@ -1742,16 +1742,26 @@ async function fetchUserBadgeIds() {
 }
 
 async function grantBadge(badgeId) {
-  var res = await sb.rpc("unlock_badge", { p_user_id: currentUser.id, p_badge_id: badgeId, p_context: {} });
-  if (res.error) { console.warn("grantBadge", badgeId, res.error); return false; }
-  if (_unlockedBadgeIds) _unlockedBadgeIds.add(badgeId); // mark earned regardless
-  if (!res.data) return false; // already had it — no toast
+  // Direct insert — more reliable than RPC when badge_defs may not be seeded
+  var res = await sb.from("user_badges").insert({ user_id: currentUser.id, badge_id: badgeId }).select();
+  if (res.error) {
+    // Code 23505 = unique violation = already earned, not a real error
+    if (res.error.code !== "23505") console.warn("grantBadge", badgeId, res.error);
+    if (_unlockedBadgeIds) _unlockedBadgeIds.add(badgeId);
+    return false; // already had it — no toast
+  }
+  if (_unlockedBadgeIds) _unlockedBadgeIds.add(badgeId);
+  var alreadyHad = !res.data || res.data.length === 0;
+  if (alreadyHad) return false;
   // Show badge toast
   var bdef = BADGE_DEFS.find(function(b) { return b.id === badgeId; });
   if (bdef) {
-    // Re-fetch XP in case unlock_badge updated it
-    var sr = await sb.from("user_stats").select("*").eq("user_id", currentUser.id).single();
-    if (sr.data) userStats = sr.data;
+    // Award XP directly
+    if (bdef.xpBonus > 0 && userStats) {
+      var newXp = (userStats.xp || 0) + bdef.xpBonus;
+      await sb.from("user_stats").update({ xp: newXp }).eq("user_id", currentUser.id);
+      userStats.xp = newXp;
+    }
     setTimeout(function() {
       showBadgeToast({ icon: "🏅", name: bdef.name, desc: bdef.desc + " · +" + bdef.xpBonus + " XP" });
       if (activeTab === "dashboard") renderDashboard();
