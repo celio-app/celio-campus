@@ -227,12 +227,15 @@ input, select, textarea { font-family: inherit; }
 
 /* Sidebar bottom */
 .sb-bottom { padding: 10px 8px; border-top: 1.5px solid var(--border); flex-shrink: 0; }
-.sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; overflow: hidden; cursor: pointer; border-radius: 8px; }
+.sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; overflow: hidden; cursor: pointer; border-radius: 8px; transition: all .2s; }
 .sb-user:hover { background: var(--bg3); }
-.sb-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .75rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sb-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; position: relative; }
 .sb-email { font-size: .72rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .sb-signout { background: var(--bg3); border: 1.5px solid var(--border); cursor: pointer; color: var(--text3); font-size: .72rem; padding: 5px 10px; border-radius: 7px; white-space: nowrap; font-family: inherit; font-weight: 700; transition: background .15s, color .15s; }
 .sb-signout:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+.sidebar.collapsed .sb-user { justify-content: center; padding: 6px 4px; }
+.sidebar.collapsed .sb-email, .sidebar.collapsed .sb-signout { display: none; }
+.sidebar.collapsed .sb-avatar { width: 34px; height: 34px; font-size: .85rem; }
 
 /* ===== MAIN CONTENT ===== */
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -1152,7 +1155,26 @@ function renderSidebar() {
     var email = currentUser.email || "";
     var name = (currentUser.user_metadata && currentUser.user_metadata.display_name) || email.split("@")[0] || "?";
     document.getElementById("sb-email").textContent = name;
-    document.getElementById("sb-avatar").textContent = (name[0] || "?").toUpperCase();
+    var initial = (name[0] || "?").toUpperCase();
+    // Level-based avatar styling
+    var xpNow = (userStats && userStats.xp) || 0;
+    var lvl = getLevel(xpNow);
+    var lvlIdx = getLevelIndex(xpNow); // 1-based
+    var avatarEl = document.getElementById("sb-avatar");
+    avatarEl.textContent = initial;
+    // Ring colours by level
+    var rings = ["none","none","0 0 0 2px #0ea5e9","0 0 0 2px #e11d78","0 0 0 2px #16a34a","0 0 0 2px #4f46e5","0 0 0 2px #ea580c, 0 0 8px rgba(234,88,12,.4)","0 0 0 2px #b45309, 0 0 10px rgba(180,83,9,.5)"];
+    avatarEl.style.boxShadow = rings[Math.min(lvlIdx, rings.length-1)] || "none";
+    // Level badge pip on avatar (shown at Sophomore+)
+    var existingPip = avatarEl.querySelector(".av-pip");
+    if (existingPip) existingPip.remove();
+    if (lvlIdx >= 2) {
+      var pip = document.createElement("span");
+      pip.className = "av-pip";
+      pip.textContent = lvl.icon;
+      pip.style.cssText = "position:absolute;bottom:-5px;right:-5px;font-size:.72rem;line-height:1;background:var(--bg2);border-radius:50%;padding:1px;";
+      avatarEl.appendChild(pip);
+    }
   }
 }
 
