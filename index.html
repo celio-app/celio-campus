@@ -230,9 +230,10 @@ input, select, textarea { font-family: inherit; }
 .sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; overflow: hidden; cursor: pointer; border-radius: 8px; transition: all .2s; }
 .sb-user:hover { background: var(--bg3); }
 .sb-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .82rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; position: relative; }
-.sidebar.collapsed .sb-user { justify-content: center; padding: 6px 4px; }
+.sidebar.collapsed .sb-bottom { padding: 10px 4px; }
+.sidebar.collapsed .sb-user { justify-content: center; padding: 6px 0; overflow: visible; }
 .sidebar.collapsed .sb-email, .sidebar.collapsed .sb-signout { display: none; }
-.sidebar.collapsed .sb-avatar { width: 34px; height: 34px; font-size: .85rem; }
+.sidebar.collapsed .sb-avatar { width: 32px; height: 32px; font-size: .85rem; }
 .sb-email { font-size: .72rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .sb-signout { background: var(--bg3); border: 1.5px solid var(--border); cursor: pointer; color: var(--text3); font-size: .72rem; padding: 5px 10px; border-radius: 7px; white-space: nowrap; font-family: inherit; font-weight: 700; transition: background .15s, color .15s; }
 .sb-signout:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
@@ -1099,15 +1100,10 @@ async function loadAll() {
     if (!activeSemester && semesters.length > 0) {
       activeSemester = semesters[semesters.length - 1];
     }
+    // Evaluate badges BEFORE first render so earned state is correct immediately
+    await evaluateBadges({ trigger: "load" });
     renderSidebar();
     renderActiveTab();
-    // Re-fetch badge IDs fresh from DB, evaluate, then re-render so earned badges show
-    setTimeout(async function() {
-      await fetchUserBadgeIds();
-      await evaluateBadges({ trigger: "load" });
-      await fetchUserBadgeIds();
-      if (activeTab === "dashboard") renderDashboard();
-    }, 600);
   } catch (err) {
     console.error("loadAll error:", err);
     showToast("Error loading data: " + err.message, "error");
@@ -1749,7 +1745,13 @@ function getBadgeProgress(badgeId) {
       var maxHabitStreak = 0;
       habits.forEach(function(h) {
         var el = document.getElementById("streak-" + h.id);
-        if (el) { var num = parseInt(el.textContent); if (!isNaN(num) && num > maxHabitStreak) maxHabitStreak = num; }
+        if (el) {
+          var numMatch = el.textContent.match(/\d+/);
+          if (numMatch) {
+            var num = parseInt(numMatch[0]);
+            if (!isNaN(num) && num > maxHabitStreak) maxHabitStreak = num;
+          }
+        }
       });
       if (badgeId === "routine_builder") return { current: Math.min(maxHabitStreak, 3),  target: 3,  unit: "days" };
       if (badgeId === "consistency_king") return { current: Math.min(maxHabitStreak, 7),  target: 7,  unit: "days" };
@@ -2853,6 +2855,13 @@ async function applySession(user) {
     await applySession(null);
   }
 })();
+
+// Keep session in sync for token refresh
+sb.auth.onAuthStateChange(async function(event, session) {
+  var user = session ? session.user : null;
+  if (event === "INITIAL_SESSION") return;
+  await applySession(user);
+});
 
 })();
 </script>
