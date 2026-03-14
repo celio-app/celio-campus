@@ -522,10 +522,10 @@ select.inp { cursor: pointer; }
 .rarity-epic     { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
 
 
-.av-swatch { width:28px;height:28px;border-radius:50%;cursor:pointer;transition:transform .12s;border:2.5px solid transparent;flex-shrink:0; }
+.av-swatch { width:32px;height:32px;border-radius:50%;cursor:pointer;transition:transform .12s;border:2.5px solid transparent;flex-shrink:0;padding:0;display:inline-block;-webkit-appearance:none;appearance:none;outline:none; }
 .av-swatch:hover { transform:scale(1.15); }
 .av-swatch.selected { border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg); }
-.av-pill { padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s; }
+.av-pill { padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s;touch-action:manipulation;-webkit-tap-highlight-color:transparent; }
 .av-pill:hover { border-color:var(--accent);color:var(--accent); }
 .av-pill.selected { background:var(--accent);color:#fff;border-color:var(--accent); }
 
@@ -3195,7 +3195,7 @@ async function applySession(user) {
 
 <!-- AVATAR CUSTOMISER MODAL -->
 <div class="modal-bg" id="avatar-modal">
-  <div class="modal" style="max-width:480px">
+  <div class="modal" style="max-width:480px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
     <div class="modal-title">
       <span>🎨 Customise Avatar</span>
       <button class="modal-close" onclick="closeAvatarModal()">×</button>
@@ -3215,13 +3215,13 @@ async function applySession(user) {
       <div>
         <label class="flbl">Skin Tone</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="av-skin">
-          <div class="av-swatch" onclick="avPick('skin',this,'ffdbb4')" data-key="skin" data-val="ffdbb4" style="background:#ffdbb4" title="Light"></div>
-          <div class="av-swatch" onclick="avPick('skin',this,'edb98a')" data-key="skin" data-val="edb98a" style="background:#edb98a" title="Light tan"></div>
-          <div class="av-swatch" onclick="avPick('skin',this,'fd9841')" data-key="skin" data-val="fd9841" style="background:#fd9841" title="Tan"></div>
-          <div class="av-swatch" onclick="avPick('skin',this,'d08b5b')" data-key="skin" data-val="d08b5b" style="background:#d08b5b" title="Medium"></div>
-          <div class="av-swatch" onclick="avPick('skin',this,'ae5d29')" data-key="skin" data-val="ae5d29" style="background:#ae5d29" title="Medium dark"></div>
-          <div class="av-swatch" onclick="avPick('skin',this,'614335')" data-key="skin" data-val="614335" style="background:#614335" title="Dark"></div>
-          <div class="av-swatch" onclick="avPick('skin',this,'f8d25c')" data-key="skin" data-val="f8d25c" style="background:#f8d25c" title="Golden"></div>
+          <button class="av-swatch" onclick="avPick('skin',this,'ffdbb4')" type="button" data-key="skin" data-val="ffdbb4" style="background:#ffdbb4" title="Light"></button>
+          <button class="av-swatch" onclick="avPick('skin',this,'edb98a')" type="button" data-key="skin" data-val="edb98a" style="background:#edb98a" title="Light tan"></button>
+          <button class="av-swatch" onclick="avPick('skin',this,'fd9841')" type="button" data-key="skin" data-val="fd9841" style="background:#fd9841" title="Tan"></button>
+          <button class="av-swatch" onclick="avPick('skin',this,'d08b5b')" type="button" data-key="skin" data-val="d08b5b" style="background:#d08b5b" title="Medium"></button>
+          <button class="av-swatch" onclick="avPick('skin',this,'ae5d29')" type="button" data-key="skin" data-val="ae5d29" style="background:#ae5d29" title="Medium dark"></button>
+          <button class="av-swatch" onclick="avPick('skin',this,'614335')" type="button" data-key="skin" data-val="614335" style="background:#614335" title="Dark"></button>
+          <button class="av-swatch" onclick="avPick('skin',this,'f8d25c')" type="button" data-key="skin" data-val="f8d25c" style="background:#f8d25c" title="Golden"></button>
         </div>
       </div>
 
@@ -3252,15 +3252,15 @@ async function applySession(user) {
       <div id="av-haircolor-row">
         <label class="flbl">Hair Colour</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="av-haircolor">
-          <div class="av-swatch" onclick="avPick('hairColor',this,'2c1b18')" data-key="hairColor" data-val="2c1b18" style="background:#2c1b18" title="Black"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'4a312c')" data-key="hairColor" data-val="4a312c" style="background:#4a312c" title="Dark brown"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'a55728')" data-key="hairColor" data-val="a55728" style="background:#a55728" title="Brown"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'b58143')" data-key="hairColor" data-val="b58143" style="background:#b58143" title="Auburn"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'daa520')" data-key="hairColor" data-val="daa520" style="background:#daa520" title="Blonde"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'e8e1e1')" data-key="hairColor" data-val="e8e1e1" style="background:#e8e1e1;border:1px solid var(--border)" title="Silver"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'c93305')" data-key="hairColor" data-val="c93305" style="background:#c93305" title="Red"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'8148a5')" data-key="hairColor" data-val="8148a5" style="background:#8148a5" title="Purple"></div>
-          <div class="av-swatch" onclick="avPick('hairColor',this,'1d6fa4')" data-key="hairColor" data-val="1d6fa4" style="background:#1d6fa4" title="Blue"></div>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'2c1b18')" type="button" data-key="hairColor" data-val="2c1b18" style="background:#2c1b18" title="Black"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'4a312c')" type="button" data-key="hairColor" data-val="4a312c" style="background:#4a312c" title="Dark brown"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'a55728')" type="button" data-key="hairColor" data-val="a55728" style="background:#a55728" title="Brown"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'b58143')" type="button" data-key="hairColor" data-val="b58143" style="background:#b58143" title="Auburn"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'daa520')" type="button" data-key="hairColor" data-val="daa520" style="background:#daa520" title="Blonde"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'e8e1e1')" type="button" data-key="hairColor" data-val="e8e1e1" style="background:#e8e1e1;border:1px solid var(--border)" title="Silver"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'c93305')" type="button" data-key="hairColor" data-val="c93305" style="background:#c93305" title="Red"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'8148a5')" type="button" data-key="hairColor" data-val="8148a5" style="background:#8148a5" title="Purple"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'1d6fa4')" type="button" data-key="hairColor" data-val="1d6fa4" style="background:#1d6fa4" title="Blue"></button>
         </div>
       </div>
 
@@ -3295,14 +3295,14 @@ async function applySession(user) {
       <div>
         <label class="flbl">Background</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="av-bg">
-          <div class="av-swatch" onclick="avPick('bg',this,'b6e3f4')" data-key="bg" data-val="b6e3f4" style="background:#b6e3f4" title="Blue"></div>
-          <div class="av-swatch" onclick="avPick('bg',this,'c0aede')" data-key="bg" data-val="c0aede" style="background:#c0aede" title="Lavender"></div>
-          <div class="av-swatch" onclick="avPick('bg',this,'d1d4f9')" data-key="bg" data-val="d1d4f9" style="background:#d1d4f9" title="Periwinkle"></div>
-          <div class="av-swatch" onclick="avPick('bg',this,'ffd5dc')" data-key="bg" data-val="ffd5dc" style="background:#ffd5dc" title="Pink"></div>
-          <div class="av-swatch" onclick="avPick('bg',this,'ffdfbf')" data-key="bg" data-val="ffdfbf" style="background:#ffdfbf" title="Peach"></div>
-          <div class="av-swatch" onclick="avPick('bg',this,'d4f0c0')" data-key="bg" data-val="d4f0c0" style="background:#d4f0c0" title="Mint"></div>
-          <div class="av-swatch" onclick="avPick('bg',this,'fef3c7')" data-key="bg" data-val="fef3c7" style="background:#fef3c7" title="Yellow"></div>
-          <div class="av-swatch" onclick="avPick('bg',this,'transparent')" data-key="bg" data-val="transparent" style="background:linear-gradient(135deg,#eee 25%,#fff 25%,#fff 50%,#eee 50%,#eee 75%,#fff 75%)" title="None"></div>
+          <button class="av-swatch" onclick="avPick('bg',this,'b6e3f4')" type="button" data-key="bg" data-val="b6e3f4" style="background:#b6e3f4" title="Blue"></button>
+          <button class="av-swatch" onclick="avPick('bg',this,'c0aede')" type="button" data-key="bg" data-val="c0aede" style="background:#c0aede" title="Lavender"></button>
+          <button class="av-swatch" onclick="avPick('bg',this,'d1d4f9')" type="button" data-key="bg" data-val="d1d4f9" style="background:#d1d4f9" title="Periwinkle"></button>
+          <button class="av-swatch" onclick="avPick('bg',this,'ffd5dc')" type="button" data-key="bg" data-val="ffd5dc" style="background:#ffd5dc" title="Pink"></button>
+          <button class="av-swatch" onclick="avPick('bg',this,'ffdfbf')" type="button" data-key="bg" data-val="ffdfbf" style="background:#ffdfbf" title="Peach"></button>
+          <button class="av-swatch" onclick="avPick('bg',this,'d4f0c0')" type="button" data-key="bg" data-val="d4f0c0" style="background:#d4f0c0" title="Mint"></button>
+          <button class="av-swatch" onclick="avPick('bg',this,'fef3c7')" type="button" data-key="bg" data-val="fef3c7" style="background:#fef3c7" title="Yellow"></button>
+          <button class="av-swatch" onclick="avPick('bg',this,'transparent')" type="button" data-key="bg" data-val="transparent" style="background:linear-gradient(135deg,#eee 25%,#fff 25%,#fff 50%,#eee 50%,#eee 75%,#fff 75%)" title="None"></button>
         </div>
       </div>
 
