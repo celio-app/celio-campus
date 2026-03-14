@@ -2897,22 +2897,21 @@ function loadAvatarPrefs() {
     var saved = localStorage.getItem("celio-campus-avatar");
     if (saved) { _avatarPrefs = JSON.parse(saved); return _avatarPrefs; }
   } catch(e) {}
-  _avatarPrefs = { skin: "ffdbb4", top: "shortHairShortFlat", hairColor: "2c1b18", accessories: "blank", bg: "b6e3f4" };
+  _avatarPrefs = { skin: "ffdbb4", top: "shortHair", hairColor: "2c1b18", accessories: "blank", bg: "b6e3f4" };
   return _avatarPrefs;
 }
 
 function buildAvatarUrl(seed) {
   var p = loadAvatarPrefs();
-  var base = "https://api.dicebear.com/7.x/avataaars/svg";
+  var base = "https://api.dicebear.com/9.x/avataaars/svg";
   var params = "?seed=" + encodeURIComponent(seed || "student");
   params += "&backgroundColor=" + p.bg;
-  params += "&backgroundType=circle";
+  params += "&backgroundType=solid";
   params += "&skinColor=" + p.skin;
   params += "&top=" + p.top;
-  // Only add hairColor if not wearing a hat/hijab/turban
-  var noHairStyles = ["hat","winterHat1","hijab","turban","noHair"];
+  var noHairStyles = ["hat","winterHat","hijab","turban","shaved"];
   if (noHairStyles.indexOf(p.top) === -1) params += "&hairColor=" + p.hairColor;
-  if (p.accessories && p.accessories !== "blank") params += "&accessories=" + p.accessories + "&accessoriesColor=transparent";
+  if (p.accessories && p.accessories !== "blank") params += "&accessories=" + p.accessories;
   return base + params;
 }
 
@@ -2936,7 +2935,7 @@ window.closeAvatarModal = function() {
 };
 
 function updateHairColorRow(top) {
-  var noHairStyles = ["hat","winterHat1","hijab","turban","noHair"];
+  var noHairStyles = ["hat","winterHat","hijab","turban","shaved"];
   var row = document.getElementById("av-haircolor-row");
   if (row) row.style.display = noHairStyles.indexOf(top) > -1 ? "none" : "block";
 }
@@ -3222,17 +3221,17 @@ async function applySession(user) {
       <div>
         <label class="flbl">Hair Style</label>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px" id="av-top">
-          <button class="av-pill" onclick="avPick('top','shortHairShortFlat',this)" data-key="top" data-val="shortHairShortFlat">Short</button>
-          <button class="av-pill" onclick="avPick('top','shortHairDreads01',this)" data-key="top" data-val="shortHairDreads01">Dreads</button>
-          <button class="av-pill" onclick="avPick('top','longHairStraight',this)" data-key="top" data-val="longHairStraight">Long straight</button>
-          <button class="av-pill" onclick="avPick('top','longHairCurly',this)" data-key="top" data-val="longHairCurly">Long curly</button>
-          <button class="av-pill" onclick="avPick('top','longHairBob',this)" data-key="top" data-val="longHairBob">Bob</button>
-          <button class="av-pill" onclick="avPick('top','longHairBun',this)" data-key="top" data-val="longHairBun">Bun</button>
+          <button class="av-pill" onclick="avPick('top','shortHair',this)" data-key="top" data-val="shortHair">Short</button>
+          <button class="av-pill" onclick="avPick('top','dreads',this)" data-key="top" data-val="dreads">Dreads</button>
+          <button class="av-pill" onclick="avPick('top','longHair',this)" data-key="top" data-val="longHair">Long straight</button>
+          <button class="av-pill" onclick="avPick('top','curly',this)" data-key="top" data-val="curly">Long curly</button>
+          <button class="av-pill" onclick="avPick('top','bob',this)" data-key="top" data-val="bob">Bob</button>
+          <button class="av-pill" onclick="avPick('top','bun',this)" data-key="top" data-val="bun">Bun</button>
           <button class="av-pill" onclick="avPick('top','hat',this)" data-key="top" data-val="hat">Cap</button>
-          <button class="av-pill" onclick="avPick('top','winterHat1',this)" data-key="top" data-val="winterHat1">Beanie</button>
+          <button class="av-pill" onclick="avPick('top','winterHat',this)" data-key="top" data-val="winterHat">Beanie</button>
           <button class="av-pill" onclick="avPick('top','hijab',this)" data-key="top" data-val="hijab">Hijab</button>
           <button class="av-pill" onclick="avPick('top','turban',this)" data-key="top" data-val="turban">Turban</button>
-          <button class="av-pill" onclick="avPick('top','noHair',this)" data-key="top" data-val="noHair">None</button>
+          <button class="av-pill" onclick="avPick('top','shaved',this)" data-key="top" data-val="shaved">None</button>
         </div>
       </div>
       <!-- Hair colour -->
