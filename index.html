@@ -1100,10 +1100,11 @@ async function loadAll() {
     if (!activeSemester && semesters.length > 0) {
       activeSemester = semesters[semesters.length - 1];
     }
-    // Evaluate badges BEFORE first render so earned state is correct immediately
-    await evaluateBadges({ trigger: "load" });
     renderSidebar();
     renderActiveTab();
+    // Evaluate badges after render — in own try/catch so it never blocks the UI
+    try { await evaluateBadges({ trigger: "load" }); } catch(e) { console.warn("evaluateBadges:", e); }
+    if (activeTab === "dashboard") renderDashboard();
   } catch (err) {
     console.error("loadAll error:", err);
     showToast("Error loading data: " + err.message, "error");
