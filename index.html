@@ -1352,13 +1352,16 @@ function renderDashboard() {
     html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
     html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
 
-    // Avatar
+    // Avatar — DiceBear avataaars seeded from username
+    var avatarSeed = encodeURIComponent(userName || "student");
+    var avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + avatarSeed + "&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&backgroundType=circle";
     html += '<div style="position:relative;flex-shrink:0">';
-    html += '<div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.2)">';
-    html += (userName[0] || "?").toUpperCase();
+    html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.25);background:rgba(255,255,255,.15);flex-shrink:0">';
+    html += '<img src="' + avatarUrl + '" width="56" height="56" style="border-radius:50%;display:block" onerror="this.style.display=&quot;none&quot;;this.nextSibling.style.display=&quot;flex&quot;">';
+    html += '<div style="display:none;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.25);align-items:center;justify-content:center;font-size:1.4rem;font-weight:900">' + (userName[0] || "?").toUpperCase() + '</div>';
     html += '</div>';
     if (lvlIdx >= 2) {
-      html += '<div style="position:absolute;bottom:-4px;right:-4px;font-size:.8rem;background:rgba(0,0,0,.3);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center">' + level.icon + '</div>';
+      html += '<div style="position:absolute;bottom:-2px;right:-2px;font-size:.8rem;background:rgba(0,0,0,.35);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)">' + level.icon + '</div>';
     }
     html += '</div>';
 
