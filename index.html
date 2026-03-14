@@ -1060,10 +1060,12 @@ window.closeSidebar = function() {
 async function loadAll() {
   if (!currentUser) return;
   try {
-    var [semRes, courseRes, assignRes] = await Promise.all([
+    var [semRes, courseRes, assignRes, badgeRes, statsRes] = await Promise.all([
       sb.from("semesters").select("*").order("start_date", { ascending: true }),
       sb.from("courses").select("*").order("code"),
-      sb.from("assignments").select("*").order("due_date", { ascending: true })
+      sb.from("assignments").select("*").order("due_date", { ascending: true }),
+      sb.from("user_badges").select("badge_id").eq("user_id", currentUser.id),
+      sb.from("user_stats").select("*").eq("user_id", currentUser.id).maybeSingle()
     ]);
     if (semRes.error) throw semRes.error;
     if (courseRes.error) throw courseRes.error;
@@ -1071,8 +1073,10 @@ async function loadAll() {
     semesters = semRes.data || [];
     courses = courseRes.data || [];
     assignments = assignRes.data || [];
+    // Badges — loaded in parallel, available before first render
+    _unlockedBadgeIds = new Set((badgeRes.data || []).map(function(x) { return x.badge_id; }));
+    // Stats
     try {
-      var statsRes = await sb.from("user_stats").select("*").eq("user_id", currentUser.id).maybeSingle();
       userStats = (statsRes && statsRes.data) ? statsRes.data : null;
       if (userStats) applyLevelPalette(userStats.xp || 0);
     } catch(e) { userStats = null; }
@@ -1083,8 +1087,6 @@ async function loadAll() {
       var logsRes = await sb.from("habit_logs").select("*").eq("user_id", currentUser.id).eq("completed_date", today);
       habitLogs = (logsRes && logsRes.data) ? logsRes.data : [];
     } catch(e) { habits = []; habitLogs = []; }
-    // Load badge IDs (non-blocking)
-    try { await fetchUserBadgeIds(); } catch(e) { _unlockedBadgeIds = null; }
 
     // Restore last active semester
     var savedSemId = localStorage.getItem("celio-campus-sem-" + currentUser.id);
