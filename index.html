@@ -521,6 +521,14 @@ select.inp { cursor: pointer; }
 .rarity-rare     { background: var(--accent-bg); color: var(--accent2); }
 .rarity-epic     { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
 
+
+.av-swatch { width:28px;height:28px;border-radius:50%;cursor:pointer;transition:transform .12s;border:2.5px solid transparent;flex-shrink:0; }
+.av-swatch:hover { transform:scale(1.15); }
+.av-swatch.selected { border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg); }
+.av-pill { padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s; }
+.av-pill:hover { border-color:var(--accent);color:var(--accent); }
+.av-pill.selected { background:var(--accent);color:#fff;border-color:var(--accent); }
+
 </style>
 </head>
 <body>
@@ -1352,16 +1360,16 @@ function renderDashboard() {
     html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
     html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
 
-    // Avatar — DiceBear avataaars seeded from username
-    var avatarSeed = encodeURIComponent(userName || "student");
-    var avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + avatarSeed + "&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&backgroundType=circle";
-    html += '<div style="position:relative;flex-shrink:0">';
-    html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.25);background:rgba(255,255,255,.15);flex-shrink:0">';
+    // Avatar — DiceBear avataaars with saved customisation
+    var avatarUrl = buildAvatarUrl(userName);
+    html += '<div style="position:relative;flex-shrink:0;cursor:pointer" onclick="openAvatarModal()" title="Customise avatar">';
+    html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.25);background:rgba(255,255,255,.15);flex-shrink:0;transition:transform .15s" onmouseover="this.style.transform=&quot;scale(1.08)&quot;" onmouseout="this.style.transform=&quot;scale(1)&quot;">';
     html += '<img src="' + avatarUrl + '" width="56" height="56" style="border-radius:50%;display:block" onerror="this.style.display=&quot;none&quot;;this.nextSibling.style.display=&quot;flex&quot;">';
     html += '<div style="display:none;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.25);align-items:center;justify-content:center;font-size:1.4rem;font-weight:900">' + (userName[0] || "?").toUpperCase() + '</div>';
     html += '</div>';
+    html += '<div style="position:absolute;bottom:-2px;right:-2px;background:rgba(0,0,0,.45);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.6rem" title="Edit">✏️</div>';
     if (lvlIdx >= 2) {
-      html += '<div style="position:absolute;bottom:-2px;right:-2px;font-size:.8rem;background:rgba(0,0,0,.35);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)">' + level.icon + '</div>';
+      html += '<div style="position:absolute;top:-4px;right:-4px;font-size:.8rem;background:rgba(0,0,0,.35);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)">' + level.icon + '</div>';
     }
     html += '</div>';
 
@@ -2572,7 +2580,7 @@ window.deleteAssignment = function() {
 
 // ===== MODAL BACKDROP CLOSE =====
 window.addEventListener("DOMContentLoaded", function() {
-  ["sem-modal","course-modal","assign-modal","habit-modal"].forEach(function(id) {
+  ["sem-modal","course-modal","assign-modal","habit-modal","avatar-modal"].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
     el.addEventListener("click", function(e) {
@@ -2879,6 +2887,96 @@ window.deleteHabit = function() {
 };
 
 
+
+// ===== AVATAR CUSTOMISER =====
+var _avatarPrefs = null;
+
+function loadAvatarPrefs() {
+  if (_avatarPrefs) return _avatarPrefs;
+  try {
+    var saved = localStorage.getItem("celio-campus-avatar");
+    if (saved) { _avatarPrefs = JSON.parse(saved); return _avatarPrefs; }
+  } catch(e) {}
+  _avatarPrefs = { skin: "ffdbb4", top: "shortHairShortFlat", hairColor: "2c1b18", accessories: "blank", bg: "b6e3f4" };
+  return _avatarPrefs;
+}
+
+function buildAvatarUrl(seed) {
+  var p = loadAvatarPrefs();
+  var base = "https://api.dicebear.com/7.x/avataaars/svg";
+  var params = "?seed=" + encodeURIComponent(seed || "student");
+  params += "&backgroundColor=" + p.bg;
+  params += "&backgroundType=circle";
+  params += "&skinColor=" + p.skin;
+  params += "&top=" + p.top;
+  // Only add hairColor if not wearing a hat/hijab/turban
+  var noHairStyles = ["hat","winterHat1","hijab","turban","noHair"];
+  if (noHairStyles.indexOf(p.top) === -1) params += "&hairColor=" + p.hairColor;
+  if (p.accessories && p.accessories !== "blank") params += "&accessories=" + p.accessories + "&accessoriesColor=transparent";
+  return base + params;
+}
+
+window.openAvatarModal = function() {
+  var p = loadAvatarPrefs();
+  // Set selected state on all swatches and pills
+  document.querySelectorAll(".av-swatch, .av-pill").forEach(function(el) {
+    var key = el.dataset.key;
+    var val = el.dataset.val;
+    el.classList.toggle("selected", p[key] === val);
+  });
+  // Update hair colour row visibility
+  updateHairColorRow(p.top);
+  // Show preview
+  updateAvatarPreview();
+  document.getElementById("avatar-modal").classList.add("open");
+};
+
+window.closeAvatarModal = function() {
+  document.getElementById("avatar-modal").classList.remove("open");
+};
+
+function updateHairColorRow(top) {
+  var noHairStyles = ["hat","winterHat1","hijab","turban","noHair"];
+  var row = document.getElementById("av-haircolor-row");
+  if (row) row.style.display = noHairStyles.indexOf(top) > -1 ? "none" : "block";
+}
+
+function updateAvatarPreview() {
+  var userName = currentUser ? ((currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split("@")[0]) : "student";
+  var img = document.getElementById("av-preview");
+  if (img) img.src = buildAvatarUrl(userName);
+}
+
+// Swatch / pill click handler — delegated
+document.addEventListener("click", function(e) {
+  var el = e.target.closest(".av-swatch, .av-pill");
+  if (!el) return;
+  var key = el.dataset.key;
+  var val = el.dataset.val;
+  if (!key || !val) return;
+  var p = loadAvatarPrefs();
+  p[key] = val;
+  // Update selected state within the same group
+  var group = el.closest("[id^='av-']");
+  if (group) {
+    group.querySelectorAll(".av-swatch, .av-pill").forEach(function(x) { x.classList.remove("selected"); });
+  }
+  el.classList.add("selected");
+  // Show/hide hair colour row
+  if (key === "top") updateHairColorRow(val);
+  updateAvatarPreview();
+});
+
+window.saveAvatar = function() {
+  try {
+    localStorage.setItem("celio-campus-avatar", JSON.stringify(_avatarPrefs));
+  } catch(e) {}
+  closeAvatarModal();
+  // Re-render dashboard to show new avatar
+  if (activeTab === "dashboard") renderDashboard();
+  showToast("Avatar updated! 🎨", "success");
+};
+
 // ===== HABIT TIMER =====
 var _timerHabitId = null;
 var _timerInterval = null;
@@ -3094,6 +3192,99 @@ async function applySession(user) {
 
 })();
 </script>
+
+
+<!-- AVATAR CUSTOMISER MODAL -->
+<div class="modal-bg" id="avatar-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-title">
+      <span>🎨 Customise Avatar</span>
+      <button class="modal-close" onclick="closeAvatarModal()">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Preview -->
+      <div style="display:flex;justify-content:center;margin-bottom:4px">
+        <img id="av-preview" width="90" height="90" style="border-radius:50%;border:3px solid var(--accent);box-shadow:var(--card-shadow)">
+      </div>
+      <!-- Skin tone -->
+      <div>
+        <label class="flbl">Skin Tone</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="av-skin">
+          <div class="av-swatch" data-key="skin" data-val="ffdbb4" style="background:#ffdbb4" title="Light"></div>
+          <div class="av-swatch" data-key="skin" data-val="edb98a" style="background:#edb98a" title="Light tan"></div>
+          <div class="av-swatch" data-key="skin" data-val="fd9841" style="background:#fd9841" title="Tan"></div>
+          <div class="av-swatch" data-key="skin" data-val="d08b5b" style="background:#d08b5b" title="Medium"></div>
+          <div class="av-swatch" data-key="skin" data-val="ae5d29" style="background:#ae5d29" title="Medium dark"></div>
+          <div class="av-swatch" data-key="skin" data-val="614335" style="background:#614335" title="Dark"></div>
+          <div class="av-swatch" data-key="skin" data-val="f8d25c" style="background:#f8d25c" title="Yellow"></div>
+        </div>
+      </div>
+      <!-- Hair style -->
+      <div>
+        <label class="flbl">Hair Style</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px" id="av-top">
+          <button class="av-pill" data-key="top" data-val="shortHairShortFlat">Short</button>
+          <button class="av-pill" data-key="top" data-val="shortHairDreads01">Dreads</button>
+          <button class="av-pill" data-key="top" data-val="longHairStraight">Long straight</button>
+          <button class="av-pill" data-key="top" data-val="longHairCurly">Long curly</button>
+          <button class="av-pill" data-key="top" data-val="longHairBob">Bob</button>
+          <button class="av-pill" data-key="top" data-val="longHairBun">Bun</button>
+          <button class="av-pill" data-key="top" data-val="hat">Cap</button>
+          <button class="av-pill" data-key="top" data-val="winterHat1">Beanie</button>
+          <button class="av-pill" data-key="top" data-val="hijab">Hijab</button>
+          <button class="av-pill" data-key="top" data-val="turban">Turban</button>
+          <button class="av-pill" data-key="top" data-val="noHair">None</button>
+        </div>
+      </div>
+      <!-- Hair colour -->
+      <div id="av-haircolor-row">
+        <label class="flbl">Hair Colour</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="av-haircolor">
+          <div class="av-swatch" data-key="hairColor" data-val="2c1b18" style="background:#2c1b18" title="Black"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="4a312c" style="background:#4a312c" title="Dark brown"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="a55728" style="background:#a55728" title="Brown"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="b58143" style="background:#b58143" title="Auburn"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="daa520" style="background:#daa520" title="Blonde"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="e8e1e1" style="background:#e8e1e1;border:1px solid var(--border)" title="White/silver"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="c93305" style="background:#c93305" title="Red"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="8148a5" style="background:#8148a5" title="Purple"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="1d6fa4" style="background:#1d6fa4" title="Blue"></div>
+          <div class="av-swatch" data-key="hairColor" data-val="ff5733" style="background:#ff5733" title="Orange"></div>
+        </div>
+      </div>
+      <!-- Accessories -->
+      <div>
+        <label class="flbl">Accessories</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px" id="av-accessories">
+          <button class="av-pill" data-key="accessories" data-val="blank">None</button>
+          <button class="av-pill" data-key="accessories" data-val="prescription01">Glasses</button>
+          <button class="av-pill" data-key="accessories" data-val="prescription02">Round glasses</button>
+          <button class="av-pill" data-key="accessories" data-val="kurt">Kurt glasses</button>
+          <button class="av-pill" data-key="accessories" data-val="wayfarers">Wayfarers</button>
+          <button class="av-pill" data-key="accessories" data-val="sunglasses">Sunglasses</button>
+        </div>
+      </div>
+      <!-- Background -->
+      <div>
+        <label class="flbl">Background</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" id="av-bg">
+          <div class="av-swatch" data-key="bg" data-val="b6e3f4" style="background:#b6e3f4" title="Blue"></div>
+          <div class="av-swatch" data-key="bg" data-val="c0aede" style="background:#c0aede" title="Lavender"></div>
+          <div class="av-swatch" data-key="bg" data-val="d1d4f9" style="background:#d1d4f9" title="Periwinkle"></div>
+          <div class="av-swatch" data-key="bg" data-val="ffd5dc" style="background:#ffd5dc" title="Pink"></div>
+          <div class="av-swatch" data-key="bg" data-val="ffdfbf" style="background:#ffdfbf" title="Peach"></div>
+          <div class="av-swatch" data-key="bg" data-val="d4f0c0" style="background:#d4f0c0" title="Mint"></div>
+          <div class="av-swatch" data-key="bg" data-val="fef3c7" style="background:#fef3c7" title="Yellow"></div>
+          <div class="av-swatch" data-key="bg" data-val="e0e0e0" style="background:#e0e0e0;border:1px solid var(--border)" title="Grey"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeAvatarModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAvatar()">Save</button>
+    </div>
+  </div>
+</div>
 
 <!-- FLOATING HABIT TIMER -->
 <div id="habit-timer-widget" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.2);width:220px;font-family:inherit">
