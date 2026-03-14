@@ -1096,8 +1096,13 @@ async function loadAll() {
     }
     renderSidebar();
     renderActiveTab();
-    // Silently check for any badges earned while offline / not yet evaluated
-    setTimeout(function() { evaluateBadges({ trigger: "load" }); }, 800);
+    // Re-fetch badge IDs fresh from DB, evaluate, then re-render so earned badges show
+    setTimeout(async function() {
+      await fetchUserBadgeIds();
+      await evaluateBadges({ trigger: "load" });
+      await fetchUserBadgeIds();
+      if (activeTab === "dashboard") renderDashboard();
+    }, 600);
   } catch (err) {
     console.error("loadAll error:", err);
     showToast("Error loading data: " + err.message, "error");
@@ -1737,8 +1742,8 @@ async function fetchUserBadgeIds() {
 async function grantBadge(badgeId) {
   var res = await sb.rpc("unlock_badge", { p_user_id: currentUser.id, p_badge_id: badgeId, p_context: {} });
   if (res.error) { console.warn("grantBadge", badgeId, res.error); return false; }
-  if (!res.data) return false; // already had it
-  if (_unlockedBadgeIds) _unlockedBadgeIds.add(badgeId);
+  if (_unlockedBadgeIds) _unlockedBadgeIds.add(badgeId); // mark earned regardless
+  if (!res.data) return false; // already had it — no toast
   // Show badge toast
   var bdef = BADGE_DEFS.find(function(b) { return b.id === badgeId; });
   if (bdef) {
