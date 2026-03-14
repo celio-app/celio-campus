@@ -775,15 +775,15 @@ select.inp { cursor: pointer; }
     <div style="display:flex;flex-direction:column;gap:14px">
       <div><label class="flbl">Habit Name</label><input id="h-name" class="inp" placeholder="e.g. Meditate, Review notes, Exercise"></div>
       <div><label class="flbl">Description <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional)</span></label><input id="h-notes" class="inp" placeholder="e.g. 5 minutes of deep breathing"></div>
+      <div><label class="flbl">Timer Duration <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional — minutes)</span></label>
+        <input id="h-duration" class="inp" type="number" min="1" max="120" step="1" placeholder="e.g. 25 for a focused session">
+      </div>
       <div><label class="flbl">Icon</label>
         <div id="h-icon-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
         <input type="hidden" id="h-icon" value="🧘">
       </div>
       <div><label class="flbl">Colour</label>
         <div class="color-swatches" id="h-color-picker"></div>
-      </div>
-      <div><label class="flbl">Timer Duration <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional — minutes)</span></label>
-        <input id="h-duration" class="inp" type="number" min="1" max="120" step="1" placeholder="e.g. 25 for a 25-min session">
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
