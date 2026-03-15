@@ -1361,7 +1361,7 @@ function renderDashboard() {
     html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
 
     // Avatar — DiceBear avataaars with saved customisation
-    var avatarUrl = buildAvatarUrl(userName);
+    var avatarUrl = buildAvatarSvg();
     html += '<div style="position:relative;flex-shrink:0;cursor:pointer" onclick="openAvatarModal()" title="Customise avatar">';
     html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.25);background:rgba(255,255,255,.15);flex-shrink:0;transition:transform .15s" onmouseover="this.style.transform=&quot;scale(1.08)&quot;" onmouseout="this.style.transform=&quot;scale(1)&quot;">';
     html += '<img src="' + avatarUrl + '" width="56" height="56" style="border-radius:50%;display:block" onerror="this.style.display=&quot;none&quot;;this.nextSibling.style.display=&quot;flex&quot;">';
@@ -2897,26 +2897,98 @@ function loadAvatarPrefs() {
     var saved = localStorage.getItem("celio-campus-avatar");
     if (saved) { _avatarPrefs = JSON.parse(saved); return _avatarPrefs; }
   } catch(e) {}
-  _avatarPrefs = { skin: "ffdbb4", top: "", hairColor: "2c1b18", accessories: "blank", mouth: "twinkle", bg: "b6e3f4", avatarSeed: "" };
+  _avatarPrefs = { skin: "ffdbb4", avatarStyle: "shortFlat", hairColor: "2c1b18", accessories: "none", mouth: "smile", bg: "b6e3f4" };
   return _avatarPrefs;
 }
 
-function buildAvatarUrl(seed) {
+function buildAvatarSvg() {
   var p = loadAvatarPrefs();
-  // Encode skin tone into seed so DiceBear deterministically picks matching skin
-  var skinSeeds = {
-    "ffdbb4": "light", "edb98a": "lighttan", "fd9841": "tan",
-    "d08b5b": "medium", "ae5d29": "mediumdark", "614335": "dark", "f8d25c": "golden"
+  var skin = "#" + (p.skin || "ffdbb4");
+  var bg   = "#" + (p.bg   || "b6e3f4");
+  var hair = "#" + (p.hairColor || "2c1b18");
+  var style = p.avatarStyle || "shortFlat";
+  var acc   = p.accessories || "none";
+  var expr  = p.mouth || "smile";
+
+  // Darken skin slightly for ears/neck shadow
+  var skinDark = p.skin === "ffdbb4" ? "#edb98a" :
+                 p.skin === "edb98a" ? "#d08b5b" :
+                 p.skin === "fd9841" ? "#c97a2a" :
+                 p.skin === "d08b5b" ? "#ae5d29" :
+                 p.skin === "ae5d29" ? "#7a3b15" :
+                 p.skin === "614335" ? "#3d2218" :
+                 p.skin === "f8d25c" ? "#d4a82a" : "#edb98a";
+
+  // Hair paths by style
+  var hairPaths = {
+    shortFlat: '<rect x="28" y="18" width="44" height="28" rx="14" fill="HAIR"/><rect x="24" y="30" width="8" height="20" rx="4" fill="HAIR"/><rect x="68" y="30" width="8" height="20" rx="4" fill="HAIR"/>',
+    shortCurly: '<ellipse cx="50" cy="25" rx="22" ry="16" fill="HAIR"/><circle cx="30" cy="32" r="8" fill="HAIR"/><circle cx="70" cy="32" r="8" fill="HAIR"/>',
+    longStraight: '<rect x="26" y="18" width="48" height="26" rx="13" fill="HAIR"/><rect x="22" y="30" width="9" height="44" rx="4" fill="HAIR"/><rect x="69" y="30" width="9" height="44" rx="4" fill="HAIR"/>',
+    longCurly: '<ellipse cx="50" cy="24" rx="24" ry="15" fill="HAIR"/><circle cx="27" cy="38" r="9" fill="HAIR"/><circle cx="73" cy="38" r="9" fill="HAIR"/><ellipse cx="28" cy="60" rx="8" ry="14" fill="HAIR"/><ellipse cx="72" cy="60" rx="8" ry="14" fill="HAIR"/>',
+    bun: '<ellipse cx="50" cy="28" rx="22" ry="14" fill="HAIR"/><circle cx="50" cy="14" r="10" fill="HAIR"/><rect x="24" y="30" width="7" height="16" rx="3" fill="HAIR"/><rect x="69" y="30" width="7" height="16" rx="3" fill="HAIR"/>',
+    cap: '<rect x="22" y="22" width="56" height="22" rx="4" fill="HAIR"/><rect x="18" y="36" width="64" height="10" rx="5" fill="HAIR"/><rect x="18" y="38" width="30" height="8" rx="4" fill="HAIR"/>',
+    beanie: '<rect x="24" y="14" width="52" height="30" rx="10" fill="HAIR"/><rect x="20" y="36" width="60" height="10" rx="5" fill="HAIR"/>',
+    hijab: '<ellipse cx="50" cy="34" rx="28" ry="26" fill="HAIR"/><rect x="22" y="44" width="12" height="28" rx="6" fill="HAIR"/><rect x="66" y="44" width="12" height="28" rx="6" fill="HAIR"/><ellipse cx="50" cy="20" rx="18" ry="12" fill="HAIR"/>',
+    none: ''
   };
-  var skinSuffix = skinSeeds[p.skin] || "light";
-  var baseSeed = p.avatarSeed || seed || "student";
-  var avatarSeed = baseSeed + "-" + skinSuffix;
-  var base = "https://api.dicebear.com/9.x/avataaars/svg";
-  var params = "?seed=" + encodeURIComponent(avatarSeed);
-  params += "&backgroundColor=" + (p.bg || "b6e3f4");
-  params += "&backgroundType=solid";
-  params += "&skinColor=" + (p.skin || "ffdbb4");
-  return base + params;
+
+  var hp = (hairPaths[style] || hairPaths.shortFlat).replace(/HAIR/g, hair);
+
+  // Mouth by expression
+  var mouths = {
+    smile:    '<path d="M40 68 Q50 76 60 68" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+    grin:     '<path d="M38 67 Q50 80 62 67" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M38 67 Q50 80 62 67" fill="white" opacity="0.6"/>',
+    tongue:   '<path d="M40 68 Q50 76 60 68" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="75" rx="6" ry="4" fill="#e75480"/>',
+    neutral:  '<line x1="42" y1="70" x2="58" y2="70" stroke="#8B4513" stroke-width="2.5" stroke-linecap="round"/>',
+    serious:  '<path d="M42 72 Q50 68 58 72" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+    surprised:'<ellipse cx="50" cy="70" rx="7" ry="8" fill="#8B4513"/>',
+  };
+  var mouth = mouths[expr] || mouths.smile;
+
+  // Glasses/accessories
+  var glasses = {
+    none:       '',
+    glasses:    '<rect x="33" y="52" width="13" height="10" rx="4" fill="none" stroke="#555" stroke-width="2"/><rect x="54" y="52" width="13" height="10" rx="4" fill="none" stroke="#555" stroke-width="2"/><line x1="46" y1="57" x2="54" y2="57" stroke="#555" stroke-width="2"/>',
+    sunglasses: '<rect x="31" y="51" width="16" height="10" rx="5" fill="rgba(0,0,0,0.75)"/><rect x="53" y="51" width="16" height="10" rx="5" fill="rgba(0,0,0,0.75)"/><line x1="47" y1="56" x2="53" y2="56" stroke="#333" stroke-width="2"/>',
+    roundGlasses:'<circle cx="40" cy="57" r="7" fill="none" stroke="#555" stroke-width="2"/><circle cx="60" cy="57" r="7" fill="none" stroke="#555" stroke-width="2"/><line x1="47" y1="57" x2="53" y2="57" stroke="#555" stroke-width="2"/>',
+  };
+  var glassHtml = glasses[acc] || '';
+
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">'
+    // Background circle
+    + '<circle cx="50" cy="50" r="50" fill="' + bg + '"/>'
+    // Neck
+    + '<rect x="41" y="74" width="18" height="18" rx="4" fill="' + skin + '"/>'
+    // Ears
+    + '<ellipse cx="24" cy="52" rx="6" ry="8" fill="' + skin + '"/>'
+    + '<ellipse cx="76" cy="52" rx="6" ry="8" fill="' + skin + '"/>'
+    + '<ellipse cx="24" cy="52" rx="3.5" ry="5" fill="' + skinDark + '"/>'
+    + '<ellipse cx="76" cy="52" rx="3.5" ry="5" fill="' + skinDark + '"/>'
+    // Face
+    + '<ellipse cx="50" cy="52" rx="26" ry="30" fill="' + skin + '"/>'
+    // Hair (behind face for some styles, on top for cap/beanie)
+    + (style === 'cap' || style === 'beanie' || style === 'hijab' ? '' : hp)
+    // Eyes
+    + '<ellipse cx="40" cy="52" rx="4.5" ry="5" fill="white"/>'
+    + '<ellipse cx="60" cy="52" rx="4.5" ry="5" fill="white"/>'
+    + '<circle cx="40" cy="53" r="3" fill="#333"/>'
+    + '<circle cx="60" cy="53" r="3" fill="#333"/>'
+    + '<circle cx="41" cy="51" r="1" fill="white"/>'
+    + '<circle cx="61" cy="51" r="1" fill="white"/>'
+    // Eyebrows
+    + '<path d="M34 46 Q40 43 46 46" stroke="' + hair + '" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
+    + '<path d="M54 46 Q60 43 66 46" stroke="' + hair + '" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
+    // Nose
+    + '<ellipse cx="50" cy="62" rx="3" ry="2" fill="' + skinDark + '" opacity="0.5"/>'
+    // Mouth
+    + mouth
+    // Glasses (on top)
+    + glassHtml
+    // Hair on top for cap/beanie/hijab
+    + (style === 'cap' || style === 'beanie' || style === 'hijab' ? hp : '')
+    + '</svg>';
+
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
 window.openAvatarModal = function() {
@@ -2938,10 +3010,10 @@ window.closeAvatarModal = function() {
   document.getElementById("avatar-modal").classList.remove("open");
 };
 
-function updateHairColorRow(top) {
-  var noHairStyles = ["hat","winterHat1","hijab","turban","eyepatch","noHair"];
+function updateHairColorRow(style) {
+  var noHairStyles = ["cap","beanie","hijab","none"];
   var row = document.getElementById("av-haircolor-row");
-  if (row) row.style.display = noHairStyles.indexOf(top) > -1 ? "none" : "block";
+  if (row) row.style.display = noHairStyles.indexOf(style) > -1 ? "none" : "block";
 }
 
 function updateAvatarPreview() {
@@ -2949,18 +3021,20 @@ function updateAvatarPreview() {
   var img = document.getElementById("av-preview");
   if (img) {
     // Append ts to bust mobile browser cache
-    img.src = buildAvatarUrl(userName) + "&_=" + Date.now();
+    img.src = buildAvatarSvg() + "&_=" + Date.now();
   }
 }
 
 // Avatar swatch/pill picker
 // Shuffle generates a new random seed so the whole avatar look changes
-var _shuffleCounter = Date.now();
+var _hairStyles = ["shortFlat","shortCurly","longStraight","longCurly","bun","cap","beanie","hijab","none"];
+var _accs = ["none","glasses","sunglasses","roundGlasses"];
+var _shuffleStyleIdx = 0;
 window.shuffleAvatar = function() {
-  var p = loadAvatarPrefs();
-  _shuffleCounter++;
-  p.avatarSeed = "s" + _shuffleCounter + "r" + Math.floor(Math.random() * 99999);
-  _avatarPrefs = p;
+  if (!_avatarPrefs) loadAvatarPrefs();
+  _shuffleStyleIdx++;
+  _avatarPrefs.avatarStyle = _hairStyles[_shuffleStyleIdx % _hairStyles.length];
+  _avatarPrefs.accessories = _accs[Math.floor(Math.random() * _accs.length)];
   updateAvatarPreview();
 };
 
@@ -2973,7 +3047,7 @@ window.avPick = function(key, val, el) {
     group.querySelectorAll(".av-swatch, .av-pill").forEach(function(x) { x.classList.remove("selected"); });
   }
   el.classList.add("selected");
-  if (key === "top") updateHairColorRow(val);
+  if (key === "avatarStyle") updateHairColorRow(val);
   updateAvatarPreview();
 };
 
@@ -2981,7 +3055,7 @@ window.saveAvatar = function() {
   try {
     localStorage.setItem("celio-campus-avatar", JSON.stringify(_avatarPrefs));
   } catch(e) {}
-  // Force re-read from localStorage on next buildAvatarUrl call
+  // Force re-read from localStorage
   _avatarPrefs = null;
   loadAvatarPrefs();
   closeAvatarModal();
@@ -3216,12 +3290,9 @@ async function applySession(user) {
       <button class="modal-close" onclick="closeAvatarModal()">×</button>
     </div>
 
-    <!-- Preview + shuffle -->
+    <!-- Preview -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:20px">
-      <img id="av-preview" width="110" height="110" style="border-radius:50%;border:3px solid var(--accent);display:block;background:var(--bg3)">
-      <button onclick="shuffleAvatar()" class="btn btn-ghost" style="display:flex;align-items:center;gap:6px;font-size:.82rem">
-        🎲 Shuffle look
-      </button>
+      <img id="av-preview" width="100" height="100" style="border-radius:50%;display:block;border:3px solid var(--accent)">
     </div>
 
     <div style="display:flex;flex-direction:column;gap:18px">
@@ -3237,6 +3308,61 @@ async function applySession(user) {
           <button class="av-swatch" onclick="avPick('skin',this,'ae5d29')" data-key="skin" data-val="ae5d29" style="background:#ae5d29"></button>
           <button class="av-swatch" onclick="avPick('skin',this,'614335')" data-key="skin" data-val="614335" style="background:#614335"></button>
           <button class="av-swatch" onclick="avPick('skin',this,'f8d25c')" data-key="skin" data-val="f8d25c" style="background:#f8d25c"></button>
+        </div>
+      </div>
+
+      <!-- Hair style -->
+      <div>
+        <label class="flbl">Hair Style</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px" id="av-avatarStyle">
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'shortFlat')" data-key="avatarStyle" data-val="shortFlat">Short</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'shortCurly')" data-key="avatarStyle" data-val="shortCurly">Short curly</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'longStraight')" data-key="avatarStyle" data-val="longStraight">Long</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'longCurly')" data-key="avatarStyle" data-val="longCurly">Long curly</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'bun')" data-key="avatarStyle" data-val="bun">Bun</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'cap')" data-key="avatarStyle" data-val="cap">Baseball cap</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'beanie')" data-key="avatarStyle" data-val="beanie">Beanie</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'hijab')" data-key="avatarStyle" data-val="hijab">Hijab</button>
+          <button class="av-pill" onclick="avPick('avatarStyle',this,'none')" data-key="avatarStyle" data-val="none">Shaved</button>
+        </div>
+      </div>
+
+      <!-- Hair colour -->
+      <div id="av-haircolor-row">
+        <label class="flbl">Hair Colour</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px" id="av-hairColor">
+          <button class="av-swatch" onclick="avPick('hairColor',this,'2c1b18')" data-key="hairColor" data-val="2c1b18" style="background:#2c1b18"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'a55728')" data-key="hairColor" data-val="a55728" style="background:#a55728"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'b58143')" data-key="hairColor" data-val="b58143" style="background:#b58143"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'daa520')" data-key="hairColor" data-val="daa520" style="background:#daa520"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'e8e1e1')" data-key="hairColor" data-val="e8e1e1" style="background:#e8e1e1;border:1px solid var(--border)"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'c93305')" data-key="hairColor" data-val="c93305" style="background:#c93305"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'8148a5')" data-key="hairColor" data-val="8148a5" style="background:#8148a5"></button>
+          <button class="av-swatch" onclick="avPick('hairColor',this,'1d6fa4')" data-key="hairColor" data-val="1d6fa4" style="background:#1d6fa4"></button>
+        </div>
+      </div>
+
+      <!-- Expression -->
+      <div>
+        <label class="flbl">Expression</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px" id="av-mouth">
+          <button class="av-pill" onclick="avPick('mouth',this,'smile')" data-key="mouth" data-val="smile">😊 Smile</button>
+          <button class="av-pill" onclick="avPick('mouth',this,'grin')" data-key="mouth" data-val="grin">😁 Grin</button>
+          <button class="av-pill" onclick="avPick('mouth',this,'tongue')" data-key="mouth" data-val="tongue">😛 Tongue</button>
+          <button class="av-pill" onclick="avPick('mouth',this,'neutral')" data-key="mouth" data-val="neutral">😐 Neutral</button>
+          <button class="av-pill" onclick="avPick('mouth',this,'serious')" data-key="mouth" data-val="serious">😑 Serious</button>
+          <button class="av-pill" onclick="avPick('mouth',this,'surprised')" data-key="mouth" data-val="surprised">😮 Surprised</button>
+        </div>
+      </div>
+
+      <!-- Accessories -->
+      <div>
+        <label class="flbl">Accessories</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px" id="av-accessories">
+          <button class="av-pill" onclick="avPick('accessories',this,'none')" data-key="accessories" data-val="none">None</button>
+          <button class="av-pill" onclick="avPick('accessories',this,'glasses')" data-key="accessories" data-val="glasses">Glasses</button>
+          <button class="av-pill" onclick="avPick('accessories',this,'roundGlasses')" data-key="accessories" data-val="roundGlasses">Round glasses</button>
+          <button class="av-pill" onclick="avPick('accessories',this,'sunglasses')" data-key="accessories" data-val="sunglasses">Sunglasses</button>
         </div>
       </div>
 
@@ -3256,11 +3382,6 @@ async function applySession(user) {
       </div>
 
     </div>
-
-    <div style="margin-top:8px;font-size:.72rem;color:var(--text3);text-align:center;font-weight:600">
-      Tap 🎲 Shuffle to change hair, style &amp; accessories
-    </div>
-
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeAvatarModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveAvatar()">Save</button>
