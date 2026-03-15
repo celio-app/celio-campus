@@ -1399,8 +1399,7 @@ function renderDashboard() {
     var avatarUrl = buildAvatarSvg();
     html += '<div style="position:relative;flex-shrink:0;cursor:pointer" onclick="openAvatarModal()" title="Customise avatar">';
     html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.25);background:rgba(255,255,255,.15);flex-shrink:0;transition:transform .15s" onmouseover="this.style.transform=&quot;scale(1.08)&quot;" onmouseout="this.style.transform=&quot;scale(1)&quot;">';
-    html += '<img src="' + avatarUrl + '" width="56" height="56" style="border-radius:50%;display:block" onerror="this.style.display=&quot;none&quot;;this.nextSibling.style.display=&quot;flex&quot;">';
-    html += '<div style="display:none;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.25);align-items:center;justify-content:center;font-size:1.4rem;font-weight:900">' + (userName[0] || "?").toUpperCase() + '</div>';
+    html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center">' + avatarUrl + '</div>';
     html += '</div>';
     html += '<div style="position:absolute;bottom:-2px;right:-2px;background:rgba(0,0,0,.45);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.6rem" title="Edit">✏️</div>';
     if (lvlIdx >= 2) {
@@ -3036,7 +3035,7 @@ function buildAvatarSvg() {
     + glass
     + '</svg>';
 
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  return svg;
 }
 
 
@@ -3066,12 +3065,8 @@ function updateHairColorRow(style) {
 }
 
 function updateAvatarPreview() {
-  var userName = currentUser ? ((currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split("@")[0]) : "student";
-  var img = document.getElementById("av-preview");
-  if (img) {
-    // Append ts to bust mobile browser cache
-    img.src = buildAvatarSvg() + "&_=" + Date.now();
-  }
+  var el = document.getElementById("av-preview");
+  if (el) el.innerHTML = buildAvatarSvg();
 }
 
 // Avatar swatch/pill picker
@@ -3341,7 +3336,7 @@ async function applySession(user) {
 
     <!-- Preview -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:20px">
-      <img id="av-preview" width="100" height="100" style="border-radius:50%;display:block;border:3px solid var(--accent)">
+      <div id="av-preview" style="width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid var(--accent);flex-shrink:0"></div>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:18px">
