@@ -269,7 +269,7 @@ input, select, textarea { font-family: inherit; }
 
 /* ===== DASHBOARD ===== */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
-.stat-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px 18px 16px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; transition: transform .12s, box-shadow .12s; }
+.stat-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; transition: transform .12s, box-shadow .12s; display: flex; align-items: center; gap: 14px; }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
 .stat-card::after { content: ""; position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: .12; }
 .stat-card.purple { border-top: 3px solid var(--accent); }
@@ -564,6 +564,41 @@ select.inp { cursor: pointer; }
   <symbol id="i-cap" viewBox="0 0 24 24"><path d="M12 4l9 4.5-9 4.5-9-4.5L12 4z" fill="currentColor"/><path d="M7 11v3.5c0 1.7 2.2 3 5 3s5-1.3 5-3V11" fill="currentColor" opacity=".85"/><path d="M21 8.5V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-crown_star" viewBox="0 0 24 24"><path d="M4 18l1.5-8 4.5 3.5L12 8l2 5.5 4.5-3.5L20 18H4z" fill="currentColor"/><path d="M12 4l.8 1.7 1.9.3-1.4 1.3.3 1.9L12 8.3l-1.6.9.3-1.9-1.4-1.3 1.9-.3L12 4z" fill="#fff"/></symbol>
   <symbol id="i-seal" viewBox="0 0 24 24"><circle cx="12" cy="10" r="5.5" fill="currentColor"/><path d="M9.3 14.7L8 21l4-2 4 2-1.3-6.3" fill="currentColor" opacity=".9"/></symbol>
+
+    <!-- Celio Campus stat icons -->
+    <symbol id="ci-total" viewBox="0 0 24 24">
+      <rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor"/>
+      <rect x="13" y="4" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/>
+      <rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/>
+      <rect x="13" y="13" width="7" height="7" rx="2" fill="currentColor" opacity=".6"/>
+    </symbol>
+    <symbol id="ci-done" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" fill="currentColor" opacity=".15"/>
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M8 12.5l2.8 2.8L16 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ci-overdue" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5" fill="currentColor" opacity=".12"/>
+      <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 7.5v5l3 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ci-today" viewBox="0 0 24 24">
+      <rect x="4" y="5" width="16" height="15" rx="3" fill="currentColor" opacity=".12"/>
+      <rect x="4" y="5" width="16" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M4 10h16" stroke="currentColor" stroke-width="2"/>
+      <path d="M8 3.5v3M16 3.5v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="15" r="2" fill="currentColor"/>
+    </symbol>
+    <symbol id="ci-week" viewBox="0 0 24 24">
+      <path d="M5 12.5l2.5 2.5L12 8l4.5 7L19 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+  <!-- Stat card icons -->
+  <symbol id="ci-total" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor"/><rect x="13" y="4" width="7" height="4.5" rx="2" fill="currentColor" opacity=".85"/><rect x="13" y="10.5" width="7" height="9.5" rx="2" fill="currentColor"/><rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor" opacity=".85"/></symbol>
+  <symbol id="ci-done" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor" opacity=".15"/><path d="M7 12.5l3.5 3.5L17 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ci-overdue" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor" opacity=".15"/><path d="M12 7v5.5l3.5 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="ci-today" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3" fill="currentColor"/><path d="M4 9.5h16" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 3.5v4M16 3.5v4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14" r="2" fill="#fff"/></symbol>
+  <symbol id="ci-week" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3" fill="currentColor"/><path d="M4 9.5h16" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 3.5v4M16 3.5v4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M8 14h8M9 17h6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></symbol>
 </svg></div>
 <div id="auth-screen">
   <div class="auth-box">
@@ -1485,12 +1520,18 @@ function renderDashboard() {
   }
 
   // Stat cards — clickable to jump to filtered assignments tab
+  var cardColors = { purple: "var(--accent)", green: "var(--green)", red: "var(--red)", amber: "var(--amber)", pink: "var(--pink)" };
+  function statIcon(name, color) {
+    return '<div style="width:44px;height:44px;border-radius:12px;background:' + color + '22;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + color + '">'
+      + '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><use href="#ci-' + name + '"></use></svg>'
+      + '</div>';
+  }
   html += '<div class="stat-grid">';
-  html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')" title="View all assignments"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div>';
-  html += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')" title="View completed"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div>';
-  html += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')" title="View overdue"><div class="stat-label">Overdue</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">need attention</div></div>';
-  html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')" title="View due today"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div>';
-  html += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')" title="View this week"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div>';
+  html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')" title="View all assignments">' + statIcon('total','var(--accent)') + '<div style="flex:1"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div></div>';
+  html += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')" title="View completed">' + statIcon('done','var(--green)') + '<div style="flex:1"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div></div>';
+  html += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')" title="View overdue">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Overdue</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">need attention</div></div></div>';
+  html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')" title="View due today">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div></div>';
+  html += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')" title="View this week">' + statIcon('week','var(--pink)') + '<div style="flex:1"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div></div>';
   html += '</div>';
 
   // Progress
@@ -2910,86 +2951,94 @@ function buildAvatarSvg() {
   var acc   = p.accessories || "none";
   var expr  = p.mouth || "smile";
 
-  // Darken skin slightly for ears/neck shadow
-  var skinDark = p.skin === "ffdbb4" ? "#edb98a" :
-                 p.skin === "edb98a" ? "#d08b5b" :
-                 p.skin === "fd9841" ? "#c97a2a" :
-                 p.skin === "d08b5b" ? "#ae5d29" :
-                 p.skin === "ae5d29" ? "#7a3b15" :
-                 p.skin === "614335" ? "#3d2218" :
-                 p.skin === "f8d25c" ? "#d4a82a" : "#edb98a";
+  // Slightly darker shade for ear/nose depth
+  var skinMap = { ffdbb4:"#e8a87c", edb98a:"#c8824a", fd9841:"#c86820",
+                  d08b5b:"#9e5f30", ae5d29:"#7a3d15", "614335":"#3d2218", f8d25c:"#c8a020" };
+  var skinD = skinMap[p.skin] || "#e8a87c";
 
-  // Hair paths by style
-  var hairPaths = {
-    shortFlat: '<rect x="28" y="18" width="44" height="28" rx="14" fill="HAIR"/><rect x="24" y="30" width="8" height="20" rx="4" fill="HAIR"/><rect x="68" y="30" width="8" height="20" rx="4" fill="HAIR"/>',
-    shortCurly: '<ellipse cx="50" cy="25" rx="22" ry="16" fill="HAIR"/><circle cx="30" cy="32" r="8" fill="HAIR"/><circle cx="70" cy="32" r="8" fill="HAIR"/>',
-    longStraight: '<rect x="26" y="18" width="48" height="26" rx="13" fill="HAIR"/><rect x="22" y="30" width="9" height="44" rx="4" fill="HAIR"/><rect x="69" y="30" width="9" height="44" rx="4" fill="HAIR"/>',
-    longCurly: '<ellipse cx="50" cy="24" rx="24" ry="15" fill="HAIR"/><circle cx="27" cy="38" r="9" fill="HAIR"/><circle cx="73" cy="38" r="9" fill="HAIR"/><ellipse cx="28" cy="60" rx="8" ry="14" fill="HAIR"/><ellipse cx="72" cy="60" rx="8" ry="14" fill="HAIR"/>',
-    bun: '<ellipse cx="50" cy="28" rx="22" ry="14" fill="HAIR"/><circle cx="50" cy="14" r="10" fill="HAIR"/><rect x="24" y="30" width="7" height="16" rx="3" fill="HAIR"/><rect x="69" y="30" width="7" height="16" rx="3" fill="HAIR"/>',
-    cap: '<rect x="22" y="22" width="56" height="22" rx="4" fill="HAIR"/><rect x="18" y="36" width="64" height="10" rx="5" fill="HAIR"/><rect x="18" y="38" width="30" height="8" rx="4" fill="HAIR"/>',
-    beanie: '<rect x="24" y="14" width="52" height="30" rx="10" fill="HAIR"/><rect x="20" y="36" width="60" height="10" rx="5" fill="HAIR"/>',
-    hijab: '<ellipse cx="50" cy="34" rx="28" ry="26" fill="HAIR"/><rect x="22" y="44" width="12" height="28" rx="6" fill="HAIR"/><rect x="66" y="44" width="12" height="28" rx="6" fill="HAIR"/><ellipse cx="50" cy="20" rx="18" ry="12" fill="HAIR"/>',
-    none: ''
+  // ── Hair shapes ──
+  var hairTop = {
+    shortFlat:    '<rect x="26" y="14" width="52" height="26" rx="14" fill="HAIR"/><rect x="20" y="26" width="10" height="22" rx="5" fill="HAIR"/><rect x="70" y="26" width="10" height="22" rx="5" fill="HAIR"/>',
+    shortCurly:   '<ellipse cx="50" cy="22" rx="24" ry="16" fill="HAIR"/><circle cx="28" cy="30" r="9" fill="HAIR"/><circle cx="72" cy="30" r="9" fill="HAIR"/>',
+    longStraight: '<rect x="24" y="14" width="52" height="24" rx="13" fill="HAIR"/><rect x="18" y="28" width="11" height="50" rx="5" fill="HAIR"/><rect x="71" y="28" width="11" height="50" rx="5" fill="HAIR"/>',
+    longCurly:    '<ellipse cx="50" cy="22" rx="26" ry="16" fill="HAIR"/><circle cx="26" cy="34" r="10" fill="HAIR"/><circle cx="74" cy="34" r="10" fill="HAIR"/><ellipse cx="26" cy="58" rx="9" ry="16" fill="HAIR"/><ellipse cx="74" cy="58" rx="9" ry="16" fill="HAIR"/>',
+    bun:          '<ellipse cx="50" cy="24" rx="22" ry="14" fill="HAIR"/><circle cx="50" cy="10" r="11" fill="HAIR"/><rect x="22" y="28" width="9" height="18" rx="4" fill="HAIR"/><rect x="69" y="28" width="9" height="18" rx="4" fill="HAIR"/>',
+    cap:          '<rect x="20" y="30" width="60" height="16" rx="6" fill="HAIR"/><ellipse cx="50" cy="30" rx="28" ry="16" fill="HAIR"/><rect x="14" y="40" width="36" height="10" rx="5" fill="HAIR"/>',
+    beanie:       '<rect x="22" y="10" width="56" height="32" rx="12" fill="HAIR"/><rect x="18" y="34" width="64" height="12" rx="6" fill="HAIR"/>',
+    hijab:        '<ellipse cx="50" cy="36" rx="30" ry="28" fill="HAIR"/><ellipse cx="50" cy="16" rx="20" ry="14" fill="HAIR"/><rect x="20" y="44" width="14" height="32" rx="7" fill="HAIR"/><rect x="66" y="44" width="14" height="32" rx="7" fill="HAIR"/>',
+    none:         ''
   };
 
-  var hp = (hairPaths[style] || hairPaths.shortFlat).replace(/HAIR/g, hair);
-
-  // Mouth by expression
+  // ── Expressions ──
   var mouths = {
-    smile:    '<path d="M40 68 Q50 76 60 68" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    grin:     '<path d="M38 67 Q50 80 62 67" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M38 67 Q50 80 62 67" fill="white" opacity="0.6"/>',
-    tongue:   '<path d="M40 68 Q50 76 60 68" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="75" rx="6" ry="4" fill="#e75480"/>',
-    neutral:  '<line x1="42" y1="70" x2="58" y2="70" stroke="#8B4513" stroke-width="2.5" stroke-linecap="round"/>',
-    serious:  '<path d="M42 72 Q50 68 58 72" stroke="#8B4513" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    surprised:'<ellipse cx="50" cy="70" rx="7" ry="8" fill="#8B4513"/>',
+    smile:    '<path d="M38 70 Q50 80 62 70" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/>',
+    grin:     '<path d="M36 69 Q50 84 64 69" fill="white" opacity="0.9"/><path d="M36 69 Q50 84 64 69" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/>',
+    tongue:   '<path d="M39 70 Q50 80 61 70" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="79" rx="7" ry="5" fill="#e75480"/>',
+    neutral:  '<line x1="42" y1="72" x2="58" y2="72" stroke="' + skinD + '" stroke-width="3" stroke-linecap="round"/>',
+    serious:  '<path d="M42 74 Q50 70 58 74" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/>',
+    surprised:'<ellipse cx="50" cy="73" rx="8" ry="9" fill="' + skinD + '" opacity="0.7"/>'
   };
-  var mouth = mouths[expr] || mouths.smile;
 
-  // Glasses/accessories
+  // ── Accessories ──
   var glasses = {
-    none:       '',
-    glasses:    '<rect x="33" y="52" width="13" height="10" rx="4" fill="none" stroke="#555" stroke-width="2"/><rect x="54" y="52" width="13" height="10" rx="4" fill="none" stroke="#555" stroke-width="2"/><line x1="46" y1="57" x2="54" y2="57" stroke="#555" stroke-width="2"/>',
-    sunglasses: '<rect x="31" y="51" width="16" height="10" rx="5" fill="rgba(0,0,0,0.75)"/><rect x="53" y="51" width="16" height="10" rx="5" fill="rgba(0,0,0,0.75)"/><line x1="47" y1="56" x2="53" y2="56" stroke="#333" stroke-width="2"/>',
-    roundGlasses:'<circle cx="40" cy="57" r="7" fill="none" stroke="#555" stroke-width="2"/><circle cx="60" cy="57" r="7" fill="none" stroke="#555" stroke-width="2"/><line x1="47" y1="57" x2="53" y2="57" stroke="#555" stroke-width="2"/>',
+    none:        '',
+    glasses:     '<rect x="30" y="54" width="16" height="12" rx="5" fill="none" stroke="#444" stroke-width="2.5"/><rect x="54" y="54" width="16" height="12" rx="5" fill="none" stroke="#444" stroke-width="2.5"/><line x1="46" y1="60" x2="54" y2="60" stroke="#444" stroke-width="2"/><line x1="20" y1="58" x2="30" y2="59" stroke="#444" stroke-width="2"/><line x1="70" y1="59" x2="80" y2="58" stroke="#444" stroke-width="2"/>',
+    roundGlasses:'<circle cx="38" cy="60" r="9" fill="none" stroke="#444" stroke-width="2.5"/><circle cx="62" cy="60" r="9" fill="none" stroke="#444" stroke-width="2.5"/><line x1="47" y1="60" x2="53" y2="60" stroke="#444" stroke-width="2"/><line x1="20" y1="57" x2="29" y2="59" stroke="#444" stroke-width="2"/><line x1="71" y1="59" x2="80" y2="57" stroke="#444" stroke-width="2"/>',
+    sunglasses:  '<rect x="28" y="53" width="20" height="13" rx="6" fill="rgba(0,0,0,0.82)"/><rect x="52" y="53" width="20" height="13" rx="6" fill="rgba(0,0,0,0.82)"/><line x1="48" y1="59" x2="52" y2="59" stroke="#111" stroke-width="2.5"/><line x1="18" y1="56" x2="28" y2="58" stroke="#555" stroke-width="2"/><line x1="72" y1="58" x2="82" y2="56" stroke="#555" stroke-width="2"/>'
   };
-  var glassHtml = glasses[acc] || '';
+
+  var hp = (hairTop[style] || hairTop.shortFlat).replace(/HAIR/g, hair);
+  var isHat = style === 'cap' || style === 'beanie' || style === 'hijab';
+  var mouth = mouths[expr] || mouths.smile;
+  var glass = glasses[acc] || '';
 
   var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">'
-    // Background circle
+    // Background
     + '<circle cx="50" cy="50" r="50" fill="' + bg + '"/>'
+    // Hair behind face
+    + (!isHat ? hp : '')
     // Neck
-    + '<rect x="41" y="74" width="18" height="18" rx="4" fill="' + skin + '"/>'
+    + '<rect x="40" y="76" width="20" height="20" rx="6" fill="' + skin + '"/>'
+    // Shirt hint at bottom
+    + '<ellipse cx="50" cy="102" rx="30" ry="16" fill="' + hair + '" opacity="0.3"/>'
     // Ears
-    + '<ellipse cx="24" cy="52" rx="6" ry="8" fill="' + skin + '"/>'
-    + '<ellipse cx="76" cy="52" rx="6" ry="8" fill="' + skin + '"/>'
-    + '<ellipse cx="24" cy="52" rx="3.5" ry="5" fill="' + skinDark + '"/>'
-    + '<ellipse cx="76" cy="52" rx="3.5" ry="5" fill="' + skinDark + '"/>'
+    + '<ellipse cx="22" cy="54" rx="7" ry="9" fill="' + skin + '"/>'
+    + '<ellipse cx="78" cy="54" rx="7" ry="9" fill="' + skin + '"/>'
+    + '<ellipse cx="22" cy="54" rx="4" ry="6" fill="' + skinD + '" opacity="0.5"/>'
+    + '<ellipse cx="78" cy="54" rx="4" ry="6" fill="' + skinD + '" opacity="0.5"/>'
     // Face
-    + '<ellipse cx="50" cy="52" rx="26" ry="30" fill="' + skin + '"/>'
-    // Hair (behind face for some styles, on top for cap/beanie)
-    + (style === 'cap' || style === 'beanie' || style === 'hijab' ? '' : hp)
-    // Eyes
-    + '<ellipse cx="40" cy="52" rx="4.5" ry="5" fill="white"/>'
-    + '<ellipse cx="60" cy="52" rx="4.5" ry="5" fill="white"/>'
-    + '<circle cx="40" cy="53" r="3" fill="#333"/>'
-    + '<circle cx="60" cy="53" r="3" fill="#333"/>'
-    + '<circle cx="41" cy="51" r="1" fill="white"/>'
-    + '<circle cx="61" cy="51" r="1" fill="white"/>'
+    + '<ellipse cx="50" cy="54" rx="28" ry="32" fill="' + skin + '"/>'
+    // Hat/hijab on top of face
+    + (isHat ? hp : '')
     // Eyebrows
-    + '<path d="M34 46 Q40 43 46 46" stroke="' + hair + '" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
-    + '<path d="M54 46 Q60 43 66 46" stroke="' + hair + '" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
+    + '<path d="M32 46 Q38 42 44 45" fill="none" stroke="' + hair + '" stroke-width="3" stroke-linecap="round"/>'
+    + '<path d="M56 45 Q62 42 68 46" fill="none" stroke="' + hair + '" stroke-width="3" stroke-linecap="round"/>'
+    // Eyes — whites
+    + '<ellipse cx="38" cy="55" rx="6" ry="6.5" fill="white"/>'
+    + '<ellipse cx="62" cy="55" rx="6" ry="6.5" fill="white"/>'
+    // Irises
+    + '<circle cx="38" cy="56" r="4" fill="#3d2e1e"/>'
+    + '<circle cx="62" cy="56" r="4" fill="#3d2e1e"/>'
+    // Pupils
+    + '<circle cx="38" cy="56" r="2" fill="#111"/>'
+    + '<circle cx="62" cy="56" r="2" fill="#111"/>'
+    // Eye shine
+    + '<circle cx="40" cy="54" r="1.2" fill="white"/>'
+    + '<circle cx="64" cy="54" r="1.2" fill="white"/>'
     // Nose
-    + '<ellipse cx="50" cy="62" rx="3" ry="2" fill="' + skinDark + '" opacity="0.5"/>'
+    + '<path d="M48 64 Q50 68 52 64" fill="none" stroke="' + skinD + '" stroke-width="2" stroke-linecap="round"/>'
+    // Cheeks
+    + '<ellipse cx="30" cy="68" rx="7" ry="5" fill="#ff8fa3" opacity="0.25"/>'
+    + '<ellipse cx="70" cy="68" rx="7" ry="5" fill="#ff8fa3" opacity="0.25"/>'
     // Mouth
     + mouth
-    // Glasses (on top)
-    + glassHtml
-    // Hair on top for cap/beanie/hijab
-    + (style === 'cap' || style === 'beanie' || style === 'hijab' ? hp : '')
+    // Glasses on top
+    + glass
     + '</svg>';
 
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
+
 
 window.openAvatarModal = function() {
   var p = loadAvatarPrefs();
