@@ -522,7 +522,7 @@ select.inp { cursor: pointer; }
 .rarity-epic     { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
 
 
-.av-swatch { width:32px;height:32px;border-radius:50%;cursor:pointer;transition:transform .12s;border:2.5px solid transparent;flex-shrink:0;padding:0;display:inline-block;-webkit-appearance:none;appearance:none;outline:none; }
+.av-swatch { width:40px;height:40px;border-radius:50%;cursor:pointer;border:3px solid transparent;flex-shrink:0;padding:0;display:inline-block;-webkit-appearance:none;appearance:none;outline:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent; }
 .av-swatch:hover { transform:scale(1.15); }
 .av-swatch.selected { border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg); }
 .av-pill { padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s;touch-action:manipulation;-webkit-tap-highlight-color:transparent; }
@@ -2903,19 +2903,19 @@ function loadAvatarPrefs() {
 
 function buildAvatarUrl(seed) {
   var p = loadAvatarPrefs();
-  var avatarSeed = p.avatarSeed || seed || "student";
+  // Encode skin tone into seed so DiceBear deterministically picks matching skin
+  var skinSeeds = {
+    "ffdbb4": "light", "edb98a": "lighttan", "fd9841": "tan",
+    "d08b5b": "medium", "ae5d29": "mediumdark", "614335": "dark", "f8d25c": "golden"
+  };
+  var skinSuffix = skinSeeds[p.skin] || "light";
+  var baseSeed = p.avatarSeed || seed || "student";
+  var avatarSeed = baseSeed + "-" + skinSuffix;
   var base = "https://api.dicebear.com/9.x/avataaars/svg";
   var params = "?seed=" + encodeURIComponent(avatarSeed);
   params += "&backgroundColor=" + (p.bg || "b6e3f4");
   params += "&backgroundType=solid";
   params += "&skinColor=" + (p.skin || "ffdbb4");
-  // Only pass params we know are valid
-  if (p.mouth) params += "&mouth=" + p.mouth;
-  if (p.top) params += "&top=" + p.top;
-  if (p.top && ["hat","winterHat1","hijab","turban","eyepatch","noHair"].indexOf(p.top) === -1 && p.hairColor) {
-    params += "&hairColor=" + p.hairColor;
-  }
-  if (p.accessories && p.accessories !== "blank") params += "&accessories=" + p.accessories;
   return base + params;
 }
 
@@ -2947,22 +2947,26 @@ function updateHairColorRow(top) {
 function updateAvatarPreview() {
   var userName = currentUser ? ((currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split("@")[0]) : "student";
   var img = document.getElementById("av-preview");
-  if (img) img.src = buildAvatarUrl(userName);
+  if (img) {
+    // Append ts to bust mobile browser cache
+    img.src = buildAvatarUrl(userName) + "&_=" + Date.now();
+  }
 }
 
 // Avatar swatch/pill picker
 // Shuffle generates a new random seed so the whole avatar look changes
+var _shuffleCounter = Date.now();
 window.shuffleAvatar = function() {
   var p = loadAvatarPrefs();
-  p.avatarSeed = Math.random().toString(36).substring(2, 10);
+  _shuffleCounter++;
+  p.avatarSeed = "s" + _shuffleCounter + "r" + Math.floor(Math.random() * 99999);
   _avatarPrefs = p;
   updateAvatarPreview();
 };
 
 window.avPick = function(key, val, el) {
-  var p = loadAvatarPrefs();
-  p[key] = val;
-  _avatarPrefs = p;
+  if (!_avatarPrefs) loadAvatarPrefs();
+  _avatarPrefs[key] = val;
   // Update selected state within the same group container
   var group = el.closest("[id^='av-']");
   if (group) {
