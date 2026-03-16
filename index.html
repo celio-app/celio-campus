@@ -522,12 +522,6 @@ select.inp { cursor: pointer; }
 .rarity-epic     { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
 
 
-.av-swatch { width:40px;height:40px;border-radius:50%;cursor:pointer;border:3px solid transparent;flex-shrink:0;padding:0;display:inline-block;-webkit-appearance:none;appearance:none;outline:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent; }
-.av-swatch:hover { transform:scale(1.15); }
-.av-swatch.selected { border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg); }
-.av-pill { padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s;touch-action:manipulation;-webkit-tap-highlight-color:transparent; }
-.av-pill:hover { border-color:var(--accent);color:var(--accent); }
-.av-pill.selected { background:var(--accent);color:#fff;border-color:var(--accent); }
 
 </style>
 </head>
@@ -1184,8 +1178,11 @@ function renderSidebar() {
     var lvl = getLevel(xpNow);
     var lvlIdx = getLevelIndex(xpNow);
     var avatarEl = document.getElementById("sb-avatar");
-    avatarEl.innerHTML = buildAvatarSvg();
-    avatarEl.style.background = "transparent";
+    var xpNow = (userStats && userStats.xp) || 0;
+    var lvl = getLevel(xpNow);
+    var grads = { default:"linear-gradient(135deg,#6c47ff,#ec4899)", ocean:"linear-gradient(135deg,#0ea5e9,#6c47ff)", sakura:"linear-gradient(135deg,#e11d78,#f97316)", forest:"linear-gradient(135deg,#16a34a,#0ea5e9)", midnight:"linear-gradient(135deg,#4f46e5,#ec4899)", ember:"linear-gradient(135deg,#ea580c,#f59e0b)", gold:"linear-gradient(135deg,#b45309,#ea580c)" };
+    avatarEl.style.background = grads[lvl.theme || "default"] || grads.default;
+    avatarEl.textContent = initial;
     var rings = ["none","none","0 0 0 2px #0ea5e9","0 0 0 2px #e11d78","0 0 0 2px #16a34a","0 0 0 2px #4f46e5","0 0 0 2px #ea580c, 0 0 8px rgba(234,88,12,.4)","0 0 0 2px #b45309, 0 0 10px rgba(180,83,9,.5)"];
     avatarEl.style.boxShadow = rings[Math.min(lvlIdx, rings.length-1)] || "none";
     var existingPip = avatarEl.querySelector(".av-pip");
@@ -1368,15 +1365,13 @@ function renderDashboard() {
     html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
     html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
 
-    // Avatar — DiceBear avataaars with saved customisation
-    var avatarUrl = buildAvatarSvg();
-    html += '<div style="position:relative;flex-shrink:0;cursor:pointer" onclick="openAvatarModal()" title="Customise avatar">';
-    html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;box-shadow:' + avatarRing + ',0 2px 8px rgba(0,0,0,.25);background:rgba(255,255,255,.15);flex-shrink:0;transition:transform .15s" onmouseover="this.style.transform=&quot;scale(1.08)&quot;" onmouseout="this.style.transform=&quot;scale(1)&quot;">';
-    html += '<div style="width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0">' + avatarUrl + '</div>';
+    // Avatar — clean gradient letter circle
+    html += '<div style="position:relative;flex-shrink:0">';
+    html += '<div style="width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-1px;border:2.5px solid rgba(255,255,255,.5);box-shadow:0 2px 12px rgba(0,0,0,.2)">';
+    html += (userName[0] || "?").toUpperCase();
     html += '</div>';
-    html += '<div style="position:absolute;bottom:-2px;right:-2px;background:rgba(0,0,0,.45);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.6rem" title="Edit">✏️</div>';
     if (lvlIdx >= 2) {
-      html += '<div style="position:absolute;top:-4px;right:-4px;font-size:.8rem;background:rgba(0,0,0,.35);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)">' + level.icon + '</div>';
+      html += '<div style="position:absolute;bottom:-2px;right:-2px;font-size:.8rem;background:rgba(0,0,0,.4);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center">' + level.icon + '</div>';
     }
     html += '</div>';
 
@@ -2901,189 +2896,29 @@ window.deleteHabit = function() {
 
 
 
-// ===== AVATAR CUSTOMISER =====
-var _avatarPrefs = null;
 
-function loadAvatarPrefs() {
-  if (_avatarPrefs) return _avatarPrefs;
-  try {
-    var saved = localStorage.getItem("celio-campus-avatar");
-    if (saved) { _avatarPrefs = JSON.parse(saved); return _avatarPrefs; }
-  } catch(e) {}
-  _avatarPrefs = { skin: "ffdbb4", avatarStyle: "shortFlat", hairColor: "2c1b18", accessories: "none", mouth: "smile", bg: "b6e3f4" };
-  return _avatarPrefs;
-}
 
-function buildAvatarSvg() {
-  var p = loadAvatarPrefs();
-  var skin = "#" + (p.skin || "ffdbb4");
-  var bg   = "#" + (p.bg   || "b6e3f4");
-  var hair = "#" + (p.hairColor || "2c1b18");
-  var style = p.avatarStyle || "shortFlat";
-  var acc   = p.accessories || "none";
-  var expr  = p.mouth || "smile";
-
-  // Slightly darker shade for ear/nose depth
-  var skinMap = { ffdbb4:"#e8a87c", edb98a:"#c8824a", fd9841:"#c86820",
-                  d08b5b:"#9e5f30", ae5d29:"#7a3d15", "614335":"#3d2218", f8d25c:"#c8a020" };
-  var skinD = skinMap[p.skin] || "#e8a87c";
-
-  // ── Hair shapes ──
-  var hairTop = {
-    // Short flat — clean side-parted look
-    shortFlat:    '<path d="M22 44 Q22 18 50 16 Q78 18 78 44 Q78 36 72 32 Q66 22 50 20 Q34 22 28 32 Q22 36 22 44Z" fill="HAIR"/>',
-    // Short curly — textured puff on top
-    shortCurly:   '<path d="M22 46 Q20 18 50 15 Q80 18 78 46 Q76 32 70 26 Q62 18 50 17 Q38 18 30 26 Q24 32 22 46Z" fill="HAIR"/><circle cx="36" cy="24" r="6" fill="HAIR"/><circle cx="50" cy="19" r="7" fill="HAIR"/><circle cx="64" cy="24" r="6" fill="HAIR"/>',
-    // Long straight — falls past shoulders
-    longStraight: '<path d="M22 44 Q22 18 50 16 Q78 18 78 44 Q78 36 72 32 Q66 22 50 20 Q34 22 28 32 Q22 36 22 44Z" fill="HAIR"/><rect x="19" y="36" width="10" height="52" rx="5" fill="HAIR"/><rect x="71" y="36" width="10" height="52" rx="5" fill="HAIR"/>',
-    // Long curly — wavy sides
-    longCurly:    '<path d="M22 46 Q20 18 50 15 Q80 18 78 46 Q76 32 66 24 Q58 18 50 17 Q42 18 34 24 Q24 32 22 46Z" fill="HAIR"/><ellipse cx="20" cy="60" rx="9" ry="20" fill="HAIR"/><ellipse cx="80" cy="60" rx="9" ry="20" fill="HAIR"/><circle cx="20" cy="42" r="8" fill="HAIR"/><circle cx="80" cy="42" r="8" fill="HAIR"/>',
-    // Bun — tight updo
-    bun:          '<path d="M24 46 Q24 22 50 20 Q76 22 76 46 Q76 36 70 30 Q62 22 50 22 Q38 22 30 30 Q24 36 24 46Z" fill="HAIR"/><circle cx="50" cy="13" r="12" fill="HAIR"/><rect x="44" y="18" width="12" height="8" fill="HAIR"/>',
-    // Baseball cap — structured peak cap
-    cap:          '<ellipse cx="50" cy="32" rx="28" ry="18" fill="HAIR"/><rect x="22" y="30" width="56" height="14" rx="2" fill="HAIR"/><path d="M22 40 Q14 42 12 46 Q20 46 30 44Z" fill="HAIR"/><rect x="38" y="14" width="24" height="10" rx="4" fill="HAIR"/>',
-    // Beanie — woolly hat with fold
-    beanie:       '<ellipse cx="50" cy="26" rx="28" ry="20" fill="HAIR"/><rect x="20" y="36" width="60" height="12" rx="4" fill="HAIR"/><rect x="22" y="14" width="56" height="16" rx="8" fill="HAIR"/>',
-    // Hijab — draped fabric, dignified and accurate
-    hijab:        '<ellipse cx="50" cy="56" rx="38" ry="44" fill="HAIR"/><ellipse cx="50" cy="22" rx="22" ry="15" fill="HAIR"/><ellipse cx="50" cy="38" rx="17" ry="13" fill="skin"/>',
-    none:         ''
+// ===== AVATAR =====
+function buildAvatarHtml(initial, size, fontSize) {
+  size = size || 52;
+  fontSize = fontSize || Math.round(size * 0.42);
+  var xp = (userStats && userStats.xp) || 0;
+  var level = getLevel(xp);
+  // Gradient tied to current level theme
+  var gradients = {
+    default:  "linear-gradient(135deg,#6c47ff,#ec4899)",
+    ocean:    "linear-gradient(135deg,#0ea5e9,#6c47ff)",
+    sakura:   "linear-gradient(135deg,#e11d78,#f97316)",
+    forest:   "linear-gradient(135deg,#16a34a,#0ea5e9)",
+    midnight: "linear-gradient(135deg,#4f46e5,#ec4899)",
+    ember:    "linear-gradient(135deg,#ea580c,#f59e0b)",
+    gold:     "linear-gradient(135deg,#b45309,#ea580c)"
   };
-
-  // ── Expressions ──
-  var mouths = {
-    smile:    '<path d="M38 70 Q50 80 62 70" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/>',
-    grin:     '<path d="M36 69 Q50 84 64 69" fill="white" opacity="0.9"/><path d="M36 69 Q50 84 64 69" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/>',
-    tongue:   '<path d="M39 70 Q50 80 61 70" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="50" cy="79" rx="7" ry="5" fill="#e75480"/>',
-    neutral:  '<line x1="42" y1="72" x2="58" y2="72" stroke="' + skinD + '" stroke-width="3" stroke-linecap="round"/>',
-    serious:  '<path d="M42 74 Q50 70 58 74" stroke="' + skinD + '" stroke-width="3" fill="none" stroke-linecap="round"/>',
-    surprised:'<ellipse cx="50" cy="73" rx="8" ry="9" fill="' + skinD + '" opacity="0.7"/>'
-  };
-
-  // ── Accessories ──
-  var glasses = {
-    none:        '',
-    glasses:     '<rect x="30" y="54" width="16" height="12" rx="5" fill="none" stroke="#444" stroke-width="2.5"/><rect x="54" y="54" width="16" height="12" rx="5" fill="none" stroke="#444" stroke-width="2.5"/><line x1="46" y1="60" x2="54" y2="60" stroke="#444" stroke-width="2"/><line x1="20" y1="58" x2="30" y2="59" stroke="#444" stroke-width="2"/><line x1="70" y1="59" x2="80" y2="58" stroke="#444" stroke-width="2"/>',
-    roundGlasses:'<circle cx="38" cy="60" r="9" fill="none" stroke="#444" stroke-width="2.5"/><circle cx="62" cy="60" r="9" fill="none" stroke="#444" stroke-width="2.5"/><line x1="47" y1="60" x2="53" y2="60" stroke="#444" stroke-width="2"/><line x1="20" y1="57" x2="29" y2="59" stroke="#444" stroke-width="2"/><line x1="71" y1="59" x2="80" y2="57" stroke="#444" stroke-width="2"/>',
-    sunglasses:  '<rect x="28" y="53" width="20" height="13" rx="6" fill="rgba(0,0,0,0.82)"/><rect x="52" y="53" width="20" height="13" rx="6" fill="rgba(0,0,0,0.82)"/><line x1="48" y1="59" x2="52" y2="59" stroke="#111" stroke-width="2.5"/><line x1="18" y1="56" x2="28" y2="58" stroke="#555" stroke-width="2"/><line x1="72" y1="58" x2="82" y2="56" stroke="#555" stroke-width="2"/>',
-    squareGlasses: '<rect x="29" y="52" width="18" height="14" rx="2" fill="none" stroke="#111" stroke-width="3"/><rect x="53" y="52" width="18" height="14" rx="2" fill="none" stroke="#111" stroke-width="3"/><line x1="47" y1="59" x2="53" y2="59" stroke="#111" stroke-width="2.5"/><line x1="18" y1="55" x2="29" y2="57" stroke="#111" stroke-width="2.5"/><line x1="71" y1="57" x2="82" y2="55" stroke="#111" stroke-width="2.5"/>'
-  };
-
-  var hp = (hairTop[style] || hairTop.shortFlat).replace(/HAIR/g, hair).replace(/skin/g, skin);
-  var mouth = mouths[expr] || mouths.smile;
-  var glass = glasses[acc] || '';
-  var noEars = style === 'hijab';
-
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" style="display:block">'
-    // Background
-    + '<circle cx="50" cy="50" r="50" fill="' + bg + '"/>'
-    // Neck
-    + '<rect x="40" y="76" width="20" height="20" rx="6" fill="' + skin + '"/>'
-    // Shirt hint
-    + '<ellipse cx="50" cy="102" rx="30" ry="16" fill="' + hair + '" opacity="0.25"/>'
-    // Ears (hidden for hijab)
-    + (!noEars ? '<ellipse cx="22" cy="54" rx="7" ry="9" fill="' + skin + '"/><ellipse cx="78" cy="54" rx="7" ry="9" fill="' + skin + '"/><ellipse cx="22" cy="54" rx="4" ry="6" fill="' + skinD + '" opacity="0.5"/><ellipse cx="78" cy="54" rx="4" ry="6" fill="' + skinD + '" opacity="0.5"/>' : '')
-    // Face
-    + '<ellipse cx="50" cy="54" rx="28" ry="32" fill="' + skin + '"/>'
-    // Hair ALWAYS on top of face
-    + hp
-    // Eyebrows (skip for hijab — drawn over hair looks wrong)
-    + (style !== 'hijab' ? '<path d="M32 46 Q38 42 44 45" fill="none" stroke="' + hair + '" stroke-width="3" stroke-linecap="round"/><path d="M56 45 Q62 42 68 46" fill="none" stroke="' + hair + '" stroke-width="3" stroke-linecap="round"/>' : '')
-    // Eyes — whites
-    + '<ellipse cx="38" cy="55" rx="6" ry="6.5" fill="white"/>'
-    + '<ellipse cx="62" cy="55" rx="6" ry="6.5" fill="white"/>'
-    // Irises
-    + '<circle cx="38" cy="56" r="4" fill="#3d2e1e"/>'
-    + '<circle cx="62" cy="56" r="4" fill="#3d2e1e"/>'
-    // Pupils
-    + '<circle cx="38" cy="56" r="2" fill="#111"/>'
-    + '<circle cx="62" cy="56" r="2" fill="#111"/>'
-    // Eye shine
-    + '<circle cx="40" cy="54" r="1.2" fill="white"/>'
-    + '<circle cx="64" cy="54" r="1.2" fill="white"/>'
-    // Nose
-    + '<path d="M48 64 Q50 68 52 64" fill="none" stroke="' + skinD + '" stroke-width="2" stroke-linecap="round"/>'
-    // Cheeks
-    + '<ellipse cx="30" cy="68" rx="7" ry="5" fill="#ff8fa3" opacity="0.25"/>'
-    + '<ellipse cx="70" cy="68" rx="7" ry="5" fill="#ff8fa3" opacity="0.25"/>'
-    // Mouth
-    + mouth
-    // Glasses on top
-    + glass
-    + '</svg>';
-
-  return svg;
+  var grad = gradients[level.theme || "default"] || gradients.default;
+  return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + grad + ';display:flex;align-items:center;justify-content:center;font-size:' + fontSize + 'px;font-weight:900;color:#fff;letter-spacing:-1px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.2)">'
+    + (initial || "?").toUpperCase()
+    + '</div>';
 }
-
-
-window.openAvatarModal = function() {
-  var p = loadAvatarPrefs();
-  // Set selected state on all swatches and pills
-  document.querySelectorAll(".av-swatch, .av-pill").forEach(function(el) {
-    var key = el.dataset.key;
-    var val = el.dataset.val;
-    el.classList.toggle("selected", p[key] === val);
-  });
-  // Update hair colour row visibility
-  document.getElementById("avatar-modal").classList.add("open");
-  // These need to run after modal is visible
-  updateHairColorRow(p.avatarStyle);
-  updateAvatarPreview();
-};
-
-window.closeAvatarModal = function() {
-  document.getElementById("avatar-modal").classList.remove("open");
-};
-
-function updateHairColorRow(style) {
-  var noHairStyles = ["cap","beanie","hijab","none"];
-  var row = document.getElementById("av-haircolor-row");
-  if (row) row.style.display = noHairStyles.indexOf(style) > -1 ? "none" : "block";
-}
-
-function updateAvatarPreview() {
-  var el = document.getElementById("av-preview");
-  if (el) el.innerHTML = buildAvatarSvg();
-}
-
-// Avatar swatch/pill picker
-// Shuffle generates a new random seed so the whole avatar look changes
-var _hairStyles = ["shortFlat","shortCurly","longStraight","longCurly","bun","cap","beanie","hijab","none"];
-var _accs = ["none","glasses","sunglasses","roundGlasses"];
-var _shuffleStyleIdx = 0;
-window.shuffleAvatar = function() {
-  if (!_avatarPrefs) loadAvatarPrefs();
-  _shuffleStyleIdx++;
-  _avatarPrefs.avatarStyle = _hairStyles[_shuffleStyleIdx % _hairStyles.length];
-  _avatarPrefs.accessories = _accs[Math.floor(Math.random() * _accs.length)];
-  updateAvatarPreview();
-};
-
-window.avPick = function(key, el, val) {
-  if (!_avatarPrefs) loadAvatarPrefs();
-  _avatarPrefs[key] = val;
-  // Update selected state within the same group container
-  var group = el.closest("[id^='av-']");
-  if (group) {
-    group.querySelectorAll(".av-swatch, .av-pill").forEach(function(x) { x.classList.remove("selected"); });
-  }
-  el.classList.add("selected");
-  if (key === "avatarStyle") updateHairColorRow(val);
-  updateAvatarPreview();
-};
-
-window.saveAvatar = function() {
-  try {
-    localStorage.setItem("celio-campus-avatar", JSON.stringify(_avatarPrefs));
-  } catch(e) {}
-  // Force re-read from localStorage
-  _avatarPrefs = null;
-  loadAvatarPrefs();
-  closeAvatarModal();
-  // Re-render dashboard and sidebar to show new avatar everywhere
-  renderSidebar();
-  if (activeTab === "dashboard") renderDashboard();
-  showToast("Avatar updated! 🎨", "success");
-};
 
 // ===== HABIT TIMER =====
 var _timerHabitId = null;
@@ -3301,115 +3136,6 @@ async function applySession(user) {
 })();
 </script>
 
-
-<!-- AVATAR CUSTOMISER MODAL -->
-<div class="modal-bg" id="avatar-modal">
-  <div class="modal" style="max-width:420px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
-    <div class="modal-title">
-      <span>🎨 Your Avatar</span>
-      <button class="modal-close" onclick="closeAvatarModal()">×</button>
-    </div>
-
-    <!-- Preview -->
-    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:20px">
-      <div id="av-preview" style="width:106px;height:106px;border-radius:50%;overflow:hidden;border:3px solid var(--accent);flex-shrink:0;background:var(--bg3)"></div>
-      <button type="button" class="btn btn-ghost btn-sm" onclick="shuffleAvatar()">🔀 Randomize</button>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:18px">
-
-      <!-- Skin tone -->
-      <div>
-        <label class="flbl">Skin Tone</label>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px" id="av-skin">
-          <button type="button" class="av-swatch" onclick="avPick('skin',this,'ffdbb4')" data-key="skin" data-val="ffdbb4" style="background:#ffdbb4"></button>
-          <button type="button" class="av-swatch" onclick="avPick('skin',this,'edb98a')" data-key="skin" data-val="edb98a" style="background:#edb98a"></button>
-          <button type="button" class="av-swatch" onclick="avPick('skin',this,'fd9841')" data-key="skin" data-val="fd9841" style="background:#fd9841"></button>
-          <button type="button" class="av-swatch" onclick="avPick('skin',this,'d08b5b')" data-key="skin" data-val="d08b5b" style="background:#d08b5b"></button>
-          <button type="button" class="av-swatch" onclick="avPick('skin',this,'ae5d29')" data-key="skin" data-val="ae5d29" style="background:#ae5d29"></button>
-          <button type="button" class="av-swatch" onclick="avPick('skin',this,'614335')" data-key="skin" data-val="614335" style="background:#614335"></button>
-          <button type="button" class="av-swatch" onclick="avPick('skin',this,'f8d25c')" data-key="skin" data-val="f8d25c" style="background:#f8d25c"></button>
-        </div>
-      </div>
-
-      <!-- Hair style -->
-      <div>
-        <label class="flbl">Hair Style</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px" id="av-avatarStyle">
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'shortFlat')" data-key="avatarStyle" data-val="shortFlat">Short</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'shortCurly')" data-key="avatarStyle" data-val="shortCurly">Short curly</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'longStraight')" data-key="avatarStyle" data-val="longStraight">Long</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'longCurly')" data-key="avatarStyle" data-val="longCurly">Long curly</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'bun')" data-key="avatarStyle" data-val="bun">Bun</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'cap')" data-key="avatarStyle" data-val="cap">Baseball cap</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'beanie')" data-key="avatarStyle" data-val="beanie">Beanie</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'hijab')" data-key="avatarStyle" data-val="hijab">Hijab</button>
-          <button type="button" class="av-pill" onclick="avPick('avatarStyle',this,'none')" data-key="avatarStyle" data-val="none">Shaved</button>
-        </div>
-      </div>
-
-      <!-- Hair colour -->
-      <div id="av-haircolor-row">
-        <label class="flbl">Hair Colour</label>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px" id="av-hairColor">
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'2c1b18')" data-key="hairColor" data-val="2c1b18" style="background:#2c1b18"></button>
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'a55728')" data-key="hairColor" data-val="a55728" style="background:#a55728"></button>
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'b58143')" data-key="hairColor" data-val="b58143" style="background:#b58143"></button>
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'daa520')" data-key="hairColor" data-val="daa520" style="background:#daa520"></button>
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'e8e1e1')" data-key="hairColor" data-val="e8e1e1" style="background:#e8e1e1;border:1px solid var(--border)"></button>
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'c93305')" data-key="hairColor" data-val="c93305" style="background:#c93305"></button>
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'8148a5')" data-key="hairColor" data-val="8148a5" style="background:#8148a5"></button>
-          <button type="button" class="av-swatch" onclick="avPick('hairColor',this,'1d6fa4')" data-key="hairColor" data-val="1d6fa4" style="background:#1d6fa4"></button>
-        </div>
-      </div>
-
-      <!-- Expression -->
-      <div>
-        <label class="flbl">Expression</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px" id="av-mouth">
-          <button type="button" class="av-pill" onclick="avPick('mouth',this,'smile')" data-key="mouth" data-val="smile">😊 Smile</button>
-          <button type="button" class="av-pill" onclick="avPick('mouth',this,'grin')" data-key="mouth" data-val="grin">😁 Grin</button>
-          <button type="button" class="av-pill" onclick="avPick('mouth',this,'tongue')" data-key="mouth" data-val="tongue">😛 Tongue</button>
-          <button type="button" class="av-pill" onclick="avPick('mouth',this,'neutral')" data-key="mouth" data-val="neutral">😐 Neutral</button>
-          <button type="button" class="av-pill" onclick="avPick('mouth',this,'serious')" data-key="mouth" data-val="serious">😑 Serious</button>
-          <button type="button" class="av-pill" onclick="avPick('mouth',this,'surprised')" data-key="mouth" data-val="surprised">😮 Surprised</button>
-        </div>
-      </div>
-
-      <!-- Accessories -->
-      <div>
-        <label class="flbl">Accessories</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px" id="av-accessories">
-          <button type="button" class="av-pill" onclick="avPick('accessories',this,'none')" data-key="accessories" data-val="none">None</button>
-          <button type="button" class="av-pill" onclick="avPick('accessories',this,'glasses')" data-key="accessories" data-val="glasses">Glasses</button>
-          <button type="button" class="av-pill" onclick="avPick('accessories',this,'roundGlasses')" data-key="accessories" data-val="roundGlasses">Round glasses</button>
-          <button type="button" class="av-pill" onclick="avPick('accessories',this,'sunglasses')" data-key="accessories" data-val="sunglasses">Sunglasses</button>
-          <button type="button" class="av-pill" onclick="avPick('accessories',this,'squareGlasses')" data-key="accessories" data-val="squareGlasses">Square glasses</button>
-        </div>
-      </div>
-
-      <!-- Background -->
-      <div>
-        <label class="flbl">Background</label>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px" id="av-bg">
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'b6e3f4')" data-key="bg" data-val="b6e3f4" style="background:#b6e3f4"></button>
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'c0aede')" data-key="bg" data-val="c0aede" style="background:#c0aede"></button>
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'d1d4f9')" data-key="bg" data-val="d1d4f9" style="background:#d1d4f9"></button>
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'ffd5dc')" data-key="bg" data-val="ffd5dc" style="background:#ffd5dc"></button>
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'ffdfbf')" data-key="bg" data-val="ffdfbf" style="background:#ffdfbf"></button>
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'d4f0c0')" data-key="bg" data-val="d4f0c0" style="background:#d4f0c0"></button>
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'fef3c7')" data-key="bg" data-val="fef3c7" style="background:#fef3c7"></button>
-          <button type="button" class="av-swatch" onclick="avPick('bg',this,'e2e8f0')" data-key="bg" data-val="e2e8f0" style="background:#e2e8f0"></button>
-        </div>
-      </div>
-
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeAvatarModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAvatar()">Save</button>
-    </div>
-  </div>
-</div>
 
 <!-- FLOATING HABIT TIMER -->
 <div id="habit-timer-widget" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.2);width:220px;font-family:inherit">
