@@ -1212,7 +1212,8 @@ function renderSidebar() {
     var lvl = getLevel(xpNow);
     var lvlIdx = getLevelIndex(xpNow);
     var avatarEl = document.getElementById("sb-avatar");
-    avatarEl.textContent = initial;
+    avatarEl.innerHTML = buildAvatarSvg();
+    avatarEl.style.background = "transparent";
     var rings = ["none","none","0 0 0 2px #0ea5e9","0 0 0 2px #e11d78","0 0 0 2px #16a34a","0 0 0 2px #4f46e5","0 0 0 2px #ea580c, 0 0 8px rgba(234,88,12,.4)","0 0 0 2px #b45309, 0 0 10px rgba(180,83,9,.5)"];
     avatarEl.style.boxShadow = rings[Math.min(lvlIdx, rings.length-1)] || "none";
     var existingPip = avatarEl.querySelector(".av-pip");
@@ -3082,7 +3083,7 @@ window.shuffleAvatar = function() {
   updateAvatarPreview();
 };
 
-window.avPick = function(key, val, el) {
+window.avPick = function(key, el, val) {
   if (!_avatarPrefs) loadAvatarPrefs();
   _avatarPrefs[key] = val;
   // Update selected state within the same group container
@@ -3337,6 +3338,7 @@ async function applySession(user) {
     <!-- Preview -->
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:20px">
       <div id="av-preview" style="width:106px;height:106px;border-radius:50%;overflow:hidden;border:3px solid var(--accent);flex-shrink:0;background:var(--bg3)"></div>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="shuffleAvatar()">🔀 Randomize</button>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:18px">
