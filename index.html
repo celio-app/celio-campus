@@ -1,154 +1,53 @@
 <!DOCTYPE html>
+
 <html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Celio Campus</title>
+<title>Semstr</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ===== VARIABLES ===== */
 :root {
-  --bg: #f5f4ff;
-  --bg2: #ffffff;
-  --bg3: #eeecff;
-  --bg4: #e8e6ff;
-  --border: #dbd8ff;
-  --border2: #ede9ff;
-  --text: #1a1540;
-  --text2: #3d3666;
-  --text3: #7b6fa0;
-  --text4: #a99fca;
-  --accent: #6c47ff;
-  --accent2: #8b67ff;
-  --accent-bg: #ede9ff;
-  --green: #22c55e;
-  --green-bg: #dcfce7;
-  --amber: #f59e0b;
-  --amber-bg: #fef3c7;
-  --red: #ef4444;
-  --red-bg: #fee2e2;
-  --pink: #ec4899;
-  --pink-bg: #fce7f3;
-  --cyan: #06b6d4;
-  --cyan-bg: #cffafe;
-  --sb-w: 248px;
-  --sb-col: 54px;
-  --card-shadow: 0 2px 12px rgba(108,71,255,.08);
-  --radius: 14px;
-  --radius-sm: 8px;
+  --bg: #f5f4ff; --bg2: #ffffff; --bg3: #eeecff; --bg4: #e8e6ff;
+  --border: #dbd8ff; --border2: #ede9ff; --text: #1a1540; --text2: #3d3666;
+  --text3: #7b6fa0; --text4: #a99fca; --accent: #6c47ff; --accent2: #8b67ff;
+  --accent-bg: #ede9ff; --green: #22c55e; --green-bg: #dcfce7;
+  --amber: #f59e0b; --amber-bg: #fef3c7; --red: #ef4444; --red-bg: #fee2e2;
+  --pink: #ec4899; --pink-bg: #fce7f3; --cyan: #06b6d4; --cyan-bg: #cffafe;
+  --sb-w: 248px; --sb-col: 54px; --card-shadow: 0 2px 12px rgba(108,71,255,.08);
+  --radius: 14px; --radius-sm: 8px;
 }
 [data-theme="dark"] {
-  --bg: #0e0d1a;
-  --bg2: #17162a;
-  --bg3: #1e1c33;
-  --bg4: #141327;
-  --border: #2a2848;
-  --border2: #201e38;
-  --text: #e9e6ff;
-  --text2: #b8b0e0;
-  --text3: #7a72a8;
-  --text4: #4d4778;
-  --accent: #7c5aff;
-  --accent2: #9b7eff;
-  --accent-bg: #1e1c33;
-  --green: #34d399;
-  --green-bg: #052e16;
-  --amber: #fbbf24;
-  --amber-bg: #1c1200;
-  --red: #f87171;
-  --red-bg: #2d0a0a;
-  --pink: #f472b6;
-  --pink-bg: #2d0a1e;
-  --cyan: #22d3ee;
-  --cyan-bg: #021e2b;
+  --bg: #0e0d1a; --bg2: #17162a; --bg3: #1e1c33; --bg4: #141327;
+  --border: #2a2848; --border2: #201e38; --text: #e9e6ff; --text2: #b8b0e0;
+  --text3: #7a72a8; --text4: #4d4778; --accent: #7c5aff; --accent2: #9b7eff;
+  --accent-bg: #1e1c33; --green: #34d399; --green-bg: #052e16;
+  --amber: #fbbf24; --amber-bg: #1c1200; --red: #f87171; --red-bg: #2d0a0a;
+  --pink: #f472b6; --pink-bg: #2d0a1e; --cyan: #22d3ee; --cyan-bg: #021e2b;
   --card-shadow: none;
 }
-
-/* ===== LEVEL PALETTES ===== */
-/* Each palette overrides accent colours only — light/dark still works independently */
-
-[data-palette="ocean"] {
-  --accent:    #0ea5e9;
-  --accent2:   #38bdf8;
-  --accent-bg: #e0f7ff;
-}
-[data-theme="dark"][data-palette="ocean"] {
-  --accent:    #38bdf8;
-  --accent2:   #7dd3fc;
-  --accent-bg: #0c2535;
-}
-
-[data-palette="sakura"] {
-  --accent:    #e11d78;
-  --accent2:   #f43f9a;
-  --accent-bg: #fce7f3;
-}
-[data-theme="dark"][data-palette="sakura"] {
-  --accent:    #f472b6;
-  --accent2:   #f9a8d4;
-  --accent-bg: #2d0a1e;
-}
-
-[data-palette="forest"] {
-  --accent:    #16a34a;
-  --accent2:   #22c55e;
-  --accent-bg: #dcfce7;
-}
-[data-theme="dark"][data-palette="forest"] {
-  --accent:    #34d399;
-  --accent2:   #6ee7b7;
-  --accent-bg: #052e16;
-}
-
-[data-palette="midnight"] {
-  --accent:    #4f46e5;
-  --accent2:   #6366f1;
-  --accent-bg: #eef2ff;
-}
-[data-theme="dark"][data-palette="midnight"] {
-  --accent:    #818cf8;
-  --accent2:   #a5b4fc;
-  --accent-bg: #1e1b4b;
-}
-
-[data-palette="ember"] {
-  --accent:    #ea580c;
-  --accent2:   #f97316;
-  --accent-bg: #fff7ed;
-}
-[data-theme="dark"][data-palette="ember"] {
-  --accent:    #fb923c;
-  --accent2:   #fdba74;
-  --accent-bg: #1c0a00;
-}
-
-[data-palette="gold"] {
-  --accent:    #b45309;
-  --accent2:   #d97706;
-  --accent-bg: #fffbeb;
-}
-[data-theme="dark"][data-palette="gold"] {
-  --accent:    #fbbf24;
-  --accent2:   #fcd34d;
-  --accent-bg: #1c1200;
-}
-
-
-/* ===== RESET ===== */
+[data-palette="ocean"] { --accent: #0ea5e9; --accent2: #38bdf8; --accent-bg: #e0f7ff; }
+[data-theme="dark"][data-palette="ocean"] { --accent: #38bdf8; --accent2: #7dd3fc; --accent-bg: #0c2535; }
+[data-palette="sakura"] { --accent: #e11d78; --accent2: #f43f9a; --accent-bg: #fce7f3; }
+[data-theme="dark"][data-palette="sakura"] { --accent: #f472b6; --accent2: #f9a8d4; --accent-bg: #2d0a1e; }
+[data-palette="forest"] { --accent: #16a34a; --accent2: #22c55e; --accent-bg: #dcfce7; }
+[data-theme="dark"][data-palette="forest"] { --accent: #34d399; --accent2: #6ee7b7; --accent-bg: #052e16; }
+[data-palette="midnight"] { --accent: #4f46e5; --accent2: #6366f1; --accent-bg: #eef2ff; }
+[data-theme="dark"][data-palette="midnight"] { --accent: #818cf8; --accent2: #a5b4fc; --accent-bg: #1e1b4b; }
+[data-palette="ember"] { --accent: #ea580c; --accent2: #f97316; --accent-bg: #fff7ed; }
+[data-theme="dark"][data-palette="ember"] { --accent: #fb923c; --accent2: #fdba74; --accent-bg: #1c0a00; }
+[data-palette="gold"] { --accent: #b45309; --accent2: #d97706; --accent-bg: #fffbeb; }
+[data-theme="dark"][data-palette="gold"] { --accent: #fbbf24; --accent2: #fcd34d; --accent-bg: #1c1200; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: "Nunito", system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; }
 input, select, textarea { font-family: inherit; }
-
-/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text4); }
-
-/* ===== AUTH ===== */
 #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); position: relative; overflow: hidden; }
 #auth-screen::before { content: ""; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(108,71,255,.15) 0%, transparent 70%); pointer-events: none; }
 #auth-screen::after { content: ""; position: absolute; bottom: -200px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(236,72,153,.1) 0%, transparent 70%); pointer-events: none; }
@@ -169,12 +68,8 @@ input, select, textarea { font-family: inherit; }
 .auth-msg { text-align: center; font-size: .78rem; margin-top: 12px; min-height: 18px; font-weight: 600; }
 .auth-msg.error { color: var(--red); }
 .auth-msg.success { color: var(--green); }
-
-/* ===== APP LAYOUT ===== */
 #app-screen { display: none; height: 100vh; overflow: hidden; }
 .app-layout { display: flex; height: 100vh; }
-
-/* ===== SIDEBAR ===== */
 .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 39; }
 .sb-overlay.show { display: block; }
 .sidebar { width: var(--sb-w); background: var(--bg2); border-right: 1.5px solid var(--border); display: flex; flex-direction: column; transition: width .22s ease; overflow: hidden; flex-shrink: 0; z-index: 40; }
@@ -188,15 +83,11 @@ input, select, textarea { font-family: inherit; }
 .sb-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 0; }
 .sb-sect { padding: 10px 14px 4px; font-size: .61rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text4); font-weight: 800; white-space: nowrap; }
 .sidebar.collapsed .sb-sect { opacity: 0; pointer-events: none; }
-
-/* Sidebar new semester button */
 .sb-new-btn { margin: 4px 8px 6px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; cursor: pointer; background: var(--accent); color: #fff; border: none; font-size: .78rem; font-weight: 800; white-space: nowrap; width: calc(100% - 16px); transition: all .15s; }
 .sb-new-btn:hover { background: var(--accent2); }
 .sb-new-btn-icon { display: none; margin: 4px auto 6px; width: 36px; height: 36px; border-radius: 10px; background: var(--accent); color: #fff; border: none; cursor: pointer; font-size: 1.3rem; align-items: center; justify-content: center; }
 .sidebar.collapsed .sb-new-btn-icon { display: flex; }
 .sidebar.collapsed .sb-new-btn { display: none; }
-
-/* Semester rows */
 .sem-row { display: flex; align-items: center; gap: 0; margin: 1px 8px; border-radius: 10px; overflow: hidden; cursor: pointer; transition: background .15s; position: relative; }
 .sem-row:hover { background: var(--bg3); }
 .sem-row.active { background: var(--accent-bg); }
@@ -209,8 +100,6 @@ input, select, textarea { font-family: inherit; }
 .sem-chevron.open { transform: rotate(90deg); }
 .sidebar.collapsed .sem-row-name, .sidebar.collapsed .sem-chevron, .sidebar.collapsed .sb-sect { visibility: hidden; }
 .sidebar.collapsed .sem-tree { display: none; }
-
-/* Course rows (inside semester) */
 .sem-tree { padding: 0 0 4px; border-bottom: 1.5px solid var(--border2); margin-bottom: 2px; }
 .course-row { display: flex; align-items: center; gap: 5px; padding: 5px 8px 5px 24px; margin: 1px 8px; border-radius: 8px; cursor: pointer; transition: background .15s; }
 .course-row:hover { background: var(--bg3); }
@@ -224,8 +113,6 @@ input, select, textarea { font-family: inherit; }
 .tree-btn:hover { background: var(--bg4); color: var(--text2); }
 .add-course-row { display: flex; align-items: center; gap: 5px; padding: 5px 8px 5px 24px; margin: 1px 8px; border-radius: 8px; cursor: pointer; color: var(--text4); font-size: .71rem; border: none; background: none; width: calc(100% - 16px); font-weight: 700; font-family: inherit; }
 .add-course-row:hover { background: var(--bg3); color: var(--text2); }
-
-/* Sidebar bottom */
 .sb-bottom { padding: 10px 8px; border-top: 1.5px solid var(--border); flex-shrink: 0; }
 .sb-user { display: flex; align-items: center; gap: 8px; padding: 6px 10px; cursor: pointer; border-radius: 8px; transition: all .2s; }
 .sb-user:hover { background: var(--bg3); }
@@ -237,11 +124,7 @@ input, select, textarea { font-family: inherit; }
 .sb-email { font-size: .72rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .sb-signout { background: var(--bg3); border: 1.5px solid var(--border); cursor: pointer; color: var(--text3); font-size: .72rem; padding: 5px 10px; border-radius: 7px; white-space: nowrap; font-family: inherit; font-weight: 700; transition: background .15s, color .15s; }
 .sb-signout:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
-
-/* ===== MAIN CONTENT ===== */
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-/* TOPBAR */
 .topbar { display: flex; align-items: center; gap: 10px; padding: 0 18px; height: 56px; border-bottom: 1.5px solid var(--border); background: var(--bg2); flex-shrink: 0; }
 .topbar-title { font-size: 1rem; font-weight: 800; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: -0.3px; }
 .topbar-pill { font-size: .68rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: var(--accent-bg); color: var(--accent); letter-spacing: .3px; }
@@ -250,52 +133,33 @@ input, select, textarea { font-family: inherit; }
 .topbar-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 .topbar-btn.primary:hover { background: var(--accent2); }
 .hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--text2); font-size: 1.3rem; padding: 4px 6px; }
-
-/* TAB NAV */
 .tab-nav { display: flex; gap: 2px; padding: 10px 18px 0; border-bottom: 1.5px solid var(--border); background: var(--bg2); flex-shrink: 0; overflow-x: auto; }
 .tab-btn { padding: 8px 14px; border: none; background: none; cursor: pointer; font-size: .8rem; font-weight: 700; color: var(--text3); border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; white-space: nowrap; transition: all .15s; font-family: inherit; display: flex; align-items: center; gap: 6px; border-radius: 8px 8px 0 0; }
 .tab-btn:hover { color: var(--text); background: var(--bg3); }
 .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-.tab-icon { font-size: .95rem; }
-
-/* CONTENT AREA */
+.tab-icon { display:inline-flex;align-items:center; }
 .content-area { flex: 1; overflow-y: auto; padding: 20px 18px; }
-
-/* ===== EMPTY STATE ===== */
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; gap: 12px; }
 .empty-icon { font-size: 3rem; opacity: .5; }
 .empty-title { font-size: 1.1rem; font-weight: 800; color: var(--text2); }
 .empty-sub { font-size: .82rem; color: var(--text3); max-width: 320px; line-height: 1.6; }
-
-/* ===== DASHBOARD ===== */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
 .stat-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--card-shadow); position: relative; overflow: hidden; transition: transform .12s, box-shadow .12s; display: flex; align-items: center; gap: 14px; }
 .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.1); }
 .stat-card::after { content: ""; position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: .12; }
-.stat-card.purple { border-top: 3px solid var(--accent); }
-.stat-card.purple::after { background: var(--accent); }
-.stat-card.green { border-top: 3px solid var(--green); }
-.stat-card.green::after { background: var(--green); }
-.stat-card.amber { border-top: 3px solid var(--amber); }
-.stat-card.amber::after { background: var(--amber); }
-.stat-card.red { border-top: 3px solid var(--red); }
-.stat-card.red::after { background: var(--red); }
-.stat-card.pink { border-top: 3px solid var(--pink); }
-.stat-card.pink::after { background: var(--pink); }
+.stat-card.purple { border-top: 3px solid var(--accent); } .stat-card.purple::after { background: var(--accent); }
+.stat-card.green { border-top: 3px solid var(--green); } .stat-card.green::after { background: var(--green); }
+.stat-card.amber { border-top: 3px solid var(--amber); } .stat-card.amber::after { background: var(--amber); }
+.stat-card.red { border-top: 3px solid var(--red); } .stat-card.red::after { background: var(--red); }
+.stat-card.pink { border-top: 3px solid var(--pink); } .stat-card.pink::after { background: var(--pink); }
 .stat-label { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 6px; }
 .stat-value { font-size: 2.2rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
-.stat-card.purple .stat-value { color: var(--accent); }
-.stat-card.green .stat-value { color: var(--green); }
-.stat-card.amber .stat-value { color: var(--amber); }
-.stat-card.red .stat-value { color: var(--red); }
+.stat-card.purple .stat-value { color: var(--accent); } .stat-card.green .stat-value { color: var(--green); }
+.stat-card.amber .stat-value { color: var(--amber); } .stat-card.red .stat-value { color: var(--red); }
 .stat-card.pink .stat-value { color: var(--pink); }
 .stat-sub { font-size: .72rem; color: var(--text3); margin-top: 4px; font-weight: 600; }
-
-/* Upcoming section */
 .section-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .section-title::after { content: ""; flex: 1; height: 1.5px; background: var(--border); }
-
-/* Countdown chips */
 .countdown-grid { display: flex; flex-direction: column; gap: 8px; }
 .countdown-item { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--card-shadow); cursor: pointer; transition: all .15s; }
 .countdown-item:hover { border-color: var(--accent); transform: translateX(2px); }
@@ -309,24 +173,12 @@ input, select, textarea { font-family: inherit; }
 .badge-soon { background: var(--cyan-bg); color: var(--cyan); }
 .badge-upcoming { background: var(--accent-bg); color: var(--accent); }
 .badge-done { background: var(--green-bg); color: var(--green); }
-
-/* GPA display */
-.gpa-card { background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%); border-radius: var(--radius); padding: 20px; color: #fff; margin-bottom: 22px; display: flex; align-items: center; gap: 16px; box-shadow: 0 6px 24px rgba(108,71,255,.3); }
-.gpa-icon { font-size: 2.5rem; }
-.gpa-info { flex: 1; }
-.gpa-label { font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: .8; margin-bottom: 2px; }
-.gpa-value { font-size: 2.4rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
-.gpa-sub { font-size: .75rem; opacity: .8; font-weight: 600; margin-top: 2px; }
-
-/* ===== ASSIGNMENT LIST ===== */
 .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
 .filter-pill { padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--bg2); color: var(--text3); font-size: .74rem; font-weight: 700; cursor: pointer; transition: all .15s; font-family: inherit; }
 .filter-pill:hover { border-color: var(--accent); color: var(--accent); }
 .filter-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(108,71,255,.3); }
 .filter-search { flex: 1; min-width: 150px; max-width: 280px; background: var(--bg2); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 12px; color: var(--text); font-size: .82rem; outline: none; font-family: inherit; }
 .filter-search:focus { border-color: var(--accent); }
-
-/* Assignment rows */
 .assignment-list { display: flex; flex-direction: column; gap: 6px; }
 .assignment-row { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all .15s; box-shadow: var(--card-shadow); }
 .assignment-row:hover { border-color: var(--accent); background: var(--bg3); }
@@ -346,16 +198,10 @@ input, select, textarea { font-family: inherit; }
 .type-project { background: var(--accent-bg); color: var(--accent); }
 .type-quiz { background: var(--green-bg); color: var(--green); }
 .a-due { font-size: .72rem; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
-.due-overdue { color: var(--red); }
-.due-today { color: var(--amber); }
-.due-soon { color: var(--cyan); }
-.due-upcoming { color: var(--text3); }
+.due-overdue { color: var(--red); } .due-today { color: var(--amber); }
+.due-soon { color: var(--cyan); } .due-upcoming { color: var(--text3); }
 .a-priority { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.prio-high { background: var(--red); }
-.prio-med { background: var(--amber); }
-.prio-low { background: var(--green); }
-
-/* ===== CALENDAR ===== */
+.prio-high { background: var(--red); } .prio-med { background: var(--amber); } .prio-low { background: var(--green); }
 .cal-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .cal-month { font-size: 1.1rem; font-weight: 800; flex: 1; letter-spacing: -0.3px; }
 .cal-nav { background: none; border: 1.5px solid var(--border); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; color: var(--text2); font-size: .9rem; display: flex; align-items: center; justify-content: center; transition: all .15s; }
@@ -381,11 +227,8 @@ input, select, textarea { font-family: inherit; }
 .cal-day.today .cal-day-num { color: var(--accent); }
 .cal-event { font-size: .62rem; font-weight: 700; padding: 2px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
 .cal-more { font-size: .6rem; font-weight: 700; color: var(--text4); padding: 1px 3px; }
-
-/* ===== GANTT ===== */
 .gantt-wrap { overflow-x: auto; }
 .gantt-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; }
-.gantt-header-row { }
 .gantt-header-row th { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text4); padding: 6px 8px; border-bottom: 1.5px solid var(--border); background: var(--bg2); position: sticky; top: 0; z-index: 2; }
 .gantt-name-col { width: 200px; min-width: 200px; text-align: left; }
 .gantt-week-col { min-width: 36px; text-align: center; }
@@ -395,8 +238,6 @@ input, select, textarea { font-family: inherit; }
 .gantt-bar { height: 20px; border-radius: 10px; display: block; opacity: .85; transition: opacity .15s; cursor: pointer; }
 .gantt-bar:hover { opacity: 1; }
 .gantt-today-line { border-right: 2px dashed var(--red); position: relative; }
-
-/* ===== COURSE DETAIL ===== */
 .course-header-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; box-shadow: var(--card-shadow); }
 .course-color-block { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; font-weight: 900; }
 .course-header-info { flex: 1; min-width: 0; }
@@ -409,24 +250,18 @@ input, select, textarea { font-family: inherit; }
 .course-stat-lbl { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); }
 .progress-bar-wrap { background: var(--bg3); border-radius: 10px; height: 8px; overflow: hidden; margin-top: 8px; }
 .progress-bar { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--pink)); transition: width .5s ease; }
-
-/* ===== MODALS ===== */
 .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
 .modal-bg.open { display: flex; }
 .modal { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 18px; padding: 24px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,.25); max-height: 90vh; overflow-y: auto; }
 .modal-title { font-size: 1rem; font-weight: 800; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
 .modal-close { background: none; border: none; cursor: pointer; font-size: 1.4rem; color: var(--text3); padding: 2px 6px; border-radius: 6px; line-height: 1; }
 .modal-close:hover { background: var(--bg3); color: var(--text); }
-
-/* Form elements inside modals */
 .flbl { display: block; font-size: .7rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); margin-bottom: 5px; }
 .inp { width: 100%; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text); font-size: .87rem; outline: none; font-family: inherit; transition: border-color .15s; }
 .inp:focus { border-color: var(--accent); background: var(--bg2); }
 select.inp { cursor: pointer; }
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-
-/* Buttons */
 .btn { padding: 8px 16px; border-radius: 10px; font-size: .82rem; font-weight: 700; cursor: pointer; border: none; transition: all .15s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
 .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(108,71,255,.3); }
 .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
@@ -435,26 +270,16 @@ select.inp { cursor: pointer; }
 .btn-danger { background: var(--red); color: #fff; }
 .btn-danger:hover { opacity: .85; }
 .btn-sm { padding: 5px 12px; font-size: .75rem; }
-
-/* ===== TOAST ===== */
 #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 20px; font-size: .82rem; font-weight: 700; z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s; opacity: 0; white-space: nowrap; max-width: 90vw; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
 #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 #toast.error { background: var(--red); color: #fff; }
 #toast.success { background: var(--green); color: #fff; }
-
-/* ===== THEME TOGGLE ===== */
 .theme-btn { background: none; border: 1.5px solid var(--border); cursor: pointer; color: var(--text2); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .9rem; transition: all .15s; }
 .theme-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
-
-/* ===== NOTES ===== */
 .notes-area { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; font-size: .87rem; color: var(--text); line-height: 1.7; outline: none; width: 100%; min-height: 200px; font-family: "DM Mono", monospace; resize: vertical; }
 .notes-area:focus { border-color: var(--accent); }
-
-/* ===== CONFETTI ===== */
 @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 .confetti-piece { position: fixed; width: 10px; height: 10px; top: -20px; z-index: 9999; animation: confettiFall linear forwards; pointer-events: none; }
-
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .sidebar { position: fixed; left: -280px; top: 0; bottom: 0; transition: left .25s ease, width .22s ease; z-index: 40; }
   .sidebar.mobile-open { left: 0; }
@@ -468,65 +293,36 @@ select.inp { cursor: pointer; }
   .tab-btn { padding: 8px 10px; font-size: .75rem; }
   .course-stats { display: none; }
 }
-
-/* ===== ANIMATIONS ===== */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .fade-in { animation: fadeIn .25s ease forwards; }
 @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(108,71,255,.3); } 50% { box-shadow: 0 0 0 8px rgba(108,71,255,0); } }
 .pulse { animation: pulseGlow 2s infinite; }
-
-/* ===== COLOR SWATCHES for course picker ===== */
 .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .color-swatch { width: 28px; height: 28px; border-radius: 7px; cursor: pointer; transition: transform .15s; border: 2px solid transparent; }
 .color-swatch:hover { transform: scale(1.15); }
 .color-swatch.selected { border-color: var(--text); }
-
-/* ===== BADGE CHIPS ===== */
-.badge-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 16px;
-  background: var(--bg2);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--card-shadow);
-  transition: all .15s;
-}
-.badge-chip.is-earned {
-  border-color: var(--accent);
-  background: var(--accent-bg);
-}
+.badge-chip { display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; background: var(--bg2); border: 1.5px solid var(--border); box-shadow: var(--card-shadow); transition: all .15s; }
+.badge-chip.is-earned { border-color: var(--accent); background: var(--accent-bg); }
 .badge-chip.is-locked { opacity: .42; filter: grayscale(.2); }
-.badge-chip__mark {
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  display: grid; place-items: center;
-  color: #fff;
-  flex: 0 0 auto;
-}
+.badge-chip__mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; flex: 0 0 auto; }
 .badge-chip__mark svg { width: 20px; height: 20px; }
-.badge-chip[data-rarity="common"]   .badge-chip__mark { background: linear-gradient(135deg,#a98cff,#7e58ff); }
+.badge-chip[data-rarity="common"] .badge-chip__mark { background: linear-gradient(135deg,#a98cff,#7e58ff); }
 .badge-chip[data-rarity="uncommon"] .badge-chip__mark { background: linear-gradient(135deg,#8b7cff,#5d42f2); }
-.badge-chip[data-rarity="rare"]     .badge-chip__mark { background: linear-gradient(135deg,#9e74ff,#5632dd); }
-.badge-chip[data-rarity="epic"]     .badge-chip__mark { background: linear-gradient(135deg,#c084fc,#4a22cc); box-shadow:0 0 12px rgba(192,132,252,.5); }
+.badge-chip[data-rarity="rare"] .badge-chip__mark { background: linear-gradient(135deg,#9e74ff,#5632dd); }
+.badge-chip[data-rarity="epic"] .badge-chip__mark { background: linear-gradient(135deg,#c084fc,#4a22cc); box-shadow:0 0 12px rgba(192,132,252,.5); }
 .badge-chip__name { font-size: .78rem; font-weight: 800; color: var(--text); line-height: 1.1; }
 .badge-chip.is-earned .badge-chip__name { color: var(--accent); }
 .badge-chip__desc { font-size: .65rem; color: var(--text3); margin-top: 2px; line-height: 1.3; }
-.badge-chip__xp  { font-size: .62rem; font-weight: 800; color: var(--accent2); margin-top: 2px; }
+.badge-chip__xp { font-size: .62rem; font-weight: 800; color: var(--accent2); margin-top: 2px; }
 .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap: 10px; }
 .rarity-label { display: inline-block; font-size: .58rem; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; padding: 2px 6px; border-radius: 6px; margin-top: 3px; }
-.rarity-common   { background: var(--accent-bg); color: var(--accent); }
+.rarity-common { background: var(--accent-bg); color: var(--accent); }
 .rarity-uncommon { background: var(--accent-bg); color: var(--accent); }
-.rarity-rare     { background: var(--accent-bg); color: var(--accent2); }
-.rarity-epic     { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
-
-
-
+.rarity-rare { background: var(--accent-bg); color: var(--accent2); }
+.rarity-epic { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
 </style>
 </head>
 <body>
-<!-- AUTH SCREEN -->
 <div style="position:absolute;width:0;height:0;overflow:hidden"><svg xmlns="http://www.w3.org/2000/svg" style="display:none">
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L5 13h5l-1 9 8-11h-5l1-9z" fill="currentColor"/></symbol>
@@ -558,37 +354,29 @@ select.inp { cursor: pointer; }
   <symbol id="i-cap" viewBox="0 0 24 24"><path d="M12 4l9 4.5-9 4.5-9-4.5L12 4z" fill="currentColor"/><path d="M7 11v3.5c0 1.7 2.2 3 5 3s5-1.3 5-3V11" fill="currentColor" opacity=".85"/><path d="M21 8.5V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-crown_star" viewBox="0 0 24 24"><path d="M4 18l1.5-8 4.5 3.5L12 8l2 5.5 4.5-3.5L20 18H4z" fill="currentColor"/><path d="M12 4l.8 1.7 1.9.3-1.4 1.3.3 1.9L12 8.3l-1.6.9.3-1.9-1.4-1.3 1.9-.3L12 4z" fill="#fff"/></symbol>
   <symbol id="i-seal" viewBox="0 0 24 24"><circle cx="12" cy="10" r="5.5" fill="currentColor"/><path d="M9.3 14.7L8 21l4-2 4 2-1.3-6.3" fill="currentColor" opacity=".9"/></symbol>
-
-  <!-- Stat card icons -->
   <symbol id="ci-total" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor"/><rect x="13" y="4" width="7" height="4.5" rx="2" fill="currentColor" opacity=".85"/><rect x="13" y="10.5" width="7" height="9.5" rx="2" fill="currentColor"/><rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor" opacity=".85"/></symbol>
   <symbol id="ci-done" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor" opacity=".15"/><path d="M7 12.5l3.5 3.5L17 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ci-overdue" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor" opacity=".15"/><path d="M12 7v5.5l3.5 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="ci-today" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3" fill="currentColor"/><path d="M4 9.5h16" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 3.5v4M16 3.5v4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14" r="2" fill="#fff"/></symbol>
   <symbol id="ci-week" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3" fill="currentColor"/><path d="M4 9.5h16" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 3.5v4M16 3.5v4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M8 14h8M9 17h6" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></symbol>
 </svg></div>
+
+<!-- AUTH SCREEN — SEMSTR BRANDING -->
+
 <div id="auth-screen">
   <div class="auth-box">
     <div class="auth-logo">
-      <div class="auth-logo-mark"><span class="c">C</span>elio</div>
-      <div class="auth-tagline">🎓 Campus · Your semester, organised</div>
+      <div class="auth-logo-mark"><span class="c">S</span>emstr</div>
+      <div class="auth-tagline">Your semester, organised</div>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
       <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
     </div>
     <div id="auth-form">
-      <div class="form-row">
-        <label>Email</label>
-        <input type="email" id="auth-email" placeholder="you@university.edu" autocomplete="email">
-      </div>
-      <div class="form-row">
-        <label>Password</label>
-        <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
-      </div>
-      <div class="form-row" id="name-row" style="display:none">
-        <label>Display Name</label>
-        <input type="text" id="auth-name" placeholder="Your name">
-      </div>
+      <div class="form-row"><label>Email</label><input type="email" id="auth-email" placeholder="you@university.edu" autocomplete="email"></div>
+      <div class="form-row"><label>Password</label><input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="form-row" id="name-row" style="display:none"><label>Display Name</label><input type="text" id="auth-name" placeholder="Your name"></div>
       <button class="btn-auth" onclick="doAuth()" id="auth-submit-btn">Sign In</button>
       <div class="auth-msg" id="auth-msg"></div>
     </div>
@@ -596,80 +384,72 @@ select.inp { cursor: pointer; }
 </div>
 
 <!-- APP SCREEN -->
+
 <div id="app-screen">
   <div class="app-layout">
-
-    <!-- SIDEBAR OVERLAY (mobile) -->
     <div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
-
-    <!-- SIDEBAR -->
     <nav class="sidebar" id="sidebar">
       <div class="sb-top">
         <div class="sb-logo" id="sb-logo-text">
-          <span><span class="c">C</span>elio</span>
-          <span class="campus">Campus</span>
+          <span><span class="c">S</span>emstr</span>
         </div>
-        <button class="sb-toggle" onclick="toggleSidebar()" title="Collapse sidebar">&#9776;</button>
+        <button class="sb-toggle" onclick="toggleSidebar()" title="Collapse sidebar"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
       <div class="sb-scroll" id="sb-scroll">
         <div class="sb-sect">Semesters</div>
-        <button class="sb-new-btn" onclick="openSemesterModal()">＋ New Semester</button>
-        <button class="sb-new-btn-icon" onclick="openSemesterModal()" title="New Semester">＋</button>
+        <button class="sb-new-btn" onclick="openSemesterModal()"><svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg> New Semester</button>
+        <button class="sb-new-btn-icon" onclick="openSemesterModal()" title="New Semester"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
         <div id="sb-semesters"></div>
       </div>
       <div class="sb-bottom">
         <div class="sb-user" id="sb-user-row">
           <div class="sb-avatar" id="sb-avatar">?</div>
-          <div style="flex:1;min-width:0;">
-            <div class="sb-email" id="sb-email"></div>
-          </div>
+          <div style="flex:1;min-width:0;"><div class="sb-email" id="sb-email"></div></div>
           <button class="sb-signout" onclick="doSignOut()">Sign Out</button>
         </div>
       </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-      <div class="topbar">
-        <button class="hamburger" onclick="openSidebar()" id="hamburger-btn">☰</button>
-        <div class="topbar-title" id="topbar-title">Welcome to Celio Campus</div>
-        <div id="topbar-pills"></div>
-        <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
-        <button class="topbar-btn primary" id="topbar-add-btn" onclick="topbarAdd()" style="display:none">＋ Add</button>
-      </div>
+```
+<div class="main-content">
+  <div class="topbar">
+    <button class="hamburger" onclick="openSidebar()" id="hamburger-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block"><path d="M3 5h14M3 10h14M3 15h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+    <div class="topbar-title" id="topbar-title">Welcome to Semstr</div>
+    <div id="topbar-pills"></div>
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
+    <button class="topbar-btn primary" id="topbar-add-btn" onclick="topbarAdd()" style="display:none"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Add</button>
+  </div>
 
-      <div class="tab-nav" id="tab-nav" style="display:none">
-        <button class="tab-btn active" data-tab="dashboard" onclick="showTab('dashboard')"><span class="tab-icon">📊</span>Dashboard</button>
-        <button class="tab-btn" data-tab="assignments" onclick="showTab('assignments')"><span class="tab-icon">📝</span>Assignments</button>
-        <button class="tab-btn" data-tab="calendar" onclick="showTab('calendar')"><span class="tab-icon">📅</span>Calendar</button>
-        <button class="tab-btn" data-tab="gantt" onclick="showTab('gantt')"><span class="tab-icon">📊</span>Timeline</button>
-        <button class="tab-btn" data-tab="courses" onclick="showTab('courses')"><span class="tab-icon">📚</span>Courses</button>
-        <button class="tab-btn" data-tab="habits" onclick="showTab('habits')"><span class="tab-icon">🔥</span>Habits</button>
-      </div>
+  <div class="tab-nav" id="tab-nav" style="display:none">
+    <button class="tab-btn active" data-tab="dashboard" onclick="showTab('dashboard')"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><rect x="2" y="3" width="7" height="7" rx="1.5" fill="currentColor" opacity=".9"/><rect x="11" y="3" width="7" height="4" rx="1.5" fill="currentColor" opacity=".45"/><rect x="11" y="9" width="7" height="8" rx="1.5" fill="currentColor"/><rect x="2" y="12" width="7" height="5" rx="1.5" fill="currentColor" opacity=".55"/></svg> Dashboard</button>
+    <button class="tab-btn" data-tab="assignments" onclick="showTab('assignments')"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><rect x="3" y="2" width="14" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 6.5h8M6 9.5h8M6 12.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".6"/><circle cx="14" cy="13" r="2.5" fill="currentColor" opacity=".85"/></svg> Assignments</button>
+    <button class="tab-btn" data-tab="calendar" onclick="showTab('calendar')"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 7.5h16" stroke="currentColor" stroke-width="1.2" opacity=".45"/><path d="M6.5 2v2.5M13.5 2v2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><rect x="5" y="10" width="2.5" height="2.5" rx=".7" fill="currentColor" opacity=".8"/><rect x="8.8" y="10" width="2.5" height="2.5" rx=".7" fill="currentColor"/><rect x="12.5" y="10" width="2.5" height="2.5" rx=".7" fill="currentColor" opacity=".35"/></svg> Calendar</button>
+    <button class="tab-btn" data-tab="gantt" onclick="showTab('gantt')"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><rect x="2" y="4.5" width="9" height="2.5" rx="1.2" fill="currentColor"/><rect x="2" y="9" width="13" height="2.5" rx="1.2" fill="currentColor" opacity=".65"/><rect x="2" y="13.5" width="7" height="2.5" rx="1.2" fill="currentColor" opacity=".4"/></svg> Timeline</button>
+    <button class="tab-btn" data-tab="courses" onclick="showTab('courses')"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><rect x="2" y="2" width="10" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="5" width="10" height="13" rx="2" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M5.5 6.5h5M5.5 9h5M5.5 11.5h3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".75"/></svg> Courses</button>
+    <button class="tab-btn" data-tab="habits" onclick="showTab('habits')"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 2.1-1.4 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" fill="currentColor" opacity=".88"/></svg> Habits</button>
+  </div>
 
-      <div class="content-area" id="content-area">
-        <div class="empty-state">
-          <div class="empty-icon">🎓</div>
-          <div class="empty-title">Welcome to Celio Campus!</div>
-          <div class="empty-sub">Create a semester in the sidebar to get started tracking your courses and assignments.</div>
-        </div>
-      </div>
+  <div class="content-area" id="content-area">
+    <div class="empty-state">
+      <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="none" style="color:var(--accent);opacity:.4"><path d="M10 2l7 3.5v4.5c0 4-3 6.5-7 8-4-1.5-7-4-7-8V5.5L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.5 10.5l2 2 3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="empty-title">Welcome to Semstr!</div>
+      <div class="empty-sub">Create a semester in the sidebar to get started tracking your courses and assignments.</div>
     </div>
+  </div>
+</div>
+```
 
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 <div id="toast-container" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none"></div>
 
 <!-- SEMESTER MODAL -->
+
 <div class="modal-bg" id="sem-modal">
   <div class="modal" style="max-width:440px">
-    <div class="modal-title">
-      <span id="sem-modal-title">New Semester</span>
-      <button class="modal-close" onclick="closeSemModal()">×</button>
-    </div>
+    <div class="modal-title"><span id="sem-modal-title">New Semester</span><button class="modal-close" onclick="closeSemModal()">×</button></div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div><label class="flbl">Semester Name</label><input id="sem-name" class="inp" placeholder="e.g. Fall 2025"></div>
       <div class="form-grid-2">
@@ -678,20 +458,15 @@ select.inp { cursor: pointer; }
       </div>
       <div><label class="flbl">Notes</label><input id="sem-gpa-goal" class="inp" placeholder="e.g. Dean's list goal, focus areas..."></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveSemester()">Save</button>
-    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button><button class="btn btn-primary" onclick="saveSemester()">Save</button></div>
   </div>
 </div>
 
 <!-- COURSE MODAL -->
+
 <div class="modal-bg" id="course-modal">
   <div class="modal" style="max-width:460px">
-    <div class="modal-title">
-      <span id="course-modal-title">New Course</span>
-      <button class="modal-close" onclick="closeCourseModal()">×</button>
-    </div>
+    <div class="modal-title"><span id="course-modal-title">New Course</span><button class="modal-close" onclick="closeCourseModal()">×</button></div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div><label class="flbl">Course Code</label><input id="c-code" class="inp" placeholder="e.g. CS101"></div>
       <div><label class="flbl">Course Name</label><input id="c-name" class="inp" placeholder="e.g. Introduction to Computer Science"></div>
@@ -699,61 +474,29 @@ select.inp { cursor: pointer; }
         <div><label class="flbl">Instructor</label><input id="c-instructor" class="inp" placeholder="Prof. Name"></div>
         <div><label class="flbl">Credits</label><input id="c-credits" class="inp" type="number" min="0" max="6" step="0.5" placeholder="3"></div>
       </div>
-      <div><label class="flbl">Colour</label>
-        <div class="color-swatches" id="course-color-swatches"></div>
-      </div>
+      <div><label class="flbl">Colour</label><div class="color-swatches" id="course-color-swatches"></div></div>
       <div><label class="flbl">Notes / Location</label><input id="c-notes" class="inp" placeholder="Room 201, Mon/Wed 10am"></div>
     </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeCourseModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCourse()">Save</button>
-    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeCourseModal()">Cancel</button><button class="btn btn-primary" onclick="saveCourse()">Save</button></div>
   </div>
 </div>
 
 <!-- ASSIGNMENT MODAL -->
+
 <div class="modal-bg" id="assign-modal">
   <div class="modal" style="max-width:500px">
-    <div class="modal-title">
-      <span id="assign-modal-title">New Assignment</span>
-      <button class="modal-close" onclick="closeAssignModal()">×</button>
-    </div>
+    <div class="modal-title"><span id="assign-modal-title">New Assignment</span><button class="modal-close" onclick="closeAssignModal()">×</button></div>
     <div style="display:flex;flex-direction:column;gap:12px">
       <div><label class="flbl">Title</label><input id="a-title" class="inp" placeholder="Assignment title"></div>
       <div class="form-grid-2">
-        <div><label class="flbl">Course</label>
-          <select id="a-course" class="inp">
-            <option value="">— Select course —</option>
-          </select>
-        </div>
-        <div><label class="flbl">Type</label>
-          <select id="a-type" class="inp">
-            <option value="assignment">Assignment</option>
-            <option value="exam">Exam</option>
-            <option value="test">Test</option>
-            <option value="quiz">Quiz</option>
-            <option value="lab">Lab</option>
-            <option value="project">Project</option>
-          </select>
-        </div>
+        <div><label class="flbl">Course</label><select id="a-course" class="inp"><option value="">— Select course —</option></select></div>
+        <div><label class="flbl">Type</label><select id="a-type" class="inp"><option value="assignment">Assignment</option><option value="exam">Exam</option><option value="test">Test</option><option value="quiz">Quiz</option><option value="lab">Lab</option><option value="project">Project</option></select></div>
       </div>
       <div class="form-grid-2">
         <div><label class="flbl">Due Date</label><input id="a-due" class="inp" type="date"></div>
-        <div><label class="flbl">Priority</label>
-          <select id="a-priority" class="inp">
-            <option value="low">Low</option>
-            <option value="med" selected>Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
+        <div><label class="flbl">Priority</label><select id="a-priority" class="inp"><option value="low">Low</option><option value="med" selected>Medium</option><option value="high">High</option></select></div>
       </div>
-      <div><label class="flbl">Status</label>
-        <select id="a-status" class="inp">
-          <option value="todo">To Do</option>
-          <option value="inprogress">In Progress</option>
-          <option value="done">Done</option>
-        </select>
-      </div>
+      <div><label class="flbl">Status</label><select id="a-status" class="inp"><option value="todo">To Do</option><option value="inprogress">In Progress</option><option value="done">Done</option></select></div>
       <div class="form-grid-2">
         <div><label class="flbl">Weight % <span style="font-weight:500;text-transform:none;letter-spacing:0">(of course grade)</span></label><input id="a-weight" class="inp" type="number" min="0" max="100" step="0.5" placeholder="e.g. 20" oninput="updateGradeCalc()"></div>
         <div><label class="flbl">Out of</label><input id="a-total-marks" class="inp" type="number" min="0" step="0.5" placeholder="e.g. 100" oninput="updateGradeCalc()"></div>
@@ -766,49 +509,35 @@ select.inp { cursor: pointer; }
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
       <button class="btn btn-danger btn-sm" id="assign-delete-btn" onclick="deleteAssignment()" style="display:none">Delete</button>
-      <div class="modal-actions" style="margin-top:0">
-        <button class="btn btn-ghost" onclick="closeAssignModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveAssignment()">Save</button>
-      </div>
+      <div class="modal-actions" style="margin-top:0"><button class="btn btn-ghost" onclick="closeAssignModal()">Cancel</button><button class="btn btn-primary" onclick="saveAssignment()">Save</button></div>
     </div>
   </div>
 </div>
 
 <!-- HABIT MODAL -->
+
 <div class="modal-bg" id="habit-modal">
   <div class="modal" style="max-width:400px">
-    <div class="modal-title">
-      <span id="habit-modal-title">New Habit</span>
-      <button class="modal-close" onclick="closeHabitModal()">✕</button>
-    </div>
+    <div class="modal-title"><span id="habit-modal-title">New Habit</span><button class="modal-close" onclick="closeHabitModal()">✕</button></div>
     <div style="display:flex;flex-direction:column;gap:14px">
       <div><label class="flbl">Habit Name</label><input id="h-name" class="inp" placeholder="e.g. Meditate, Review notes, Exercise"></div>
       <div><label class="flbl">Description <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional)</span></label><input id="h-notes" class="inp" placeholder="e.g. 5 minutes of deep breathing"></div>
-      <div><label class="flbl">Timer Duration <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional — minutes)</span></label>
-        <input id="h-duration" class="inp" type="number" min="1" max="120" step="1" placeholder="e.g. 25 for a focused session">
-      </div>
-      <div><label class="flbl">Icon</label>
-        <div id="h-icon-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
-        <input type="hidden" id="h-icon" value="🧘">
-      </div>
-      <div><label class="flbl">Colour</label>
-        <div class="color-swatches" id="h-color-picker"></div>
-      </div>
+      <div><label class="flbl">Timer Duration <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional — minutes)</span></label><input id="h-duration" class="inp" type="number" min="1" max="120" step="1" placeholder="e.g. 25 for a focused session"></div>
+      <div><label class="flbl">Icon</label><div id="h-icon-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div><input type="hidden" id="h-icon" value="🧘"></div>
+      <div><label class="flbl">Colour</label><div class="color-swatches" id="h-color-picker"></div></div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
       <button class="btn btn-danger btn-sm" id="habit-delete-btn" onclick="deleteHabit()" style="display:none">Delete</button>
-      <div class="modal-actions" style="margin-top:0">
-        <button class="btn btn-ghost" onclick="closeHabitModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveHabit()">Save</button>
-      </div>
+      <div class="modal-actions" style="margin-top:0"><button class="btn btn-ghost" onclick="closeHabitModal()">Cancel</button><button class="btn btn-primary" onclick="saveHabit()">Save</button></div>
     </div>
   </div>
 </div>
 
 <!-- CONFIRM MODAL -->
+
 <div id="confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:18px;padding:28px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4);">
-    <div style="font-size:2.5rem;text-align:center;margin-bottom:10px;">⚠️</div>
+    <div style="text-align:center;margin-bottom:10px;"><svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="#ef4444" stroke-width="2" opacity=".2"/><path d="M20 12v10M20 27v2" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/></svg></div>
     <h3 id="confirm-title" style="font-size:1rem;font-weight:800;margin:0 0 8px;text-align:center;"></h3>
     <p id="confirm-msg" style="font-size:.82rem;color:var(--text3);text-align:center;margin:0 0 22px;line-height:1.6;font-weight:600;"></p>
     <div style="display:flex;gap:10px;justify-content:center;">
@@ -820,19 +549,16 @@ select.inp { cursor: pointer; }
 
 <script>
 // =============================================
-// CELIO CAMPUS — MAIN SCRIPT
+// SEMSTR — MAIN SCRIPT (RC2)
 // =============================================
 (function() {
 "use strict";
 
-// ===== SUPABASE CONFIG =====
-// Replace with your actual Supabase URL and anon key
 var SUPABASE_URL = "https://eeokgkzjlrrbvbpuaudd.supabase.co";
 var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlb2tna3pqbHJyYnZicHVhdWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNzAyMjgsImV4cCI6MjA4ODY0NjIyOH0.L0RxInCHN8tdFyykuksDXLtTRkT5Cmsop_Ogg5dlzmY";
 var _memStore = {};
 var _customStorage = {
   getItem: function(key) {
-    // Try memory first (Edge tracking prevention safe), then localStorage
     if (_memStore[key] != null) return _memStore[key];
     try { var v = localStorage.getItem(key); if (v) { _memStore[key] = v; } return v; } catch(e) {}
     return null;
@@ -850,7 +576,6 @@ var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { storage: _customStorage, persistSession: true, detectSessionInUrl: true }
 });
 
-// ===== STATE =====
 var currentUser = null;
 var semesters = [];
 var courses = [];
@@ -868,38 +593,55 @@ var uiExpanded = {};
 var confirmCb = null;
 var userStats = null;
 var habits = [];
-var habitLogs = []; // today's logs
+var habitLogs = [];
 var editingHabitId = null;
 
-// ===== COURSE COLORS =====
 var COURSE_COLORS = [
   "#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4",
   "#ef4444","#8b5cf6","#14b8a6","#f97316","#64748b",
   "#a855f7","#10b981","#3b82f6","#e11d48","#0ea5e9"
 ];
 
+// RC2: TYPE_EMOJI replaced with SVG strings
 var TYPE_EMOJI = {
-  assignment: "📝", exam: "🔥", test: "✏️", quiz: "⚡",
-  lab: "🔬", project: "🚀"
+  assignment: '<svg width="13" height="13" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><rect x="3" y="2" width="14" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 7h8M6 10h8M6 13h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".65"/></svg>',
+  exam:       '<svg width="13" height="13" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 2.1-1.4 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" fill="currentColor"/></svg>',
+  test:       '<svg width="13" height="13" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14" stroke="currentColor" stroke-width="1.2" opacity=".45"/><path d="M6.5 2v3.5M13.5 2v3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6.5 11h7M6.5 13.5h4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".7"/></svg>',
+  quiz:       '<svg width="13" height="13" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7.5l5 2.5-5 2.5V7.5z" fill="currentColor" opacity=".8"/></svg>',
+  lab:        '<svg width="13" height="13" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><path d="M7 4h2v5l1.5 5H9l-.5-2h-3l-.5 2H3.5L5 9V4h2zm0 0v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 9H5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".5"/><path d="M12 7l4 7M16 7l-4 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
+  project:    '<svg width="13" height="13" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:2px"><path d="M10 2l2.2 5.5H18l-4.6 3.3 1.8 5.5L10 13.2l-5.2 3.1 1.8-5.5L2 7.5h5.8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" opacity=".85"/></svg>'
 };
 
-// ===== GAMIFICATION =====
 var XP_VALUES = { assignment: 20, exam: 50, test: 30, quiz: 10, lab: 25, project: 50 };
 var XP_HABIT = 10;
 var XP_GRADE_A = 25;
 var XP_GRADE_B = 15;
 var XP_SEMESTER = 200;
+
+// RC2: Level icons are SVG key strings (not emoji)
 var LEVELS = [
-  { name: "Freshman",   min: 0,    icon: "🎒", theme: "default" },
-  { name: "Sophomore",  min: 200,  icon: "📖", theme: "ocean" },
-  { name: "Junior",     min: 500,  icon: "🎯", theme: "sakura" },
-  { name: "Senior",     min: 1000, icon: "🏆", theme: "forest" },
-  { name: "Graduate",   min: 2000, icon: "🎓", theme: "midnight" },
-  { name: "Deans List", min: 3500, icon: "⭐", theme: "ember" },
-  { name: "Legend",     min: 5000, icon: "👑", theme: "gold" }
+  { name: "Freshman",   min: 0,    icon: "shield", theme: "default" },
+  { name: "Sophomore",  min: 200,  icon: "screen", theme: "ocean" },
+  { name: "Junior",     min: 500,  icon: "target", theme: "sakura" },
+  { name: "Senior",     min: 1000, icon: "trophy", theme: "forest" },
+  { name: "Graduate",   min: 2000, icon: "cap",    theme: "midnight" },
+  { name: "Deans List", min: 3500, icon: "star",   theme: "ember" },
+  { name: "Legend",     min: 5000, icon: "crown",  theme: "gold" }
 ];
+
+// RC2: SVG lookup for level icons
+var LEVEL_ICON_SVGS = {
+  "shield": '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M10 2l7 3.5v4.5c0 4-3 6.5-7 8-4-1.5-7-4-7-8V5.5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  "screen": '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><rect x="3" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 16h6M10 13v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  "target": '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.3" opacity=".55"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/></svg>',
+  "trophy": '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M6 4h8v3a4 4 0 0 1-3.2 3.9V14h2.5V16H6.7V14h2.5v-3.1A4 4 0 0 1 6 7V4z" fill="currentColor" opacity=".85"/></svg>',
+  "cap":    '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M10 2l7 3.5-7 3.5-7-3.5L10 2z" fill="currentColor"/><path d="M10 9l7 3.5v3c-1.5 1-3.5 1.5-7 1.5S4.5 16.5 3 15.5v-3L10 9z" fill="currentColor" opacity=".6"/></svg>',
+  "star":   '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M10 2l1.8 4.8H17l-4 2.9 1.5 4.8L10 11.8l-4.5 2.7 1.5-4.8L3 6.8h5.2z" fill="currentColor"/></svg>',
+  "crown":  '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M4 17l2-9 5 4 2-6 2 6 5-4 2 9H4z" fill="currentColor" opacity=".85"/></svg>'
+};
+function getLevelIconSvg(k) { return LEVEL_ICON_SVGS[k] || k; }
+
 var BADGE_DEFS = [
-  // Productivity
   { id: "first_step",          name: "First Step",          desc: "Complete 1 assignment",                     icon: "check",       rarity: "common",   xpBonus: 25,  cat: "productivity" },
   { id: "momentum",            name: "Momentum",            desc: "Complete 3 assignments in one day",         icon: "bolt",        rarity: "common",   xpBonus: 40,  cat: "productivity" },
   { id: "speed_runner",        name: "Speed Runner",        desc: "Complete 5 assignments in one day",         icon: "bolt_ring",   rarity: "uncommon", xpBonus: 60,  cat: "productivity" },
@@ -910,17 +652,14 @@ var BADGE_DEFS = [
   { id: "night_owl",           name: "Night Owl",           desc: "Complete a task after midnight",            icon: "moon",        rarity: "common",   xpBonus: 25,  cat: "productivity" },
   { id: "weekend_warrior",     name: "Weekend Warrior",     desc: "Complete 5 tasks on weekends",              icon: "starburst",   rarity: "uncommon", xpBonus: 50,  cat: "productivity" },
   { id: "perfect_week",        name: "Perfect Week",        desc: "Finish everything due this week",           icon: "ribbon",      rarity: "rare",     xpBonus: 120, cat: "productivity" },
-  // Streaks
   { id: "on_fire",             name: "On Fire",             desc: "5 day completion streak",                   icon: "flame",       rarity: "common",   xpBonus: 50,  cat: "streaks" },
   { id: "relentless",          name: "Relentless",          desc: "10 day completion streak",                  icon: "flame_ring",  rarity: "uncommon", xpBonus: 90,  cat: "streaks" },
   { id: "unstoppable",         name: "Unstoppable",         desc: "30 day completion streak",                  icon: "comet",       rarity: "rare",     xpBonus: 180, cat: "streaks" },
   { id: "semester_ironman",    name: "Semester Ironman",    desc: "60 day completion streak",                  icon: "shield",      rarity: "epic",     xpBonus: 350, cat: "streaks" },
-  // Habits
   { id: "routine_builder",     name: "Routine Builder",     desc: "Complete a habit 3 days in a row",          icon: "repeat",      rarity: "common",   xpBonus: 30,  cat: "habits" },
   { id: "consistency_king",    name: "Consistency King",    desc: "Complete a habit 7 days in a row",          icon: "repeat_ring", rarity: "uncommon", xpBonus: 60,  cat: "habits" },
   { id: "discipline_mode",     name: "Discipline Mode",     desc: "Complete a habit 30 days in a row",         icon: "diamond",     rarity: "rare",     xpBonus: 180, cat: "habits" },
   { id: "habit_garden",        name: "Habit Garden",        desc: "Keep 5 active habits",                      icon: "leaf",        rarity: "uncommon", xpBonus: 50,  cat: "habits" },
-  // Setup & Organisation
   { id: "semester_architect",  name: "Semester Architect",  desc: "Create your first semester",                icon: "calendar",    rarity: "common",   xpBonus: 20,  cat: "setup" },
   { id: "course_starter",      name: "Course Starter",      desc: "Add your first course",                     icon: "book",        rarity: "common",   xpBonus: 20,  cat: "setup" },
   { id: "full_load",           name: "Full Load",           desc: "Add 5 courses to one semester",             icon: "stack",       rarity: "uncommon", xpBonus: 50,  cat: "setup" },
@@ -929,14 +668,13 @@ var BADGE_DEFS = [
   { id: "course_master",       name: "Course Master",       desc: "Complete all assignments in a course",      icon: "medal",       rarity: "rare",     xpBonus: 120, cat: "setup" },
   { id: "double_major",        name: "Double Major",        desc: "Fully complete 2 courses",                  icon: "medal_duo",   rarity: "rare",     xpBonus: 180, cat: "setup" },
   { id: "final_boss",          name: "Final Boss",          desc: "Complete all assignments in a semester",    icon: "laurel",      rarity: "epic",     xpBonus: 300, cat: "setup" },
-  // Levels & Milestones
   { id: "level_up",            name: "Level Up",            desc: "Reach level 2",                             icon: "arrow_up",    rarity: "common",   xpBonus: 25,  cat: "milestones" },
   { id: "scholar",             name: "Scholar",             desc: "Reach level 5",                             icon: "cap",         rarity: "rare",     xpBonus: 100, cat: "milestones" },
   { id: "grandmaster",         name: "Grandmaster",         desc: "Reach level 10",                            icon: "crown_star",  rarity: "epic",     xpBonus: 250, cat: "milestones" },
   { id: "deans_list",          name: "Dean's List",         desc: "Meet or exceed your GPA goal",              icon: "seal",        rarity: "rare",     xpBonus: 200, cat: "milestones" }
 ];
-// Keep BADGES as alias for any legacy references
 var BADGES = BADGE_DEFS;
+
 function getLevel(xp) {
   var level = LEVELS[0];
   for (var i = LEVELS.length - 1; i >= 0; i--) {
@@ -951,25 +689,20 @@ function getNextLevel(xp) {
   return null;
 }
 
-// ===== TOAST =====
 var toastTimer = null;
 function showToast(msg, type) {
   var el = document.getElementById("toast");
   el.textContent = msg;
   el.className = "show" + (type ? " " + type : "");
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(function() {
-    el.className = "";
-  }, 3000);
+  toastTimer = setTimeout(function() { el.className = ""; }, 3000);
 }
 
-// ===== CONFIRM =====
 window.showConfirm = function(title, msg, cb) {
   document.getElementById("confirm-title").textContent = title;
   document.getElementById("confirm-msg").textContent = msg;
   confirmCb = cb;
-  var overlay = document.getElementById("confirm-overlay");
-  overlay.style.display = "flex";
+  document.getElementById("confirm-overlay").style.display = "flex";
 };
 window.closeConfirm = function() {
   document.getElementById("confirm-overlay").style.display = "none";
@@ -980,7 +713,6 @@ window.confirmOk = function() {
   document.getElementById("confirm-overlay").style.display = "none";
 };
 
-// ===== AUTH =====
 var currentAuthTab = "login";
 window.switchAuthTab = function(tab) {
   currentAuthTab = tab;
@@ -1020,11 +752,8 @@ window.doAuth = async function() {
   }
 };
 
-// Enter key on auth
 document.addEventListener("keydown", function(e) {
-  if (e.key === "Enter" && document.getElementById("auth-screen").style.display !== "none") {
-    doAuth();
-  }
+  if (e.key === "Enter" && document.getElementById("auth-screen").style.display !== "none") { doAuth(); }
 });
 
 window.doSignOut = async function() {
@@ -1032,13 +761,12 @@ window.doSignOut = async function() {
   await applySession(null);
 };
 
-// ===== THEME =====
 window.toggleTheme = function() {
   var html = document.documentElement;
   var current = html.getAttribute("data-theme");
   var next = current === "dark" ? "light" : "dark";
   html.setAttribute("data-theme", next);
-  localStorage.setItem("celio-campus-theme", next);
+  localStorage.setItem("semstr-theme", next);  // RC2: semstr key
   document.querySelector(".theme-btn").textContent = next === "dark" ? "☀" : "🌙";
 };
 
@@ -1046,19 +774,15 @@ function applyLevelPalette(xp) {
   var level = getLevel(xp);
   var palette = (level.theme && level.theme !== "default") ? level.theme : "";
   var html = document.documentElement;
-  if (palette) {
-    html.setAttribute("data-palette", palette);
-  } else {
-    html.removeAttribute("data-palette");
-  }
-  localStorage.setItem("celio-campus-palette", palette || "");
+  if (palette) { html.setAttribute("data-palette", palette); }
+  else { html.removeAttribute("data-palette"); }
+  localStorage.setItem("semstr-palette", palette || "");  // RC2: semstr key
 }
 
-// ===== SIDEBAR TOGGLE =====
 window.toggleSidebar = function() {
   var sb = document.getElementById("sidebar");
   sb.classList.toggle("collapsed");
-  localStorage.setItem("celio-campus-sb-collapsed", sb.classList.contains("collapsed") ? "1" : "0");
+  localStorage.setItem("semstr-sb-collapsed", sb.classList.contains("collapsed") ? "1" : "0");  // RC2
 };
 window.openSidebar = function() {
   var sb = document.getElementById("sidebar");
@@ -1072,7 +796,6 @@ window.closeSidebar = function() {
   document.getElementById("sb-overlay").classList.remove("show");
 };
 
-// ===== LOAD ALL DATA =====
 async function loadAll() {
   if (!currentUser) return;
   try {
@@ -1089,14 +812,12 @@ async function loadAll() {
     semesters = semRes.data || [];
     courses = courseRes.data || [];
     assignments = assignRes.data || [];
-    // Badges — loaded in parallel, available before first render
     if (!badgeRes.error) {
       _unlockedBadgeIds = new Set((badgeRes.data || []).map(function(x) { return x.badge_id; }));
     } else {
       console.warn("user_badges fetch error:", badgeRes.error);
       _unlockedBadgeIds = new Set();
     }
-    // Stats
     try {
       userStats = (statsRes && statsRes.data) ? statsRes.data : null;
       if (userStats) applyLevelPalette(userStats.xp || 0);
@@ -1108,9 +829,7 @@ async function loadAll() {
       var logsRes = await sb.from("habit_logs").select("*").eq("user_id", currentUser.id).eq("completed_date", today);
       habitLogs = (logsRes && logsRes.data) ? logsRes.data : [];
     } catch(e) { habits = []; habitLogs = []; }
-
-    // Restore last active semester
-    var savedSemId = localStorage.getItem("celio-campus-sem-" + currentUser.id);
+    var savedSemId = localStorage.getItem("semstr-sem-" + currentUser.id);  // RC2
     if (savedSemId) {
       activeSemester = semesters.find(function(s) { return s.id === savedSemId; }) || null;
     }
@@ -1119,7 +838,6 @@ async function loadAll() {
     }
     renderSidebar();
     renderActiveTab();
-    // After render: evaluate any newly earned badges, then re-render dashboard
     setTimeout(async function() {
       try {
         await evaluateBadges({ trigger: "load" });
@@ -1132,7 +850,6 @@ async function loadAll() {
   }
 }
 
-// ===== RENDER SIDEBAR =====
 function renderSidebar() {
   var el = document.getElementById("sb-semesters");
   if (!el) return;
@@ -1178,8 +895,6 @@ function renderSidebar() {
     var lvl = getLevel(xpNow);
     var lvlIdx = getLevelIndex(xpNow);
     var avatarEl = document.getElementById("sb-avatar");
-    var xpNow = (userStats && userStats.xp) || 0;
-    var lvl = getLevel(xpNow);
     var grads = { default:"linear-gradient(135deg,#6c47ff,#ec4899)", ocean:"linear-gradient(135deg,#0ea5e9,#6c47ff)", sakura:"linear-gradient(135deg,#e11d78,#f97316)", forest:"linear-gradient(135deg,#16a34a,#0ea5e9)", midnight:"linear-gradient(135deg,#4f46e5,#ec4899)", ember:"linear-gradient(135deg,#ea580c,#f59e0b)", gold:"linear-gradient(135deg,#b45309,#ea580c)" };
     avatarEl.style.background = grads[lvl.theme || "default"] || grads.default;
     avatarEl.textContent = initial;
@@ -1190,19 +905,19 @@ function renderSidebar() {
     if (lvlIdx >= 2) {
       var pip = document.createElement("span");
       pip.className = "av-pip";
-      pip.textContent = lvl.icon;
-      pip.style.cssText = "position:absolute;bottom:-5px;right:-5px;font-size:.72rem;line-height:1;background:var(--bg2);border-radius:50%;padding:1px;";
+      // RC2: SVG instead of emoji
+      pip.innerHTML = getLevelIconSvg(lvl.icon);
+      pip.style.cssText = "position:absolute;bottom:-5px;right:-5px;background:var(--bg2);border-radius:50%;padding:2px;display:flex;align-items:center;justify-content:center;width:18px;height:18px;";
       avatarEl.appendChild(pip);
     }
   }
 }
 
-// ===== SELECT SEMESTER =====
 window.selectSemester = function(semId) {
   activeSemester = semesters.find(function(s) { return s.id === semId; }) || null;
   activeCourse = null;
   uiExpanded[semId] = true;
-  if (currentUser) localStorage.setItem("celio-campus-sem-" + currentUser.id, semId);
+  if (currentUser) localStorage.setItem("semstr-sem-" + currentUser.id, semId);  // RC2
   document.getElementById("tab-nav").style.display = "flex";
   document.getElementById("topbar-add-btn").style.display = "flex";
   updateTopbar();
@@ -1230,12 +945,11 @@ window.toggleSemExpand = function(e, semId) {
 };
 
 function updateTopbar() {
-  var title = "Celio Campus";
+  var title = "Semstr";  // RC2
   if (activeSemester) title = activeSemester.name;
   document.getElementById("topbar-title").textContent = title;
 }
 
-// ===== TABS =====
 window.showTab = function(tab) {
   activeTab = tab;
   document.querySelectorAll(".tab-btn").forEach(function(b) {
@@ -1258,14 +972,9 @@ function renderActiveTab() {
   if (fns[activeTab]) fns[activeTab]();
 }
 
-// ===== HELPERS =====
 function esc(str) {
   if (!str) return "";
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
 function localDateStr(d) {
@@ -1281,8 +990,7 @@ function formatDate(dateStr) {
 
 function daysUntil(dateStr) {
   if (!dateStr) return null;
-  var now = new Date();
-  now.setHours(0,0,0,0);
+  var now = new Date(); now.setHours(0,0,0,0);
   var d = new Date(dateStr + "T00:00:00");
   return Math.round((d - now) / 86400000);
 }
@@ -1316,7 +1024,6 @@ function getCourseById(id) {
 }
 
 function calculateGPA(semAssignments) {
-  // Use weighted marks if available, fall back to null
   var graded = semAssignments.filter(function(a) {
     return a.marks_received != null && a.total_marks != null && a.total_marks > 0 && a.weight != null && a.weight > 0;
   });
@@ -1329,7 +1036,6 @@ function calculateGPA(semAssignments) {
   return totalWeight > 0 ? Math.round(weightedScore / totalWeight * 100) : null;
 }
 
-// ===== RENDER DASHBOARD =====
 function renderDashboard() {
   var ca = document.getElementById("content-area");
   var semA = getSemAssignments();
@@ -1339,10 +1045,8 @@ function renderDashboard() {
   var today = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) === 0; }).length;
   var upcoming = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) !== null && daysUntil(a.due_date) > 0 && daysUntil(a.due_date) <= 7; }).length;
   var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
-  var gpa = calculateGPA(semA);
   var html = '<div class="fade-in">';
 
-  // Gamification card
   if (userStats) {
     var xp = userStats.xp || 0;
     var streak = userStats.streak || 0;
@@ -1350,35 +1054,28 @@ function renderDashboard() {
     var nextLevel = getNextLevel(xp);
     var levelPct = nextLevel ? Math.min(100, Math.round((xp - level.min) / (nextLevel.min - level.min) * 100)) : 100;
     var earnedBadgeIds = _unlockedBadgeIds ? Array.from(_unlockedBadgeIds) : (userStats.badges || []);
-
-    // Profile + XP card (combined)
     var userName = currentUser ? ((currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split("@")[0]) : "";
     var lvlIdx = getLevelIndex(xp);
-    var rings = ["none","none","0 0 0 3px #0ea5e9","0 0 0 3px #e11d78","0 0 0 3px #16a34a","0 0 0 3px #4f46e5","0 0 0 3px #ea580c","0 0 0 3px #b45309"];
-    var avatarRing = rings[Math.min(lvlIdx, rings.length-1)] || "none";
     var paletteLabels = { default:"Purple", ocean:"🌊 Ocean", sakura:"🌸 Sakura", forest:"🌲 Forest", midnight:"🌙 Midnight", ember:"🔥 Ember", gold:"👑 Gold" };
-    // Recent badges (last 3 earned)
     var recentBadges = earnedBadgeIds.slice(-3).map(function(bid) {
       return BADGE_DEFS.find(function(b) { return b.id === bid; });
     }).filter(Boolean);
 
     html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
     html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
-
-    // Avatar — clean gradient letter circle
     html += '<div style="position:relative;flex-shrink:0">';
     html += '<div style="width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-1px;border:2.5px solid rgba(255,255,255,.5);box-shadow:0 2px 12px rgba(0,0,0,.2)">';
     html += (userName[0] || "?").toUpperCase();
     html += '</div>';
     if (lvlIdx >= 2) {
-      html += '<div style="position:absolute;bottom:-2px;right:-2px;font-size:.8rem;background:rgba(0,0,0,.4);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center">' + level.icon + '</div>';
+      // RC2: SVG level icon
+      html += '<div style="position:absolute;bottom:-2px;right:-2px;background:rgba(0,0,0,.4);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center">' + getLevelIconSvg(level.icon) + '</div>';
     }
     html += '</div>';
-
-    // Name + level + XP
     html += '<div style="flex:1;min-width:0">';
     html += '<div style="font-size:1.1rem;font-weight:900;letter-spacing:-.3px;line-height:1.1">' + esc(userName) + '</div>';
-    html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-top:2px">' + level.icon + ' ' + level.name + ' · ' + xp + ' XP</div>';
+    // RC2: SVG level icon in badge
+    html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-top:2px;display:flex;align-items:center;gap:4px">' + getLevelIconSvg(level.icon) + ' ' + level.name + ' · ' + xp + ' XP</div>';
     if (level.theme && level.theme !== "default") {
       html += '<div style="font-size:.63rem;font-weight:700;opacity:.75;margin-top:1px">Theme: ' + (paletteLabels[level.theme] || level.theme) + '</div>';
     }
@@ -1388,15 +1085,15 @@ function renderDashboard() {
       html += '<div style="font-size:.62rem;opacity:.75;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + '</div>';
     }
     html += '</div>';
-
-    // Streak
+    // RC2: Streak SVG icon
+    var _sIco = streak > 0
+      ? '<svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 2.1-1.4 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" fill="#fff" opacity=".9"/></svg>'
+      : '<svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 3.3 0 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" stroke="#fff" stroke-width="1.3" opacity=".5"/></svg>';
     html += '<div style="text-align:center;flex-shrink:0;padding:0 4px">';
-    html += '<div style="font-size:2rem;font-weight:900;line-height:1">' + (streak > 0 ? "🔥" : "💤") + '</div>';
+    html += '<div style="font-size:2rem;font-weight:900;line-height:1">' + _sIco + '</div>';
     html += '<div style="font-size:1.4rem;font-weight:900;line-height:1;margin-top:2px">' + streak + '</div>';
     html += '<div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.75">Streak</div>';
     html += '</div>';
-
-    // Recent badges
     if (recentBadges.length > 0) {
       html += '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px">';
       html += '<div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.75;margin-bottom:2px">Recent</div>';
@@ -1409,10 +1106,8 @@ function renderDashboard() {
       });
       html += '</div></div>';
     }
-
     html += '</div></div>';
 
-    // Badges section — collapsible
     var BADGE_CATS = [
       { key: "productivity", label: "📝 Productivity" },
       { key: "streaks",      label: "🔥 Streaks" },
@@ -1421,32 +1116,23 @@ function renderDashboard() {
       { key: "milestones",   label: "⚡ Milestones" }
     ];
     var badgesOpen = uiExpanded["badges"] || false;
-    // Header — uses same section-title style as the rest of the dashboard
     html += '<div class="section-title" onclick="toggleBadgesPanel()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;margin-bottom:' + (badgesOpen ? '8px' : '20px') + '">';
-    html += '<div style="display:flex;align-items:center;gap:8px">';
-    html += 'Badges';
+    html += '<div style="display:flex;align-items:center;gap:8px">Badges';
     html += '<span style="font-size:.72rem;font-weight:600;color:var(--text3)">' + earnedBadgeIds.length + ' / ' + BADGE_DEFS.length + ' earned</span>';
-    // Mini earned icon previews when collapsed
     if (!badgesOpen && earnedBadgeIds.length > 0) {
       html += '<div style="display:flex;gap:3px;margin-left:2px">';
       earnedBadgeIds.slice(0, 6).forEach(function(bid) {
         var b = BADGE_DEFS.find(function(x) { return x.id === bid; });
         if (!b) return;
-        var bg = b.rarity === 'epic' ? 'linear-gradient(135deg,#c084fc,#4a22cc)' :
-                 b.rarity === 'rare' ? 'linear-gradient(135deg,#9e74ff,#5632dd)' :
-                 b.rarity === 'uncommon' ? 'linear-gradient(135deg,#8b7cff,#5d42f2)' :
-                 'linear-gradient(135deg,#a98cff,#7e58ff)';
+        var bg = b.rarity === 'epic' ? 'linear-gradient(135deg,#c084fc,#4a22cc)' : b.rarity === 'rare' ? 'linear-gradient(135deg,#9e74ff,#5632dd)' : b.rarity === 'uncommon' ? 'linear-gradient(135deg,#8b7cff,#5d42f2)' : 'linear-gradient(135deg,#a98cff,#7e58ff)';
         html += '<div style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;background:' + bg + '" title="' + esc(b.name) + '">';
-        html += '<svg style="width:12px;height:12px" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg>';
-        html += '</div>';
+        html += '<svg style="width:12px;height:12px" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg></div>';
       });
       if (earnedBadgeIds.length > 6) html += '<span style="font-size:.7rem;color:var(--text3);font-weight:700;align-self:center;margin-left:2px">+' + (earnedBadgeIds.length - 6) + '</span>';
       html += '</div>';
     }
     html += '</div>';
-    html += '<span style="font-size:.75rem;color:var(--text3);font-weight:700">' + (badgesOpen ? '▴ hide' : '▾ show') + '</span>';
-    html += '</div>';
-    // Expandable body
+    html += '<span style="font-size:.75rem;color:var(--text3);font-weight:700">' + (badgesOpen ? '▴ hide' : '▾ show') + '</span></div>';
     if (badgesOpen) {
       html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
       BADGE_CATS.forEach(function(cat) {
@@ -1466,14 +1152,7 @@ function renderDashboard() {
             if (prog && prog.target > 0) {
               var pct = Math.min(100, Math.round(prog.current / prog.target * 100));
               var label = prog.unit === "%" ? prog.current + "%" : prog.current + " / " + prog.target + (prog.unit ? " " + prog.unit : "");
-              html += '<div style="margin-top:5px">';
-              html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">';
-              html += '<div style="font-size:.6rem;font-weight:700;color:var(--text3)">' + label + '</div>';
-              html += '<div style="font-size:.6rem;font-weight:800;color:var(--accent)">' + pct + '%</div>';
-              html += '</div>';
-              html += '<div style="height:4px;background:var(--bg4);border-radius:4px;overflow:hidden">';
-              html += '<div style="height:100%;width:' + pct + '%;background:var(--accent);border-radius:4px;transition:width .3s"></div>';
-              html += '</div></div>';
+              html += '<div style="margin-top:5px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><div style="font-size:.6rem;font-weight:700;color:var(--text3)">' + label + '</div><div style="font-size:.6rem;font-weight:800;color:var(--accent)">' + pct + '%</div></div><div style="height:4px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--accent);border-radius:4px;transition:width .3s"></div></div></div>';
             }
           } else {
             html += '<div class="badge-chip__xp">+' + badge.xpBonus + ' XP · <span class="rarity-label rarity-' + badge.rarity + '">' + badge.rarity + '</span></div>';
@@ -1486,22 +1165,17 @@ function renderDashboard() {
     }
   }
 
-  // Stat cards — clickable to jump to filtered assignments tab
-  var cardColors = { purple: "var(--accent)", green: "var(--green)", red: "var(--red)", amber: "var(--amber)", pink: "var(--pink)" };
   function statIcon(name, color) {
-    return '<div style="width:44px;height:44px;border-radius:12px;background:' + color + '22;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + color + '">'
-      + '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><use href="#ci-' + name + '"></use></svg>'
-      + '</div>';
+    return '<div style="width:44px;height:44px;border-radius:12px;background:' + color + '22;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + color + '"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><use href="#ci-' + name + '"></use></svg></div>';
   }
   html += '<div class="stat-grid">';
-  html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')" title="View all assignments">' + statIcon('total','var(--accent)') + '<div style="flex:1"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div></div>';
-  html += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')" title="View completed">' + statIcon('done','var(--green)') + '<div style="flex:1"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div></div>';
-  html += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')" title="View overdue">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Overdue</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">need attention</div></div></div>';
-  html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')" title="View due today">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div></div>';
-  html += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')" title="View this week">' + statIcon('week','var(--pink)') + '<div style="flex:1"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div></div>';
+  html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')">' + statIcon('total','var(--accent)') + '<div style="flex:1"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div></div>';
+  html += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')">' + statIcon('done','var(--green)') + '<div style="flex:1"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div></div>';
+  html += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Overdue</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">need attention</div></div></div>';
+  html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div></div>';
+  html += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('week','var(--pink)') + '<div style="flex:1"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div></div>';
   html += '</div>';
 
-  // Progress
   if (total > 0) {
     var pct = Math.round(done / total * 100);
     html += '<div class="section-title">Semester Progress</div>';
@@ -1511,43 +1185,31 @@ function renderDashboard() {
     html += '</div>';
   }
 
-  // Upcoming items
   var upcoming7 = semA.filter(function(a) {
     var d = daysUntil(a.due_date);
     return a.status !== "done" && d !== null && d <= 14;
-  }).sort(function(a, b) {
-    return (daysUntil(a.due_date)||99) - (daysUntil(b.due_date)||99);
-  }).slice(0, 8);
-
-  // Also add overdue
-  var overdueItems = semA.filter(function(a) {
-    return a.status !== "done" && daysUntil(a.due_date) < 0;
-  });
+  }).sort(function(a, b) { return (daysUntil(a.due_date)||99) - (daysUntil(b.due_date)||99); }).slice(0, 8);
+  var overdueItems = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; });
   var combined = overdueItems.concat(upcoming7).filter(function(a, i, arr) {
     return arr.findIndex(function(x) { return x.id === a.id; }) === i;
   }).slice(0, 10);
 
   if (combined.length > 0) {
-    html += '<div class="section-title">Upcoming & Overdue</div>';
-    html += '<div class="countdown-grid">';
+    html += '<div class="section-title">Upcoming & Overdue</div><div class="countdown-grid">';
     combined.forEach(function(a) {
       var course = getCourseById(a.course_id);
       var days = daysUntil(a.due_date);
       var badge = getDueBadge(days, a.status);
-      var emoji = TYPE_EMOJI[a.type] || "📝";
+      var typeIcon = TYPE_EMOJI[a.type] || TYPE_EMOJI.assignment;
       html += '<div class="countdown-item" onclick="openEditAssignment(\'' + a.id + '\')">';
-      html += '<div class="countdown-icon">' + emoji + '</div>';
-      html += '<div class="countdown-info">';
-      html += '<div class="countdown-title">' + esc(a.title) + '</div>';
-      html += '<div class="countdown-meta">' + (course ? esc(course.code) + ' · ' : '') + esc(formatDate(a.due_date)) + '</div>';
-      html += '</div>';
+      html += '<div class="countdown-icon">' + typeIcon + '</div>';
+      html += '<div class="countdown-info"><div class="countdown-title">' + esc(a.title) + '</div><div class="countdown-meta">' + (course ? esc(course.code) + ' · ' : '') + esc(formatDate(a.due_date)) + '</div></div>';
       html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
       html += '</div>';
     });
     html += '</div>';
   }
 
-  // Course overview
   if (semCourses.length > 0) {
     html += '<div class="section-title" style="margin-top:20px">Courses</div>';
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">';
@@ -1557,38 +1219,29 @@ function renderDashboard() {
       var cpct = ca2.length > 0 ? Math.round(cdone / ca2.length * 100) : 0;
       html += '<div class="course-header-card" style="cursor:pointer;margin-bottom:0" onclick="selectCourse(\'' + course.id + '\')">';
       html += '<div class="course-color-block" style="background:' + (course.color||"#6c47ff") + '">' + (course.code||"?")[0] + '</div>';
-      html += '<div class="course-header-info" style="flex:1">';
-      html += '<div class="course-header-code">' + esc(course.code) + '</div>';
+      html += '<div class="course-header-info" style="flex:1"><div class="course-header-code">' + esc(course.code) + '</div>';
       html += '<div class="course-header-name" style="font-size:.9rem">' + esc(course.name) + '</div>';
-      html += '<div class="progress-bar-wrap" style="margin-top:6px"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div>';
-      html += '</div>';
+      html += '<div class="progress-bar-wrap" style="margin-top:6px"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div></div>';
       var cGrade = calculateCourseGrade(course.id);
-      html += '<div style="text-align:right;flex-shrink:0">';
-      html += '<span style="font-size:.75rem;font-weight:800;color:' + (course.color||"var(--accent)") + '">' + cpct + '%</span>';
+      html += '<div style="text-align:right;flex-shrink:0"><span style="font-size:.75rem;font-weight:800;color:' + (course.color||"var(--accent)") + '">' + cpct + '%</span>';
       if (cGrade) {
         var cColor = cGrade.grade >= 80 ? "var(--green)" : cGrade.grade >= 60 ? "var(--amber)" : "var(--red)";
         html += '<div style="font-size:.68rem;font-weight:800;color:' + cColor + '">' + cGrade.grade + '% grade</div>';
         html += '<div style="font-size:.62rem;color:var(--text3);font-weight:600">' + cGrade.weightCovered + '% covered</div>';
       }
-      html += '</div>';
-      html += '</div>';
+      html += '</div></div>';
     });
     html += '</div>';
   }
-
   html += '</div>';
   ca.innerHTML = html;
 }
 
-// ===== RENDER ASSIGNMENTS =====
+
 function renderAssignments() {
   var ca = document.getElementById("content-area");
   var semA = getSemAssignments();
-  if (activeCourse) {
-    semA = assignments.filter(function(a) { return a.course_id === activeCourse.id; });
-  }
-
-  // Filter
+  if (activeCourse) { semA = assignments.filter(function(a) { return a.course_id === activeCourse.id; }); }
   var filtered = semA.filter(function(a) {
     if (assignFilter === "todo") return a.status === "todo";
     if (assignFilter === "inprogress") return a.status === "inprogress";
@@ -1607,17 +1260,13 @@ function renderAssignments() {
     var course = activeCourse;
     html += '<div class="course-header-card">';
     html += '<div class="course-color-block" style="background:' + (course.color||"#6c47ff") + '">' + (course.code||"?")[0] + '</div>';
-    html += '<div class="course-header-info">';
-    html += '<div class="course-header-code">' + esc(course.code) + '</div>';
+    html += '<div class="course-header-info"><div class="course-header-code">' + esc(course.code) + '</div>';
     html += '<div class="course-header-name">' + esc(course.name) + '</div>';
     html += '<div class="course-header-meta">' + (course.instructor ? '👤 ' + esc(course.instructor) : '') + (course.credits ? ' &nbsp;·&nbsp; ' + course.credits + ' credits' : '') + (course.notes ? ' &nbsp;·&nbsp; ' + esc(course.notes) : '') + '</div>';
     var cg = calculateCourseGrade(course.id);
     if (cg) {
       var cgColor = cg.grade >= 80 ? "var(--green)" : cg.grade >= 60 ? "var(--amber)" : "var(--red)";
-      html += '<div style="margin-top:6px;display:flex;gap:10px;align-items:center">';
-      html += '<span style="font-size:.8rem;font-weight:800;color:' + cgColor + '">📊 ' + cg.grade + '% course grade</span>';
-      html += '<span style="font-size:.72rem;color:var(--text3);font-weight:600">(' + cg.weightCovered + '% of grade covered)</span>';
-      html += '</div>';
+      html += '<div style="margin-top:6px;display:flex;gap:10px;align-items:center"><span style="font-size:.8rem;font-weight:800;color:' + cgColor + '">📊 ' + cg.grade + '% course grade</span><span style="font-size:.72rem;color:var(--text3);font-weight:600">(' + cg.weightCovered + '% of grade covered)</span></div>';
     }
     html += '</div>';
     var ca2 = assignments.filter(function(a) { return a.course_id === course.id; });
@@ -1625,18 +1274,15 @@ function renderAssignments() {
     html += '<div class="course-stats"><div class="course-stat"><div class="course-stat-val" style="color:' + (course.color||"var(--accent)") + '">' + cdone + '/' + ca2.length + '</div><div class="course-stat-lbl">Done</div></div></div>';
     html += '</div>';
   }
-
-  // Filter bar
   html += '<div class="filter-bar">';
   ["all","todo","inprogress","done","overdue","upcoming"].forEach(function(f) {
     var labels = {all:"All",todo:"To Do",inprogress:"In Progress",done:"Done",overdue:"Overdue",upcoming:"This Week"};
     html += '<button class="filter-pill' + (assignFilter === f ? " active" : "") + '" onclick="setFilter(\'' + f + '\')">' + labels[f] + '</button>';
   });
-  html += '<input class="filter-search" placeholder="Search..." value="' + esc(assignSearch) + '" oninput="setSearch(this.value)">';
-  html += '</div>';
+  html += '<input class="filter-search" placeholder="Search..." value="' + esc(assignSearch) + '" oninput="setSearch(this.value)"></div>';
 
   if (filtered.length === 0) {
-    html += '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nothing here</div><div class="empty-sub">No assignments match your filter. Try changing the filter or add a new one!</div></div>';
+    html += '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="none" style="color:var(--accent);opacity:.4"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M13.5 13.5l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 9h4M9 7v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".6"/></svg></div><div class="empty-title">Nothing here</div><div class="empty-sub">No assignments match your filter. Try changing the filter or add a new one!</div></div>';
   } else {
     html += '<div class="assignment-list">';
     filtered.forEach(function(a) {
@@ -1655,11 +1301,10 @@ function renderAssignments() {
       var needsGrade = a.total_marks != null && a.total_marks > 0 && !hasGrade && a.status !== "done";
       html += '<div class="assignment-row' + (a.status === "done" ? " done-row" : "") + '" onclick="openEditAssignment(\'' + a.id + '\')">';
       html += '<div class="a-checkbox' + (a.status === "done" ? " checked" : (needsGrade ? " needs-grade" : "")) + '" title="' + (needsGrade ? "Enter marks first" : "") + '" onclick="toggleDone(event,\'' + a.id + '\')"></div>';
-      html += '<div class="a-info">';
-      html += '<div class="a-title" style="' + (a.status === "done" ? "text-decoration:line-through;opacity:.6" : "") + '">' + esc(a.title) + '</div>';
+      html += '<div class="a-info"><div class="a-title" style="' + (a.status === "done" ? "text-decoration:line-through;opacity:.6" : "") + '">' + esc(a.title) + '</div>';
       html += '<div class="a-meta">';
       if (course) html += '<span class="a-course-tag" style="background:' + (course.color||"#6c47ff") + '22;color:' + (course.color||"#6c47ff") + '">' + esc(course.code) + '</span>';
-      html += '<span class="a-type-tag type-' + (a.type||"assignment") + '">' + (TYPE_EMOJI[a.type]||"📝") + ' ' + (a.type||"assignment") + '</span>';
+      html += '<span class="a-type-tag type-' + (a.type||"assignment") + '">' + (TYPE_EMOJI[a.type]||TYPE_EMOJI.assignment) + ' ' + (a.type||"assignment") + '</span>';
       if (a.weight) html += '<span style="font-size:.68rem;color:var(--text3);font-weight:700">' + a.weight + '% weight</span>';
       html += '</div></div>';
       if (a.total_marks != null && a.total_marks > 0) {
@@ -1679,7 +1324,6 @@ function renderAssignments() {
     });
     html += '</div>';
   }
-
   html += '</div>';
   ca.innerHTML = html;
 }
@@ -1694,26 +1338,20 @@ window.saveInlineGrade = async function(e, id, totalMarks) {
   if (val > totalMarks) val = totalMarks;
   var a = assignments.find(function(x) { return x.id === id; });
   if (!a) return;
-  a.marks_received = val; // update memory immediately so checkbox works right away
+  a.marks_received = val;
   try {
     var res = await sb.from("assignments").update({ marks_received: val }).eq("id", id);
     if (res.error) throw res.error;
-    renderAssignments(); // re-render after confirmed save to show % badge
-  } catch(err) {
-    a.marks_received = null;
-    showToast(err.message, "error");
-  }
+    renderAssignments();
+  } catch(err) { a.marks_received = null; showToast(err.message, "error"); }
 };
 
 window.toggleDone = async function(e, id) {
   e.stopPropagation();
   var a = assignments.find(function(x) { return x.id === id; });
   if (!a) return;
-  // Block completion if total_marks set but no marks_received
   if (a.status !== "done" && a.total_marks != null && a.total_marks > 0 && (a.marks_received == null)) {
     showToast("Enter your score first! ✏️", "error");
-    // Shake the grade input
-    var input = document.querySelector('[data-id="' + id + '"] .grade-quick-input, .assignment-row .grade-quick-input');
     var rows = document.querySelectorAll(".assignment-row");
     rows.forEach(function(row) {
       var cb = row.querySelector(".a-checkbox");
@@ -1732,63 +1370,46 @@ window.toggleDone = async function(e, id) {
     if (res.error) throw res.error;
     a.status = newStatus;
     if (newStatus === "done") a.updated_at = updatePayload.updated_at;
-    if (newStatus === "done") {
-      launchConfetti();
-      await awardXP(a);
-    } else {
-      await deductXP(a);
-    }
+    if (newStatus === "done") { launchConfetti(); await awardXP(a); }
+    else { await deductXP(a); }
     renderActiveTab();
   } catch (err) { showToast(err.message, "error"); }
 };
 
 async function ensureStats() {
   if (userStats) return userStats;
-  var res = await sb.from("user_stats").insert({
-    user_id: currentUser.id, xp: 0, streak: 0, badges: []
-  }).select().single();
+  var res = await sb.from("user_stats").insert({ user_id: currentUser.id, xp: 0, streak: 0, badges: [] }).select().single();
   if (res.error) throw res.error;
   userStats = res.data;
   return userStats;
 }
 
-
 function getBadgeProgress(badgeId) {
-  // Returns { current, target } for badges with trackable numeric progress.
-  // Returns null for badges that aren't trackable (timing, one-off events).
   var doneCount = assignments.filter(function(a) { return a.status === "done"; }).length;
   var streak    = (userStats && userStats.streak) || 0;
   var xp        = (userStats && userStats.xp) || 0;
   var levelIdx  = getLevelIndex(xp);
   var semCourses = activeSemester ? courses.filter(function(c) { return c.semester_id === activeSemester.id; }) : [];
   var withNotes  = assignments.filter(function(a) { return a.notes && a.notes.trim().length > 0; }).length;
-
   switch (badgeId) {
-    // Productivity — assignment count
     case "first_step":     return { current: doneCount, target: 1 };
     case "focused_finish": return { current: doneCount, target: 10 };
     case "task_titan":     return { current: doneCount, target: 25 };
     case "legend":         return { current: doneCount, target: 100 };
-    // Streaks
     case "on_fire":           return { current: streak, target: 5 };
     case "relentless":        return { current: streak, target: 10 };
     case "unstoppable":       return { current: streak, target: 30 };
     case "semester_ironman":  return { current: streak, target: 60 };
-    // Setup
     case "semester_architect": return { current: semesters.length, target: 1 };
     case "course_starter":     return { current: courses.length,   target: 1 };
     case "full_load":          return { current: semCourses.length, target: 5 };
     case "organized_mind":     return { current: withNotes, target: 10 };
     case "planner_mode":       return { current: assignments.length, target: 20 };
-    // Course completion
     case "course_master": {
       var best = 0;
       courses.forEach(function(c) {
         var ca = assignments.filter(function(a) { return a.course_id === c.id; });
-        if (ca.length > 0) {
-          var donePct = ca.filter(function(a) { return a.status === "done"; }).length / ca.length;
-          if (donePct > best) best = donePct;
-        }
+        if (ca.length > 0) { var donePct = ca.filter(function(a) { return a.status === "done"; }).length / ca.length; if (donePct > best) best = donePct; }
       });
       return { current: Math.round(best * 100), target: 100, unit: "%" };
     }
@@ -1807,36 +1428,27 @@ function getBadgeProgress(badgeId) {
       var doneSem = semA2.filter(function(a) { return a.status === "done"; }).length;
       return semA2.length > 0 ? { current: doneSem, target: semA2.length } : null;
     }
-    // Habits
     case "routine_builder":
     case "consistency_king":
     case "discipline_mode": {
       var maxHabitStreak = 0;
       habits.forEach(function(h) {
         var el = document.getElementById("streak-" + h.id);
-        if (el) {
-          var numMatch = el.textContent.match(/\d+/);
-          if (numMatch) { var num = parseInt(numMatch[0]); if (!isNaN(num) && num > maxHabitStreak) maxHabitStreak = num; }
-        }
+        if (el) { var nm = el.textContent.match(/\d+/); if (nm) { var num = parseInt(nm[0]); if (!isNaN(num) && num > maxHabitStreak) maxHabitStreak = num; } }
       });
-      if (badgeId === "routine_builder") return { current: Math.min(maxHabitStreak, 3),  target: 3,  unit: "days" };
-      if (badgeId === "consistency_king") return { current: Math.min(maxHabitStreak, 7),  target: 7,  unit: "days" };
+      if (badgeId === "routine_builder") return { current: Math.min(maxHabitStreak, 3), target: 3, unit: "days" };
+      if (badgeId === "consistency_king") return { current: Math.min(maxHabitStreak, 7), target: 7, unit: "days" };
       return { current: Math.min(maxHabitStreak, 30), target: 30, unit: "days" };
     }
-    case "habit_garden": {
-      return { current: habits.length, target: 5 };
-    }
-    // Levels
-    case "level_up":    return { current: Math.min(levelIdx, 2),  target: 2 };
-    case "scholar":     return { current: Math.min(levelIdx, 5),  target: 5 };
-    case "grandmaster": return { current: Math.min(levelIdx, 7),  target: 7 };
-    // Not trackable (time-of-day, weekend, perfect week, dean's list, momentum/speed_runner)
+    case "habit_garden": return { current: habits.length, target: 5 };
+    case "level_up":    return { current: Math.min(levelIdx, 2), target: 2 };
+    case "scholar":     return { current: Math.min(levelIdx, 5), target: 5 };
+    case "grandmaster": return { current: Math.min(levelIdx, 7), target: 7 };
     default: return null;
   }
 }
 
-// ===== BADGE SYSTEM =====
-var _unlockedBadgeIds = null; // in-memory cache
+var _unlockedBadgeIds = null;
 
 async function fetchUserBadgeIds() {
   var res = await sb.from("user_badges").select("badge_id").eq("user_id", currentUser.id);
@@ -1846,21 +1458,17 @@ async function fetchUserBadgeIds() {
 }
 
 async function grantBadge(badgeId) {
-  // Direct insert — more reliable than RPC when badge_defs may not be seeded
   var res = await sb.from("user_badges").insert({ user_id: currentUser.id, badge_id: badgeId }).select();
   if (res.error) {
-    // Code 23505 = unique violation = already earned, not a real error
     if (res.error.code !== "23505") console.warn("grantBadge", badgeId, res.error);
     if (_unlockedBadgeIds) _unlockedBadgeIds.add(badgeId);
-    return false; // already had it — no toast
+    return false;
   }
   if (_unlockedBadgeIds) _unlockedBadgeIds.add(badgeId);
   var alreadyHad = !res.data || res.data.length === 0;
   if (alreadyHad) return false;
-  // Show badge toast
   var bdef = BADGE_DEFS.find(function(b) { return b.id === badgeId; });
   if (bdef) {
-    // Award XP directly
     if (bdef.xpBonus > 0 && userStats) {
       var newXp = (userStats.xp || 0) + bdef.xpBonus;
       await sb.from("user_stats").update({ xp: newXp }).eq("user_id", currentUser.id);
@@ -1876,9 +1484,7 @@ async function grantBadge(badgeId) {
 
 function sameLocalDay(dateLike, refDate) {
   var d = new Date(dateLike);
-  return d.getFullYear() === refDate.getFullYear() &&
-         d.getMonth() === refDate.getMonth() &&
-         d.getDate() === refDate.getDate();
+  return d.getFullYear() === refDate.getFullYear() && d.getMonth() === refDate.getMonth() && d.getDate() === refDate.getDate();
 }
 
 function getLevelIndex(xp) {
@@ -1886,11 +1492,10 @@ function getLevelIndex(xp) {
   for (var i = LEVELS.length - 1; i >= 0; i--) {
     if (xp >= LEVELS[i].min) { idx = i + 1; break; }
   }
-  return idx; // 1-based (Freshman=1, Sophomore=2, …)
+  return idx;
 }
 
 async function evaluateBadges(context) {
-  // context = { trigger: "assignment"|"habit"|"semester"|"course"|"xp", data: {} }
   try {
     var unlocked = _unlockedBadgeIds || await fetchUserBadgeIds();
     var xp = (userStats && userStats.xp) || 0;
@@ -1898,68 +1503,44 @@ async function evaluateBadges(context) {
     var levelIdx = getLevelIndex(xp);
     var now = new Date();
     var hour = now.getHours();
-    var dow = now.getDay(); // 0=Sun, 6=Sat
-
-    // --- Productivity ---
+    var dow = now.getDay();
     var allDone = assignments.filter(function(a) { return a.status === "done"; });
     var doneCount = allDone.length;
     var doneToday = allDone.filter(function(a) { return a.updated_at && sameLocalDay(a.updated_at, now); }).length;
-
     if (doneCount >= 1   && !unlocked.has("first_step"))     await grantBadge("first_step");
     if (doneToday >= 3   && !unlocked.has("momentum"))       await grantBadge("momentum");
     if (doneToday >= 5   && !unlocked.has("speed_runner"))   await grantBadge("speed_runner");
     if (doneCount >= 10  && !unlocked.has("focused_finish")) await grantBadge("focused_finish");
     if (doneCount >= 25  && !unlocked.has("task_titan"))     await grantBadge("task_titan");
     if (doneCount >= 100 && !unlocked.has("legend"))         await grantBadge("legend");
-
-    // Timing badges (triggered on assignment completion)
     if (context && context.trigger === "assignment") {
       if (hour < 8  && !unlocked.has("early_bird"))       await grantBadge("early_bird");
       if (hour >= 0 && hour < 3 && !unlocked.has("night_owl")) await grantBadge("night_owl");
-      // Weekend warrior — count done on weekend days (rough: use doneCount proxy)
       if ((dow === 0 || dow === 6) && !unlocked.has("weekend_warrior")) {
-        // We grant this after 5 weekend completions — approximate with doneCount
         var wkRes = await sb.from("assignments").select("id,updated_at").eq("user_id", currentUser.id).eq("status","done");
         if (!wkRes.error) {
-          var wkCount = (wkRes.data || []).filter(function(a) {
-            if (!a.updated_at) return false;
-            var d = new Date(a.updated_at).getDay();
-            return d === 0 || d === 6;
-          }).length;
+          var wkCount = (wkRes.data || []).filter(function(a) { if (!a.updated_at) return false; var d = new Date(a.updated_at).getDay(); return d === 0 || d === 6; }).length;
           if (wkCount >= 5) await grantBadge("weekend_warrior");
         }
       }
     }
-
-    // --- Streaks ---
     if (streak >= 5  && !unlocked.has("on_fire"))          await grantBadge("on_fire");
     if (streak >= 10 && !unlocked.has("relentless"))        await grantBadge("relentless");
     if (streak >= 30 && !unlocked.has("unstoppable"))       await grantBadge("unstoppable");
     if (streak >= 60 && !unlocked.has("semester_ironman"))  await grantBadge("semester_ironman");
-
-    // --- Habits ---
-    // routine_builder, consistency_king, discipline_mode: checked in toggleHabit based on habit streak
     var habRes = await sb.from("habits").select("id",{count:"exact",head:true}).eq("user_id", currentUser.id);
     if (!habRes.error && habRes.count >= 5 && !unlocked.has("habit_garden")) await grantBadge("habit_garden");
-
-    // --- Setup ---
     if (semesters.length >= 1 && !unlocked.has("semester_architect")) await grantBadge("semester_architect");
     if (courses.length >= 1   && !unlocked.has("course_starter"))     await grantBadge("course_starter");
     if (assignments.length >= 20 && !unlocked.has("planner_mode"))    await grantBadge("planner_mode");
-
-    // Full Load: 5 courses in one semester
     if (!unlocked.has("full_load") && activeSemester) {
       var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
       if (semCourses.length >= 5) await grantBadge("full_load");
     }
-
-    // Organized Mind: 10 assignments with notes
     if (!unlocked.has("organized_mind")) {
       var withNotes = assignments.filter(function(a) { return a.notes && a.notes.trim().length > 0; }).length;
       if (withNotes >= 10) await grantBadge("organized_mind");
     }
-
-    // Course Master: all assignments done in any course
     if (!unlocked.has("course_master")) {
       var completedCourses = 0;
       courses.forEach(function(c) {
@@ -1969,21 +1550,13 @@ async function evaluateBadges(context) {
       if (completedCourses >= 1) await grantBadge("course_master");
       if (completedCourses >= 2 && !unlocked.has("double_major")) await grantBadge("double_major");
     }
-
-    // Final Boss: all assignments in semester done
     if (!unlocked.has("final_boss") && activeSemester) {
-      var semA = assignments.filter(function(a) {
-        var c = courses.find(function(c2) { return c2.id === a.course_id; });
-        return c && c.semester_id === activeSemester.id;
-      });
+      var semA = assignments.filter(function(a) { var c = courses.find(function(c2) { return c2.id === a.course_id; }); return c && c.semester_id === activeSemester.id; });
       if (semA.length > 0 && semA.every(function(a) { return a.status === "done"; })) await grantBadge("final_boss");
     }
-
-    // --- Milestones (level) ---
     if (levelIdx >= 2  && !unlocked.has("level_up"))    await grantBadge("level_up");
     if (levelIdx >= 5  && !unlocked.has("scholar"))     await grantBadge("scholar");
     if (levelIdx >= 7  && !unlocked.has("grandmaster")) await grantBadge("grandmaster");
-
   } catch(err) { console.warn("evaluateBadges:", err); }
 }
 
@@ -1991,7 +1564,6 @@ async function awardXP(assignment) {
   try {
     var stats = await ensureStats();
     var xpGain = XP_VALUES[assignment.type] || 20;
-    // Bonus XP for grade
     if (assignment.marks_received != null && assignment.total_marks > 0) {
       var pct = assignment.marks_received / assignment.total_marks * 100;
       if (pct >= 90) xpGain += XP_GRADE_A;
@@ -2011,19 +1583,18 @@ async function awardXP(assignment) {
     var upRes = await sb.from("user_stats").update(updates).eq("user_id", currentUser.id);
     if (upRes.error) throw upRes.error;
     userStats = Object.assign({}, stats, updates);
-    // Toast: XP gain
     var msg = "+" + xpGain + " XP";
     if (newLevel.name !== oldLevel.name) {
       applyLevelPalette(newXP);
       setTimeout(function() {
-        showBadgeToast({ icon: newLevel.icon, name: "Level Up! " + newLevel.name, desc: "You reached " + newLevel.name + " · " + newXP + " XP total" });
+        // RC2: getLevelIconSvg for level up toast
+        showBadgeToast({ icon: getLevelIconSvg(newLevel.icon), name: "Level Up! " + newLevel.name, desc: "You reached " + newLevel.name + " · " + newXP + " XP total" });
       }, 500);
       if (activeTab === "dashboard") renderDashboard();
     } else if (newStreak > 1) {
       msg += " · " + newStreak + " day streak! 🔥";
     }
     showToast(msg, "success");
-    // Evaluate badges after XP settled
     evaluateBadges({ trigger: "assignment", data: { assignment: assignment } });
   } catch(err) { console.warn("XP error:", err); }
 }
@@ -2054,7 +1625,6 @@ async function deductXP(assignment) {
   } catch(err) { console.warn("XP deduct error:", err); }
 }
 
-// ===== CONFETTI =====
 function launchConfetti() {
   var colors = ["#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4","#ef4444"];
   for (var i = 0; i < 30; i++) {
@@ -2076,9 +1646,7 @@ function launchConfetti() {
   }
 }
 
-// ===== RENDER CALENDAR =====
 var calDragId = null;
-
 function renderCalendar() {
   var ca = document.getElementById("content-area");
   var semA = getSemAssignments();
@@ -2086,31 +1654,21 @@ function renderCalendar() {
   var month = calViewDate.getMonth();
   var firstDay = new Date(year, month, 1).getDay();
   var daysInMonth = new Date(year, month + 1, 0).getDate();
-  var today = new Date();
-  today.setHours(0,0,0,0);
+  var today = new Date(); today.setHours(0,0,0,0);
   var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-  var html = '<div class="fade-in">';
-  html += '<div class="cal-header">';
+  var html = '<div class="fade-in"><div class="cal-header">';
   html += '<button class="cal-nav" onclick="calNav(-1)">◀</button>';
   html += '<div class="cal-month">' + monthNames[month] + ' ' + year + '</div>';
   html += '<button class="cal-nav" onclick="calNav(1)">▶</button>';
   html += '<button class="btn btn-ghost btn-sm" onclick="calToday()">Today</button>';
   html += '<button class="btn btn-ghost btn-sm" onclick="openIcalModal()" style="margin-left:auto">📅 Import Calendar</button>';
-  html += '</div>';
-  html += '<div class="cal-grid">';
-  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) {
-    html += '<div class="cal-dow">' + d + '</div>';
-  });
-
-  // blank cells before first day
+  html += '</div><div class="cal-grid">';
+  ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) { html += '<div class="cal-dow">' + d + '</div>'; });
   for (var i = 0; i < firstDay; i++) {
     html += '<div class="cal-day other-month"><div class="cal-day-num">' + (new Date(year, month, -firstDay + i + 1).getDate()) + '</div></div>';
   }
-
   for (var day = 1; day <= daysInMonth; day++) {
-    var d = new Date(year, month, day);
-    d.setHours(0,0,0,0);
+    var d = new Date(year, month, day); d.setHours(0,0,0,0);
     var isToday = d.getTime() === today.getTime();
     var dateStr = year + "-" + String(month+1).padStart(2,"0") + "-" + String(day).padStart(2,"0");
     var dayAssigns = semA.filter(function(a) { return a.due_date === dateStr; });
@@ -2118,8 +1676,7 @@ function renderCalendar() {
     html += '<div class="cal-day-num">' + day + '</div>';
     var shown = 0;
     dayAssigns.forEach(function(a) {
-      if (shown >= 3) return;
-      shown++;
+      if (shown >= 3) return; shown++;
       var course = getCourseById(a.course_id);
       var color = (course && course.color) || "#6c47ff";
       var isDone = a.status === "done";
@@ -2128,70 +1685,38 @@ function renderCalendar() {
     if (dayAssigns.length > 3) html += '<div class="cal-more">+' + (dayAssigns.length-3) + ' more</div>';
     html += '</div>';
   }
-
-  // trailing blank cells
   var total = firstDay + daysInMonth;
   var trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
-  for (var t = 1; t <= trailing; t++) {
-    html += '<div class="cal-day other-month"><div class="cal-day-num">' + t + '</div></div>';
-  }
-
+  for (var t = 1; t <= trailing; t++) { html += '<div class="cal-day other-month"><div class="cal-day-num">' + t + '</div></div>'; }
   html += '</div></div>';
   ca.innerHTML = html;
 }
 
-window.calNav = function(dir) {
-  calViewDate.setMonth(calViewDate.getMonth() + dir);
-  renderCalendar();
-};
-window.calToday = function() {
-  calViewDate = new Date();
-  renderCalendar();
-};
-window.calDragStart = function(e, id) {
-  calDragId = id;
-  e.dataTransfer.effectAllowed = "move";
-  e.target.style.opacity = "0.4";
-};
-window.calDragOver = function(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "move";
-  var cell = e.currentTarget;
-  if (!cell.classList.contains("other-month")) {
-    cell.classList.add("cal-drop-target");
-  }
-};
-window.calDragLeave = function(e) {
-  e.currentTarget.classList.remove("cal-drop-target");
-};
+window.calNav = function(dir) { calViewDate.setMonth(calViewDate.getMonth() + dir); renderCalendar(); };
+window.calToday = function() { calViewDate = new Date(); renderCalendar(); };
+window.calDragStart = function(e, id) { calDragId = id; e.dataTransfer.effectAllowed = "move"; e.target.style.opacity = "0.4"; };
+window.calDragOver = function(e) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; var cell = e.currentTarget; if (!cell.classList.contains("other-month")) { cell.classList.add("cal-drop-target"); } };
+window.calDragLeave = function(e) { e.currentTarget.classList.remove("cal-drop-target"); };
 window.calDrop = async function(e, dateStr) {
   e.preventDefault();
   e.currentTarget.classList.remove("cal-drop-target");
   if (!calDragId) return;
-  var id = calDragId;
-  calDragId = null;
+  var id = calDragId; calDragId = null;
   var a = assignments.find(function(x) { return x.id === id; });
   if (!a || a.due_date === dateStr) return;
   try {
     var res = await sb.from("assignments").update({ due_date: dateStr }).eq("id", id);
     if (res.error) throw res.error;
-    a.due_date = dateStr;
-    renderCalendar();
-    showToast("Moved to " + formatDate(dateStr) + " ✅", "success");
-  } catch(err) {
-    showToast(err.message, "error");
-    renderCalendar();
-  }
+    a.due_date = dateStr; renderCalendar(); showToast("Moved to " + formatDate(dateStr) + " ✅", "success");
+  } catch(err) { showToast(err.message, "error"); renderCalendar(); }
 };
 
-// ===== RENDER GANTT =====
 function renderGantt() {
   var ca = document.getElementById("content-area");
   if (!activeSemester || !activeSemester.start_date || !activeSemester.end_date) {
-    ca.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">Set semester dates</div><div class="empty-sub">Add start and end dates to your semester to see the timeline view.</div></div>';
+    ca.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="none" style="color:var(--accent);opacity:.4"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2 7.5h16" stroke="currentColor" stroke-width="1.2" opacity=".45"/><rect x="4" y="10" width="6" height="2" rx="1" fill="currentColor" opacity=".25"/></svg></div><div class="empty-title">Set semester dates</div><div class="empty-sub">Add start and end dates to your semester to see the timeline view.</div></div>';
     return;
   }
-
   var start = new Date(activeSemester.start_date + "T00:00:00");
   var end = new Date(activeSemester.end_date + "T00:00:00");
   var totalDays = Math.ceil((end - start) / 86400000) + 1;
@@ -2199,25 +1724,15 @@ function renderGantt() {
   var semA = getSemAssignments();
   var today = new Date(); today.setHours(0,0,0,0);
   var todayOffset = Math.ceil((today - start) / 86400000);
-
-  // Build week columns
   var weeks = [];
-  var weekMs = 7 * 86400000;
   var numWeeks = Math.ceil(totalDays / 7);
-  for (var w = 0; w < numWeeks; w++) {
-    var wStart = new Date(start.getTime() + w * weekMs);
-    weeks.push("W" + (w+1));
-  }
-
-  var html = '<div class="fade-in"><div class="gantt-wrap">';
-  html += '<table class="gantt-table"><thead><tr class="gantt-header-row">';
-  html += '<th class="gantt-name-col">Assignment</th>';
+  for (var w = 0; w < numWeeks; w++) { weeks.push("W" + (w+1)); }
+  var html = '<div class="fade-in"><div class="gantt-wrap"><table class="gantt-table"><thead><tr class="gantt-header-row"><th class="gantt-name-col">Assignment</th>';
   weeks.forEach(function(w, i) {
     var isTodayWeek = todayOffset >= i*7 && todayOffset < (i+1)*7;
     html += '<th class="gantt-week-col' + (isTodayWeek ? " gantt-today-line" : "") + '">' + w + '</th>';
   });
   html += '</tr></thead><tbody>';
-
   semCourses.forEach(function(course) {
     var cAssigns = semA.filter(function(a) { return a.course_id === course.id; });
     if (cAssigns.length === 0) return;
@@ -2226,38 +1741,27 @@ function renderGantt() {
       if (!a.due_date) return;
       var dueDate = new Date(a.due_date + "T00:00:00");
       var dayOffset = Math.ceil((dueDate - start) / 86400000);
-      var weekIndex = Math.floor(dayOffset / 7);
-      weekIndex = Math.max(0, Math.min(numWeeks-1, weekIndex));
-      html += '<tr class="gantt-row">';
-      html += '<td style="font-size:.78rem;font-weight:700;padding-left:16px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">';
-      html += '<span class="a-type-tag type-' + (a.type||"assignment") + '" style="margin-right:4px">' + (TYPE_EMOJI[a.type]||"📝") + '</span>' + esc(a.title);
-      html += '</td>';
+      var weekIndex = Math.max(0, Math.min(numWeeks-1, Math.floor(dayOffset / 7)));
+      html += '<tr class="gantt-row"><td style="font-size:.78rem;font-weight:700;padding-left:16px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span class="a-type-tag type-' + (a.type||"assignment") + '" style="margin-right:4px">' + (TYPE_EMOJI[a.type]||TYPE_EMOJI.assignment) + '</span>' + esc(a.title) + '</td>';
       weeks.forEach(function(w, i) {
         if (i === weekIndex) {
           var color = a.status === "done" ? "#22c55e" : (course.color || "#6c47ff");
-          html += '<td class="gantt-bar-cell" onclick="openEditAssignment(\'' + a.id + '\')">';
-          html += '<div class="gantt-bar" style="background:' + color + ';width:85%;margin:0 auto" title="' + esc(a.title) + '"></div>';
-          html += '</td>';
-        } else {
-          html += '<td></td>';
-        }
+          html += '<td class="gantt-bar-cell" onclick="openEditAssignment(\'' + a.id + '\')"><div class="gantt-bar" style="background:' + color + ';width:85%;margin:0 auto" title="' + esc(a.title) + '"></div></td>';
+        } else { html += '<td></td>'; }
       });
       html += '</tr>';
     });
   });
-
   html += '</tbody></table></div></div>';
   ca.innerHTML = html;
 }
 
-// ===== RENDER COURSES TAB =====
 function renderCoursesTab() {
   var ca = document.getElementById("content-area");
   var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
   var html = '<div class="fade-in">';
-
   if (semCourses.length === 0) {
-    html += '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">No courses yet</div><div class="empty-sub">Add your courses for this semester to start tracking assignments.</div></div>';
+    html += '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="none" style="color:var(--accent);opacity:.4"><rect x="2" y="2" width="10" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><rect x="6" y="5" width="10" height="13" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".4"/></svg></div><div class="empty-title">No courses yet</div><div class="empty-sub">Add your courses for this semester to start tracking assignments.</div></div>';
     html += '<div style="text-align:center;margin-top:12px"><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
   } else {
     html += '<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
@@ -2267,21 +1771,12 @@ function renderCoursesTab() {
       var cdone = cA.filter(function(a) { return a.status === "done"; }).length;
       var coverdue = cA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; }).length;
       var cpct = cA.length > 0 ? Math.round(cdone / cA.length * 100) : 0;
-      html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--card-shadow)">';
-      html += '<div style="height:6px;background:' + (course.color||"#6c47ff") + '"></div>';
-      html += '<div style="padding:16px">';
-      html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">';
-      html += '<div><div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3)">' + esc(course.code) + '</div>';
-      html += '<div style="font-size:.95rem;font-weight:800;margin-top:2px">' + esc(course.name) + '</div></div>';
-      html += '<div style="display:flex;gap:4px">';
-      html += '<button class="btn btn-ghost btn-sm" onclick="openEditCourse(null,\'' + course.id + '\')">✏️</button>';
-      html += '<button class="btn btn-ghost btn-sm" onclick="openDeleteCourse(null,\'' + course.id + '\')">🗑</button>';
-      html += '</div></div>';
+      html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--card-shadow)"><div style="height:6px;background:' + (course.color||"#6c47ff") + '"></div><div style="padding:16px">';
+      html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px"><div><div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3)">' + esc(course.code) + '</div><div style="font-size:.95rem;font-weight:800;margin-top:2px">' + esc(course.name) + '</div></div>';
+      html += '<div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" onclick="openEditCourse(null,\'' + course.id + '\')">✏️</button><button class="btn btn-ghost btn-sm" onclick="openDeleteCourse(null,\'' + course.id + '\')">🗑</button></div></div>';
       if (course.instructor) html += '<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px;font-weight:600">👤 ' + esc(course.instructor) + (course.credits ? ' · ' + course.credits + ' credits' : '') + '</div>';
       if (course.notes) html += '<div style="font-size:.73rem;color:var(--text4);margin-bottom:8px">📍 ' + esc(course.notes) + '</div>';
-      html += '<div style="display:flex;gap:10px;font-size:.75rem;font-weight:700;margin-bottom:10px">';
-      html += '<span style="color:var(--green)">✅ ' + cdone + ' done</span>';
-      html += '<span style="color:var(--text3)">📝 ' + cA.length + ' total</span>';
+      html += '<div style="display:flex;gap:10px;font-size:.75rem;font-weight:700;margin-bottom:10px"><span style="color:var(--green)">✅ ' + cdone + ' done</span><span style="color:var(--text3)">📝 ' + cA.length + ' total</span>';
       if (coverdue > 0) html += '<span style="color:var(--red)">⚠️ ' + coverdue + ' overdue</span>';
       html += '</div>';
       html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div>';
@@ -2291,19 +1786,14 @@ function renderCoursesTab() {
     });
     html += '</div>';
   }
-
   html += '</div>';
   ca.innerHTML = html;
 }
 
-// ===== SEMESTER MODAL =====
 window.openSemesterModal = function() {
   editingSemesterId = null;
   document.getElementById("sem-modal-title").textContent = "New Semester";
-  document.getElementById("sem-name").value = "";
-  document.getElementById("sem-start").value = "";
-  document.getElementById("sem-end").value = "";
-  document.getElementById("sem-gpa-goal").value = "";
+  ["sem-name","sem-start","sem-end","sem-gpa-goal"].forEach(function(id) { document.getElementById(id).value = ""; });
   document.getElementById("sem-modal").classList.add("open");
 };
 window.openEditSemester = function(semId) {
@@ -2317,31 +1807,23 @@ window.openEditSemester = function(semId) {
   document.getElementById("sem-gpa-goal").value = sem.gpa_goal || "";
   document.getElementById("sem-modal").classList.add("open");
 };
-window.closeSemModal = function() {
-  document.getElementById("sem-modal").classList.remove("open");
-};
+window.closeSemModal = function() { document.getElementById("sem-modal").classList.remove("open"); };
 window.saveSemester = async function() {
   var name = document.getElementById("sem-name").value.trim();
-  var startDate = document.getElementById("sem-start").value;
-  var endDate = document.getElementById("sem-end").value;
-  var gpaGoal = document.getElementById("sem-gpa-goal").value;
   if (!name) { showToast("Semester name is required", "error"); return; }
   try {
     var payload = {
       name: name,
-      start_date: startDate || null,
-      end_date: endDate || null,
-      gpa_goal: gpaGoal ? parseFloat(gpaGoal) : null,
+      start_date: document.getElementById("sem-start").value || null,
+      end_date: document.getElementById("sem-end").value || null,
+      gpa_goal: document.getElementById("sem-gpa-goal").value ? parseFloat(document.getElementById("sem-gpa-goal").value) : null,
       user_id: currentUser.id
     };
     var colors = ["#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4"];
     if (!editingSemesterId) payload.color = colors[semesters.length % colors.length];
-    var res;
-    if (editingSemesterId) {
-      res = await sb.from("semesters").update(payload).eq("id", editingSemesterId).select().single();
-    } else {
-      res = await sb.from("semesters").insert(payload).select().single();
-    }
+    var res = editingSemesterId
+      ? await sb.from("semesters").update(payload).eq("id", editingSemesterId).select().single()
+      : await sb.from("semesters").insert(payload).select().single();
     if (res.error) throw res.error;
     closeSemModal();
     await loadAll();
@@ -2356,7 +1838,6 @@ window.saveSemester = async function() {
   } catch (err) { showToast(err.message, "error"); }
 };
 
-// ===== COURSE MODAL =====
 var currentCourseColorPick = COURSE_COLORS[0];
 var currentCourseSemesterId = null;
 
@@ -2365,11 +1846,7 @@ window.openAddCourseModal = function(e, semId) {
   editingCourseId = null;
   currentCourseSemesterId = semId || (activeSemester ? activeSemester.id : null);
   document.getElementById("course-modal-title").textContent = "New Course";
-  document.getElementById("c-code").value = "";
-  document.getElementById("c-name").value = "";
-  document.getElementById("c-instructor").value = "";
-  document.getElementById("c-credits").value = "";
-  document.getElementById("c-notes").value = "";
+  ["c-code","c-name","c-instructor","c-credits","c-notes"].forEach(function(id) { document.getElementById(id).value = ""; });
   currentCourseColorPick = COURSE_COLORS[courses.length % COURSE_COLORS.length];
   renderColorSwatches();
   document.getElementById("course-modal").classList.add("open");
@@ -2401,9 +1878,7 @@ function renderColorSwatches() {
     el.appendChild(div);
   });
 }
-window.closeCourseModal = function() {
-  document.getElementById("course-modal").classList.remove("open");
-};
+window.closeCourseModal = function() { document.getElementById("course-modal").classList.remove("open"); };
 window.saveCourse = async function() {
   var code = document.getElementById("c-code").value.trim().toUpperCase();
   var name = document.getElementById("c-name").value.trim();
@@ -2418,15 +1893,11 @@ window.saveCourse = async function() {
       semester_id: currentCourseSemesterId,
       user_id: currentUser.id
     };
-    var res;
-    if (editingCourseId) {
-      res = await sb.from("courses").update(payload).eq("id", editingCourseId).select().single();
-    } else {
-      res = await sb.from("courses").insert(payload).select().single();
-    }
+    var res = editingCourseId
+      ? await sb.from("courses").update(payload).eq("id", editingCourseId).select().single()
+      : await sb.from("courses").insert(payload).select().single();
     if (res.error) throw res.error;
-    closeCourseModal();
-    await loadAll();
+    closeCourseModal(); await loadAll();
     showToast(editingCourseId ? "Course updated!" : "Course added! 📚", "success");
     if (!editingCourseId) evaluateBadges({ trigger: "course" });
   } catch (err) { showToast(err.message, "error"); }
@@ -2441,26 +1912,20 @@ window.openDeleteCourse = function(e, courseId) {
       var res = await sb.from("courses").delete().eq("id", courseId);
       if (res.error) throw res.error;
       if (activeCourse && activeCourse.id === courseId) { activeCourse = null; showTab("courses"); }
-      await loadAll();
-      showToast("Course deleted.");
+      await loadAll(); showToast("Course deleted.");
     } catch (err) { showToast(err.message, "error"); }
   });
 };
 
-// ===== ASSIGNMENT MODAL =====
 window.openAddAssignmentModal = function() {
   editingAssignmentId = null;
   document.getElementById("assign-modal-title").textContent = "New Assignment";
-  document.getElementById("a-title").value = "";
-  document.getElementById("a-due").value = "";
+  ["a-title","a-due","a-notes"].forEach(function(id) { document.getElementById(id).value = ""; });
   document.getElementById("a-type").value = "assignment";
   document.getElementById("a-priority").value = "med";
   document.getElementById("a-status").value = "todo";
-  document.getElementById("a-weight").value = "";
-  document.getElementById("a-total-marks").value = "";
-  document.getElementById("a-marks-received").value = "";
+  ["a-weight","a-total-marks","a-marks-received"].forEach(function(id) { document.getElementById(id).value = ""; });
   document.getElementById("a-grade-calc").innerHTML = "";
-  document.getElementById("a-notes").value = "";
   document.getElementById("assign-delete-btn").style.display = "none";
   populateCourseDropdown(activeCourse ? activeCourse.id : "");
   document.getElementById("assign-modal").classList.add("open");
@@ -2492,10 +1957,7 @@ function populateCourseDropdown(selected) {
     sel.innerHTML += '<option value="' + c.id + '"' + (c.id === selected ? " selected" : "") + '>' + esc(c.code) + ' — ' + esc(c.name) + '</option>';
   });
 }
-window.closeAssignModal = function() {
-  document.getElementById("assign-modal").classList.remove("open");
-};
-
+window.closeAssignModal = function() { document.getElementById("assign-modal").classList.remove("open"); };
 window.updateGradeCalc = function() {
   var marks = parseFloat(document.getElementById("a-marks-received").value);
   var total = parseFloat(document.getElementById("a-total-marks").value);
@@ -2506,32 +1968,18 @@ window.updateGradeCalc = function() {
     var pct = Math.round(marks / total * 100);
     var contribution = (!isNaN(weight) && weight > 0) ? (marks / total * weight).toFixed(1) : null;
     var color = pct >= 80 ? "var(--green)" : pct >= 60 ? "var(--amber)" : "var(--red)";
-    el.innerHTML = '<div style="background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;width:100%">'
-      + '<div style="font-size:1.1rem;font-weight:900;color:' + color + '">' + pct + '%</div>'
-      + (contribution ? '<div style="font-size:.7rem;color:var(--text3);font-weight:700">Contributes ' + contribution + '% to course</div>' : '')
-      + '</div>';
-  } else {
-    el.innerHTML = "";
-  }
+    el.innerHTML = '<div style="background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;width:100%"><div style="font-size:1.1rem;font-weight:900;color:' + color + '">' + pct + '%</div>' + (contribution ? '<div style="font-size:.7rem;color:var(--text3);font-weight:700">Contributes ' + contribution + '% to course</div>' : '') + '</div>';
+  } else { el.innerHTML = ""; }
 };
-
 function calculateCourseGrade(courseId) {
   var courseAssignments = assignments.filter(function(a) {
     return a.course_id === courseId && a.marks_received != null && a.total_marks != null && a.total_marks > 0 && a.weight != null && a.weight > 0;
   });
   if (courseAssignments.length === 0) return null;
-  var totalWeight = 0;
-  var weightedScore = 0;
-  courseAssignments.forEach(function(a) {
-    var pct = a.marks_received / a.total_marks;
-    weightedScore += pct * a.weight;
-    totalWeight += a.weight;
-  });
+  var totalWeight = 0, weightedScore = 0;
+  courseAssignments.forEach(function(a) { var pct = a.marks_received / a.total_marks; weightedScore += pct * a.weight; totalWeight += a.weight; });
   if (totalWeight === 0) return null;
-  return {
-    grade: Math.round(weightedScore / totalWeight * 100),
-    weightCovered: Math.round(totalWeight)
-  };
+  return { grade: Math.round(weightedScore / totalWeight * 100), weightCovered: Math.round(totalWeight) };
 }
 window.saveAssignment = async function() {
   var title = document.getElementById("a-title").value.trim();
@@ -2540,8 +1988,7 @@ window.saveAssignment = async function() {
   if (!courseId) { showToast("Please select a course", "error"); return; }
   try {
     var payload = {
-      title: title,
-      course_id: courseId,
+      title: title, course_id: courseId,
       type: document.getElementById("a-type").value,
       due_date: document.getElementById("a-due").value || null,
       priority: document.getElementById("a-priority").value,
@@ -2555,21 +2002,13 @@ window.saveAssignment = async function() {
     if (wVal) payload.weight = parseFloat(wVal);
     if (tmVal) payload.total_marks = parseFloat(tmVal);
     if (mrVal) payload.marks_received = parseFloat(mrVal);
-    var res;
-    if (editingAssignmentId) {
-      res = await sb.from("assignments").update(payload).eq("id", editingAssignmentId).select().single();
-    } else {
-      res = await sb.from("assignments").insert(payload).select().single();
-    }
+    var res = editingAssignmentId
+      ? await sb.from("assignments").update(payload).eq("id", editingAssignmentId).select().single()
+      : await sb.from("assignments").insert(payload).select().single();
     if (res.error) throw res.error;
-    closeAssignModal();
-    await loadAll();
-    renderActiveTab();
+    closeAssignModal(); await loadAll(); renderActiveTab();
     showToast(editingAssignmentId ? "Updated!" : "Assignment added! ✅", "success");
-  } catch (err) {
-    console.error("saveAssignment error:", err);
-    showToast(err.message || JSON.stringify(err), "error");
-  }
+  } catch (err) { console.error("saveAssignment error:", err); showToast(err.message || JSON.stringify(err), "error"); }
 };
 window.deleteAssignment = function() {
   if (!editingAssignmentId) return;
@@ -2578,30 +2017,22 @@ window.deleteAssignment = function() {
     try {
       var res = await sb.from("assignments").delete().eq("id", editingAssignmentId);
       if (res.error) throw res.error;
-      closeAssignModal();
-      await loadAll();
-      renderActiveTab();
-      showToast("Assignment deleted.");
+      closeAssignModal(); await loadAll(); renderActiveTab(); showToast("Assignment deleted.");
     } catch (err) { showToast(err.message, "error"); }
   });
 };
 
-// ===== MODAL BACKDROP CLOSE =====
 window.addEventListener("DOMContentLoaded", function() {
   ["sem-modal","course-modal","assign-modal","habit-modal","avatar-modal"].forEach(function(id) {
     var el = document.getElementById(id);
     if (!el) return;
-    el.addEventListener("click", function(e) {
-      if (e.target === el) {
-        el.classList.remove("open");
-      }
-    });
+    el.addEventListener("click", function(e) { if (e.target === el) { el.classList.remove("open"); } });
   });
   var overlay = document.getElementById("confirm-overlay");
   if (overlay) overlay.addEventListener("click", function(e) { if (e.target === this) closeConfirm(); });
 });
 
-// ===== HABITS =====
+
 var HABIT_COLORS = ["#6c47ff","#ec4899","#f59e0b","#10b981","#3b82f6","#ef4444","#8b5cf6","#06b6d4","#f97316","#84cc16"];
 
 function renderHabits() {
@@ -2610,51 +2041,35 @@ function renderHabits() {
   var completedToday = habitLogs.map(function(l) { return l.habit_id; });
   var totalDone = completedToday.length;
   var totalHabits = habits.length;
-
   var html = '<div class="fade-in">';
-
-  // Header with progress
   html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">';
-  html += '<div>';
-  html += '<h2 style="font-size:1.3rem;font-weight:900;margin:0">Daily Habits</h2>';
-  html += '<div style="font-size:.8rem;color:var(--text3);font-weight:600;margin-top:2px">' + new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}) + '</div>';
-  html += '</div>';
-  html += '<button class="btn btn-primary btn-sm" onclick="openAddHabitModal()">＋ New Habit</button>';
-  html += '</div>';
-
+  html += '<div><h2 style="font-size:1.3rem;font-weight:900;margin:0">Daily Habits</h2>';
+  html += '<div style="font-size:.8rem;color:var(--text3);font-weight:600;margin-top:2px">' + new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}) + '</div></div>';
+  html += '<button class="btn btn-primary btn-sm" onclick="openAddHabitModal()">＋ New Habit</button></div>';
   if (totalHabits > 0) {
-    // Progress bar
     var pct = totalHabits > 0 ? Math.round(totalDone / totalHabits * 100) : 0;
     var allDone = totalDone === totalHabits && totalHabits > 0;
     html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
     html += '<span style="font-size:.85rem;font-weight:700;color:var(--text2)">' + (allDone ? "🎉 All done for today!" : totalDone + " of " + totalHabits + " completed") + '</span>';
-    html += '<span style="font-size:1rem;font-weight:900;color:var(--accent)">' + pct + '%</span>';
-    html += '</div>';
-    html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + pct + '%;background:' + (allDone ? "var(--green)" : "var(--accent)") + '"></div></div>';
-    html += '</div>';
-
-    // Habit list
+    html += '<span style="font-size:1rem;font-weight:900;color:var(--accent)">' + pct + '%</span></div>';
+    html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + pct + '%;background:' + (allDone ? "var(--green)" : "var(--accent)") + '"></div></div></div>';
     html += '<div style="display:flex;flex-direction:column;gap:10px">';
     habits.forEach(function(h) {
       var done = completedToday.indexOf(h.id) > -1;
       var color = h.color || "#6c47ff";
       var icon = h.icon || "⭐";
       html += '<div style="background:var(--bg2);border:1.5px solid ' + (done ? color : "var(--border)") + ';border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--card-shadow);transition:border-color .2s;' + (done ? "opacity:.75" : "") + '">';
-      // Checkbox or Start button depending on duration
       var hasTimer = h.duration_minutes && h.duration_minutes > 0;
       var isRunning = _timerHabitId === h.id;
       if (done) {
         html += '<div style="width:28px;height:28px;border-radius:50%;border:2.5px solid ' + color + ';background:' + color + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer" onclick="toggleHabit(event,\'' + h.id + '\')">';
-        html += '<span style="color:#fff;font-size:.85rem;font-weight:900">✓</span>';
-        html += '</div>';
+        html += '<span style="color:#fff;font-size:.85rem;font-weight:900">✓</span></div>';
       } else if (hasTimer && !done) {
         html += '<button onclick="startHabitTimer(\'' + h.id + '\')" style="flex-shrink:0;padding:5px 10px;border-radius:20px;border:2px solid ' + color + ';background:' + (isRunning ? color : "transparent") + ';color:' + (isRunning ? "#fff" : color) + ';font-size:.72rem;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">' + (isRunning ? "⏱ Running" : "▶ Start") + '</button>';
       } else {
-        html += '<div onclick="toggleHabit(event,\'' + h.id + '\')" style="width:28px;height:28px;border-radius:50%;border:2.5px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s">';
-        html += '</div>';
+        html += '<div onclick="toggleHabit(event,\'' + h.id + '\')" style="width:28px;height:28px;border-radius:50%;border:2.5px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s"></div>';
       }
-      // Icon + name
       html += '<div style="font-size:1.4rem;flex-shrink:0">' + icon + '</div>';
       html += '<div style="flex:1;min-width:0">';
       html += '<div style="font-size:.95rem;font-weight:800;' + (done ? "text-decoration:line-through;color:var(--text3)" : "color:var(--text1)") + '">' + esc(h.name) + '</div>';
@@ -2662,19 +2077,16 @@ function renderHabits() {
       html += '<div style="font-size:.72rem;color:' + color + ';font-weight:700;margin-top:3px;opacity:.8" id="streak-' + h.id + '">...</div>';
       if (h.duration_minutes) html += '<div style="font-size:.68rem;color:var(--text3);font-weight:600;margin-top:1px">⏱ ' + h.duration_minutes + ' min session</div>';
       html += '</div>';
-      // Edit button
       html += '<button onclick="openEditHabitModal(\'' + h.id + '\')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:.8rem;padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'none\'">Edit</button>';
       html += '</div>';
     });
     html += '</div>';
   } else {
-    html += '<div class="empty-state"><div class="empty-icon">🔥</div><div class="empty-title">No habits yet</div><div class="empty-sub">Build daily study habits to stay on track and earn XP!</div></div>';
+    // RC2: SVG empty state for habits
+    html += '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="none" style="color:var(--accent);opacity:.4"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 3.3 0 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" stroke="currentColor" stroke-width="1.3"/></svg></div><div class="empty-title">No habits yet</div><div class="empty-sub">Build daily study habits to stay on track and earn XP!</div></div>';
   }
-
   html += '</div>';
   ca.innerHTML = html;
-
-  // Load streaks async after render
   habits.forEach(function(h) { loadHabitStreak(h.id); });
 }
 
@@ -2683,9 +2095,7 @@ async function loadHabitStreak(habitId) {
     var res = await sb.from("habit_logs").select("completed_date").eq("habit_id", habitId).order("completed_date", { ascending: false }).limit(60);
     var logs = (res && res.data) ? res.data.map(function(l) { return l.completed_date; }) : [];
     var streak = 0;
-    var d = new Date();
-    d.setHours(0,0,0,0);
-    // Check from today or yesterday
+    var d = new Date(); d.setHours(0,0,0,0);
     var todayStr = localDateStr(d);
     var checkDate = new Date(d);
     if (logs.indexOf(todayStr) === -1) checkDate.setDate(checkDate.getDate() - 1);
@@ -2706,10 +2116,8 @@ window.toggleHabit = async function(e, habitId) {
   var isDone = idx > -1;
   try {
     if (isDone) {
-      // Un-complete
       await sb.from("habit_logs").delete().eq("habit_id", habitId).eq("completed_date", today);
       habitLogs.splice(idx, 1);
-      // Deduct XP
       if (userStats) {
         var newXP = Math.max(0, (userStats.xp || 0) - 10);
         await sb.from("user_stats").update({ xp: newXP }).eq("user_id", currentUser.id);
@@ -2717,11 +2125,9 @@ window.toggleHabit = async function(e, habitId) {
         showToast("-10 XP");
       }
     } else {
-      // Complete
       var res = await sb.from("habit_logs").insert({ habit_id: habitId, completed_date: today, user_id: currentUser.id }).select().single();
       if (res.error) throw res.error;
       habitLogs.push(res.data);
-      // Award XP
       try { await awardHabitXP(habitId); } catch(xe) {}
     }
     renderHabits();
@@ -2742,10 +2148,10 @@ async function awardHabitXP(habitId) {
   await sb.from("user_stats").update({ xp: newXP, streak: newStreak, last_completion_date: today }).eq("user_id", currentUser.id);
   userStats = Object.assign({}, stats, { xp: newXP, streak: newStreak, last_completion_date: today });
   var msg = "+10 XP";
-  if (newLevel.name !== oldLevel.name) msg += " · Level up! " + newLevel.icon + " " + newLevel.name;
+  // RC2: getLevelIconSvg for level up message
+  if (newLevel.name !== oldLevel.name) msg += " · Level up! " + getLevelIconSvg(newLevel.icon) + " " + newLevel.name;
   else if (newStreak > 1) msg += " · " + newStreak + " day streak! 🔥";
   showToast(msg, "success");
-  // Check habit streak badges for this specific habit
   try {
     var logRes = await sb.from("habit_logs").select("completed_date").eq("habit_id", habitId).order("completed_date", {ascending: false}).limit(31);
     if (!logRes.error && logRes.data) {
@@ -2766,7 +2172,6 @@ async function awardHabitXP(habitId) {
   evaluateBadges({ trigger: "habit" });
 }
 
-// Habit modal
 var HABIT_ICONS = [
   "🧘","🏃","📖","✍️","💧","🥗","😴","🧠","🎵","🌿",
   "🌅","🙏","💪","🎯","📝","🌊","🔥","⭐","💡","🎨",
@@ -2786,11 +2191,9 @@ function populateHabitIconPicker(selected) {
     btn.onclick = function() {
       document.getElementById("h-icon").value = icon;
       document.querySelectorAll("#h-icon-picker button").forEach(function(b) {
-        b.style.borderColor = "var(--border)";
-        b.style.background = "var(--bg3)";
+        b.style.borderColor = "var(--border)"; b.style.background = "var(--bg3)";
       });
-      btn.style.borderColor = "var(--accent)";
-      btn.style.background = "var(--accent-bg)";
+      btn.style.borderColor = "var(--accent)"; btn.style.background = "var(--accent-bg)";
     };
     el.appendChild(btn);
   });
@@ -2847,9 +2250,7 @@ window.openEditHabitModal = function(id) {
   document.getElementById("habit-modal").classList.add("open");
 };
 
-window.closeHabitModal = function() {
-  document.getElementById("habit-modal").classList.remove("open");
-};
+window.closeHabitModal = function() { document.getElementById("habit-modal").classList.remove("open"); };
 
 window.saveHabit = async function() {
   var name = document.getElementById("h-name").value.trim();
@@ -2859,9 +2260,9 @@ window.saveHabit = async function() {
   var color = colorEl ? colorEl.getAttribute("data-color") : "#6c47ff";
   try {
     var notes = document.getElementById("h-notes").value.trim() || null;
-  var durVal = document.getElementById("h-duration").value;
-  var duration_minutes = durVal ? parseInt(durVal) : null;
-  var payload = { name: name, icon: icon, color: color, notes: notes, duration_minutes: duration_minutes };
+    var durVal = document.getElementById("h-duration").value;
+    var duration_minutes = durVal ? parseInt(durVal) : null;
+    var payload = { name: name, icon: icon, color: color, notes: notes, duration_minutes: duration_minutes };
     var res;
     if (editingHabitId) {
       res = await sb.from("habits").update(payload).eq("id", editingHabitId).select().single();
@@ -2871,7 +2272,6 @@ window.saveHabit = async function() {
     }
     if (res.error) throw res.error;
     closeHabitModal();
-    var today = localDateStr();
     var habitsRes = await sb.from("habits").select("*").eq("user_id", currentUser.id).order("created_at");
     habits = (habitsRes && habitsRes.data) ? habitsRes.data : [];
     renderHabits();
@@ -2894,58 +2294,36 @@ window.deleteHabit = function() {
   });
 };
 
-
-
-
-
-// ===== AVATAR =====
 function buildAvatarHtml(initial, size, fontSize) {
-  size = size || 52;
-  fontSize = fontSize || Math.round(size * 0.42);
+  size = size || 52; fontSize = fontSize || Math.round(size * 0.42);
   var xp = (userStats && userStats.xp) || 0;
   var level = getLevel(xp);
-  // Gradient tied to current level theme
-  var gradients = {
-    default:  "linear-gradient(135deg,#6c47ff,#ec4899)",
-    ocean:    "linear-gradient(135deg,#0ea5e9,#6c47ff)",
-    sakura:   "linear-gradient(135deg,#e11d78,#f97316)",
-    forest:   "linear-gradient(135deg,#16a34a,#0ea5e9)",
-    midnight: "linear-gradient(135deg,#4f46e5,#ec4899)",
-    ember:    "linear-gradient(135deg,#ea580c,#f59e0b)",
-    gold:     "linear-gradient(135deg,#b45309,#ea580c)"
-  };
+  var gradients = { default:"linear-gradient(135deg,#6c47ff,#ec4899)", ocean:"linear-gradient(135deg,#0ea5e9,#6c47ff)", sakura:"linear-gradient(135deg,#e11d78,#f97316)", forest:"linear-gradient(135deg,#16a34a,#0ea5e9)", midnight:"linear-gradient(135deg,#4f46e5,#ec4899)", ember:"linear-gradient(135deg,#ea580c,#f59e0b)", gold:"linear-gradient(135deg,#b45309,#ea580c)" };
   var grad = gradients[level.theme || "default"] || gradients.default;
-  return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + grad + ';display:flex;align-items:center;justify-content:center;font-size:' + fontSize + 'px;font-weight:900;color:#fff;letter-spacing:-1px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.2)">'
-    + (initial || "?").toUpperCase()
-    + '</div>';
+  return '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + grad + ';display:flex;align-items:center;justify-content:center;font-size:' + fontSize + 'px;font-weight:900;color:#fff;letter-spacing:-1px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.2)">' + (initial || "?").toUpperCase() + '</div>';
 }
 
-// ===== HABIT TIMER =====
 var _timerHabitId = null;
 var _timerInterval = null;
 var _timerSecondsLeft = 0;
 var _timerTotalSeconds = 0;
 var _timerPaused = false;
-var _timerEndTime = null;   // wall-clock time when timer should finish
-var _timerPausedAt = null;  // wall-clock time when paused
+var _timerEndTime = null;
+var _timerPausedAt = null;
 
 function playChime() {
   try {
     var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // Singing bowl — layered sine waves with slow decay
     [[220, 0.5], [440, 0.3], [660, 0.15], [880, 0.08]].forEach(function(pair) {
       var freq = pair[0], gain = pair[1];
-      var osc = ctx.createOscillator();
-      var env = ctx.createGain();
+      var osc = ctx.createOscillator(); var env = ctx.createGain();
       osc.type = "sine";
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
       env.gain.setValueAtTime(0, ctx.currentTime);
       env.gain.linearRampToValueAtTime(gain, ctx.currentTime + 0.05);
       env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.5);
-      osc.connect(env);
-      env.connect(ctx.destination);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 3.5);
+      osc.connect(env); env.connect(ctx.destination);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 3.5);
     });
   } catch(e) {}
 }
@@ -2961,11 +2339,9 @@ function updateTimerWidget() {
   if (dispEl) dispEl.textContent = display;
   if (statusEl) statusEl.textContent = _timerPaused ? "Paused" : "Focus";
   if (pauseBtn) pauseBtn.textContent = _timerPaused ? "▶ Resume" : "⏸ Pause";
-  // Ring: 263.9 = 2π × 42
   if (ringEl && _timerTotalSeconds > 0) {
     var progress = _timerSecondsLeft / _timerTotalSeconds;
     ringEl.style.strokeDashoffset = 263.9 * (1 - progress);
-    // Colour shift: green → amber → red as time runs out
     ringEl.style.stroke = progress > 0.5 ? "var(--accent)" : progress > 0.25 ? "var(--amber)" : "var(--red)";
   }
 }
@@ -2973,19 +2349,12 @@ function updateTimerWidget() {
 window.startHabitTimer = function(habitId) {
   var h = habits.find(function(x) { return x.id === habitId; });
   if (!h || !h.duration_minutes) return;
-  // If already running this habit, just show widget
-  if (_timerHabitId === habitId && _timerInterval) {
-    document.getElementById("habit-timer-widget").style.display = "block";
-    return;
-  }
-  // Cancel any existing timer
+  if (_timerHabitId === habitId && _timerInterval) { document.getElementById("habit-timer-widget").style.display = "block"; return; }
   if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
   _timerHabitId = habitId;
   _timerTotalSeconds = h.duration_minutes * 60;
   _timerSecondsLeft = _timerTotalSeconds;
-  _timerPaused = false;
-  _timerPausedAt = null;
-  // Populate widget
+  _timerPaused = false; _timerPausedAt = null;
   var nameEl = document.getElementById("timer-habit-name");
   var iconEl = document.getElementById("timer-habit-icon");
   if (nameEl) nameEl.textContent = h.name;
@@ -2994,58 +2363,38 @@ window.startHabitTimer = function(habitId) {
   if (ringEl) ringEl.style.stroke = "var(--accent)";
   document.getElementById("habit-timer-widget").style.display = "block";
   updateTimerWidget();
-  // Re-render habits so button shows "Running"
   if (activeTab === "habits") renderHabits();
   _timerEndTime = Date.now() + _timerTotalSeconds * 1000;
   _timerInterval = setInterval(function() {
     if (_timerPaused) return;
-    // Recalculate from wall clock — survives background/minimize
     var remaining = Math.max(0, Math.round((_timerEndTime - Date.now()) / 1000));
     _timerSecondsLeft = remaining;
     updateTimerWidget();
-    if (remaining <= 0) {
-      clearInterval(_timerInterval);
-      _timerInterval = null;
-      completeHabitTimer();
-    }
-  }, 500); // Poll every 500ms so we catch the exact second reliably
+    if (remaining <= 0) { clearInterval(_timerInterval); _timerInterval = null; completeHabitTimer(); }
+  }, 500);
 };
 
 window.toggleHabitTimer = function() {
   if (!_timerPaused) {
-    // Pausing — record how much time is left
-    _timerPaused = true;
-    _timerPausedAt = Date.now();
+    _timerPaused = true; _timerPausedAt = Date.now();
   } else {
-    // Resuming — shift end time forward by how long we were paused
     _timerPaused = false;
-    if (_timerPausedAt) {
-      var pausedDuration = Date.now() - _timerPausedAt;
-      _timerEndTime += pausedDuration;
-      _timerPausedAt = null;
-    }
+    if (_timerPausedAt) { _timerEndTime += Date.now() - _timerPausedAt; _timerPausedAt = null; }
   }
   updateTimerWidget();
 };
 
-// Re-sync timer when app returns to foreground (mobile background fix)
 document.addEventListener("visibilitychange", function() {
   if (!document.hidden && _timerInterval && !_timerPaused && _timerEndTime) {
     var remaining = Math.max(0, Math.round((_timerEndTime - Date.now()) / 1000));
-    _timerSecondsLeft = remaining;
-    updateTimerWidget();
-    if (remaining <= 0) {
-      clearInterval(_timerInterval);
-      _timerInterval = null;
-      completeHabitTimer();
-    }
+    _timerSecondsLeft = remaining; updateTimerWidget();
+    if (remaining <= 0) { clearInterval(_timerInterval); _timerInterval = null; completeHabitTimer(); }
   }
 });
 
 window.cancelHabitTimer = function() {
   if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
-  _timerHabitId = null;
-  _timerPaused = false;
+  _timerHabitId = null; _timerPaused = false;
   document.getElementById("habit-timer-widget").style.display = "none";
   if (activeTab === "habits") renderHabits();
 };
@@ -3057,52 +2406,38 @@ window.skipHabitTimer = function() {
 
 async function completeHabitTimer() {
   var habitId = _timerHabitId;
-  _timerHabitId = null;
-  _timerPaused = false;
-  // Hide widget with a brief flash
+  _timerHabitId = null; _timerPaused = false;
   var widget = document.getElementById("habit-timer-widget");
   if (widget) {
-    widget.style.transition = "opacity .4s";
-    widget.style.opacity = "0";
-    setTimeout(function() {
-      widget.style.display = "none";
-      widget.style.opacity = "1";
-      widget.style.transition = "";
-    }, 400);
+    widget.style.transition = "opacity .4s"; widget.style.opacity = "0";
+    setTimeout(function() { widget.style.display = "none"; widget.style.opacity = "1"; widget.style.transition = ""; }, 400);
   }
-  // Play chime
-  playChime();
-  // Confetti
-  launchConfetti();
-  // Mark habit as done (reuse toggleHabit logic but directly)
+  playChime(); launchConfetti();
   var already = habitLogs.findIndex(function(l) { return l.habit_id === habitId; });
   if (already === -1) {
     try {
       var today = localDateStr();
       var res = await sb.from("habit_logs").insert({ habit_id: habitId, completed_date: today, user_id: currentUser.id }).select().single();
-      if (!res.error) {
-        habitLogs.push(res.data);
-        await awardHabitXP(habitId);
-      }
+      if (!res.error) { habitLogs.push(res.data); await awardHabitXP(habitId); }
     } catch(e) { console.warn("timer complete:", e); }
   }
   showToast("Session complete! 🎉 Great work!", "success");
   if (activeTab === "habits") renderHabits();
 }
 
-// ===== AUTH BOOT =====
+// ===== AUTH BOOT (RC2: semstr localStorage keys) =====
 async function applySession(user) {
   currentUser = user || null;
   if (currentUser) {
     document.getElementById("auth-screen").style.display = "none";
     document.getElementById("app-screen").style.display = "block";
-    var savedTheme = localStorage.getItem("celio-campus-theme") || "light";
+    var savedTheme = localStorage.getItem("semstr-theme") || "light";  // RC2
     document.documentElement.setAttribute("data-theme", savedTheme);
     document.querySelector(".theme-btn").textContent = savedTheme === "dark" ? "☀" : "🌙";
-    var savedPalette = localStorage.getItem("celio-campus-palette") || "";
+    var savedPalette = localStorage.getItem("semstr-palette") || "";  // RC2
     if (savedPalette) document.documentElement.setAttribute("data-palette", savedPalette);
     else document.documentElement.removeAttribute("data-palette");
-    if (localStorage.getItem("celio-campus-sb-collapsed") === "1") {
+    if (localStorage.getItem("semstr-sb-collapsed") === "1") {  // RC2
       document.getElementById("sidebar").classList.add("collapsed");
     }
     await loadAll();
@@ -3122,22 +2457,19 @@ async function applySession(user) {
   }
 }
 
-// Boot: manually check for existing session on page load
 (async function boot() {
   try {
     var r = await sb.auth.getSession();
     var user = r && r.data && r.data.session && r.data.session.user ? r.data.session.user : null;
     await applySession(user);
-  } catch(e) {
-    await applySession(null);
-  }
+  } catch(e) { await applySession(null); }
 })();
 
 })();
 </script>
 
-
 <!-- FLOATING HABIT TIMER -->
+
 <div id="habit-timer-widget" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.2);width:220px;font-family:inherit">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div style="display:flex;align-items:center;gap:8px">
@@ -3146,7 +2478,6 @@ async function applySession(user) {
     </div>
     <button onclick="cancelHabitTimer()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:1.1rem;padding:2px 5px;border-radius:6px;line-height:1" title="Cancel">✕</button>
   </div>
-  <!-- SVG ring progress -->
   <div style="display:flex;justify-content:center;margin-bottom:12px;position:relative">
     <svg width="100" height="100" style="transform:rotate(-90deg)">
       <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="7"/>
