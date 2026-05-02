@@ -159,6 +159,25 @@ input, select, textarea { font-family: inherit; }
 .stat-sub { font-size: .72rem; color: var(--text3); margin-top: 4px; font-weight: 600; }
 .section-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .section-title::after { content: ""; flex: 1; height: 1.5px; background: var(--border); }
+.today-grid { display: grid; grid-template-columns: minmax(260px, 1.4fr) minmax(220px, .8fr); gap: 12px; margin-bottom: 18px; }
+.today-panel { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--card-shadow); }
+.today-panel-title { font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 10px; display:flex; align-items:center; gap:7px; }
+.today-focus-list { display: flex; flex-direction: column; gap: 7px; }
+.today-focus-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; background:var(--bg3); border:1px solid var(--border2); cursor:pointer; transition:all .15s; }
+.today-focus-item:hover { border-color:var(--accent); transform:translateX(2px); }
+.today-focus-icon { width:28px; height:28px; flex:0 0 28px; display:flex; align-items:center; justify-content:center; }
+.today-focus-title { font-size:.82rem; font-weight:800; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.today-focus-meta { font-size:.68rem; color:var(--text3); font-weight:700; margin-top:1px; }
+.today-mini-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.today-mini { background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px; text-align:center; }
+.today-mini-value { font-size:1.35rem; font-weight:900; line-height:1; }
+.today-mini-label { font-size:.62rem; font-weight:900; text-transform:uppercase; letter-spacing:.6px; color:var(--text3); margin-top:5px; }
+.student-warning-card { background:linear-gradient(135deg,var(--amber-bg),var(--bg2)); border:1.5px solid rgba(245,158,11,.45); border-radius:var(--radius); padding:14px 16px; margin-bottom:18px; box-shadow:var(--card-shadow); display:flex; gap:12px; align-items:flex-start; }
+.student-warning-card strong { color:var(--amber); }
+.student-warning-icon { width:34px; height:34px; border-radius:11px; flex:0 0 34px; background:rgba(245,158,11,.14); color:var(--amber); display:flex; align-items:center; justify-content:center; }
+.student-warning-title { font-size:.84rem; font-weight:900; color:var(--text); margin-bottom:2px; }
+.student-warning-text { font-size:.76rem; font-weight:650; color:var(--text3); line-height:1.45; }
+@media (max-width: 850px) { .today-grid { grid-template-columns:1fr; } .today-mini-grid { grid-template-columns:repeat(3,1fr); } }
 .countdown-grid { display: flex; flex-direction: column; gap: 8px; }
 .countdown-item { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--card-shadow); cursor: pointer; transition: all .15s; }
 .countdown-item:hover { border-color: var(--accent); transform: translateX(2px); }
@@ -1051,8 +1070,8 @@ function daysUntil(dateStr) {
 function getDueBadge(days, status) {
   if (status === "done") return { cls: "badge-done", text: "Done" };
   if (days === null) return { cls: "badge-upcoming", text: "No date" };
-  if (days < 0) return { cls: "badge-overdue", text: Math.abs(days) + "d overdue" };
-  if (days === 0) return { cls: "badge-today", text: "Due today!" };
+  if (days < 0) return { cls: "badge-overdue", text: "Needs attention" };
+  if (days === 0) return { cls: "badge-today", text: "Due today" };
   if (days <= 3) return { cls: "badge-soon", text: "In " + days + "d" };
   return { cls: "badge-upcoming", text: "In " + days + "d" };
 }
@@ -1221,11 +1240,59 @@ function renderDashboard() {
   function statIcon(name, color) {
     return '<div style="width:44px;height:44px;border-radius:12px;background:' + color + '22;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + color + '"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><use href="#ci-' + name + '"></use></svg></div>';
   }
+  var completedTodayHabits = habitLogs ? habitLogs.length : 0;
+  var totalHabits = habits ? habits.length : 0;
+  var dueTodayItems = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) === 0; })
+    .sort(function(a,b) { return (a.title||"").localeCompare(b.title||""); });
+  var attentionItems = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; })
+    .sort(function(a,b) { return (daysUntil(a.due_date)||0) - (daysUntil(b.due_date)||0); });
+  var soonItems = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d > 0 && d <= 3; })
+    .sort(function(a,b) { return (daysUntil(a.due_date)||99) - (daysUntil(b.due_date)||99); });
+  var todayFocusItems = attentionItems.concat(dueTodayItems).concat(soonItems).filter(function(a, i, arr) {
+    return arr.findIndex(function(x) { return x.id === a.id; }) === i;
+  }).slice(0, 4);
+  var weekLoad = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d >= 0 && d <= 7; }).length;
+
+  html += '<div class="section-title">Today</div>';
+  html += '<div class="today-grid">';
+  html += '<div class="today-panel"><div class="today-panel-title"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".75"/></svg> Next best actions</div>';
+  if (todayFocusItems.length > 0) {
+    html += '<div class="today-focus-list">';
+    todayFocusItems.forEach(function(a) {
+      var course = getCourseById(a.course_id);
+      var days = daysUntil(a.due_date);
+      var badge = getDueBadge(days, a.status);
+      var typeIcon = COUNTDOWN_ICON[a.type] || COUNTDOWN_ICON.assignment;
+      var timing = days < 0 ? 'Needs attention' : (days === 0 ? 'Due today' : 'Due in ' + days + 'd');
+      html += '<div class="today-focus-item" onclick="openEditAssignment(\'' + a.id + '\')">';
+      html += '<div class="today-focus-icon">' + typeIcon + '</div>';
+      html += '<div style="flex:1;min-width:0"><div class="today-focus-title">' + esc(a.title) + '</div><div class="today-focus-meta">' + (course ? esc(course.code) + ' · ' : '') + timing + '</div></div>';
+      html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<div style="padding:14px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text3);font-size:.82rem;font-weight:700;line-height:1.5">No urgent academic items today. Good time to plan ahead or maintain your core habits.</div>';
+  }
+  html += '</div>';
+  html += '<div class="today-panel"><div class="today-panel-title"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4" opacity=".75"/><path d="M6.5 10l2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Daily check-in</div>';
+  html += '<div class="today-mini-grid">';
+  html += '<div class="today-mini"><div class="today-mini-value" style="color:var(--red)">' + attentionItems.length + '</div><div class="today-mini-label">Attention</div></div>';
+  html += '<div class="today-mini"><div class="today-mini-value" style="color:var(--amber)">' + dueTodayItems.length + '</div><div class="today-mini-label">Today</div></div>';
+  html += '<div class="today-mini"><div class="today-mini-value" style="color:var(--green)">' + completedTodayHabits + '/' + totalHabits + '</div><div class="today-mini-label">Habits</div></div>';
+  html += '</div>';
+  html += '<div style="font-size:.74rem;color:var(--text3);font-weight:650;line-height:1.45;margin-top:12px">Aim for one academic action and one stabilizing habit before the day gets away from you.</div>';
+  html += '</div></div>';
+
+  if (weekLoad >= 4) {
+    html += '<div class="student-warning-card"><div class="student-warning-icon"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 3L2 17h16L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 8.5v4M10 14.8v.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div><div><div class="student-warning-title">Heavy week ahead</div><div class="student-warning-text">You have <strong>' + weekLoad + '</strong> active items due in the next 7 days. Pick one to start today, even if it is only a short first pass.</div></div></div>';
+  }
+
   html += '<div class="stat-grid">';
   html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')">' + statIcon('total','var(--accent)') + '<div style="flex:1"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div></div>';
   html += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')">' + statIcon('done','var(--green)') + '<div style="flex:1"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div></div>';
-  html += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Overdue</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">need attention</div></div></div>';
-  html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div></div>';
+  html += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Needs Attention</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">review soon</div></div></div>';
+  html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">planned for today</div></div></div>';
   html += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('week','var(--pink)') + '<div style="flex:1"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div></div>';
   html += '</div>';
 
@@ -1248,7 +1315,7 @@ function renderDashboard() {
   }).slice(0, 10);
 
   if (combined.length > 0) {
-    html += '<div class="section-title">Upcoming & Overdue</div><div class="countdown-grid">';
+    html += '<div class="section-title">Upcoming & Needs Attention</div><div class="countdown-grid">';
     combined.forEach(function(a) {
       var course = getCourseById(a.course_id);
       var days = daysUntil(a.due_date);
@@ -1329,7 +1396,7 @@ function renderAssignments() {
   }
   html += '<div class="filter-bar">';
   ["all","todo","inprogress","done","overdue","upcoming"].forEach(function(f) {
-    var labels = {all:"All",todo:"To Do",inprogress:"In Progress",done:"Done",overdue:"Overdue",upcoming:"This Week"};
+    var labels = {all:"All",todo:"To Do",inprogress:"In Progress",done:"Done",overdue:"Needs Attention",upcoming:"This Week"};
     html += '<button class="filter-pill' + (assignFilter === f ? " active" : "") + '" onclick="setFilter(\'' + f + '\')">' + labels[f] + '</button>';
   });
   html += '<input class="filter-search" placeholder="Search..." value="' + esc(assignSearch) + '" oninput="setSearch(this.value)"></div>';
@@ -1830,7 +1897,7 @@ function renderCoursesTab() {
       if (course.instructor) html += '<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px;font-weight:600"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><circle cx="10" cy="6" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> ' + esc(course.instructor) + (course.credits ? ' · ' + course.credits + ' credits' : '') + '</div>';
       if (course.notes) html += '<div style="font-size:.73rem;color:var(--text4);margin-bottom:8px"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 2a5 5 0 0 1 5 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 0 1 5-5z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="7" r="1.8" fill="currentColor" opacity=".6"/></svg> ' + esc(course.notes) + '</div>';
       html += '<div style="display:flex;gap:10px;font-size:.75rem;font-weight:700;margin-bottom:10px"><span style="color:var(--green)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.3" opacity=".35"/><path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> ' + cdone + ' done</span><span style="color:var(--text3)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M13 3l4 4-9 9-5 1 1-5 9-9z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> ' + cA.length + ' total</span>';
-      if (coverdue > 0) html += '<span style="color:var(--red)"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 3L2 17h16L10 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 9v4M10 14.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> ' + coverdue + ' overdue</span>';
+      if (coverdue > 0) html += '<span style="color:var(--red)"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 3L2 17h16L10 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 9v4M10 14.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> ' + coverdue + ' needs attention</span>';
       html += '</div>';
       html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div>';
       html += '<div style="text-align:right;font-size:.7rem;font-weight:800;color:' + (course.color||"var(--accent)") + ';margin-top:4px">' + cpct + '%</div>';
