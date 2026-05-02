@@ -319,6 +319,40 @@ select.inp { cursor: pointer; }
 .rarity-uncommon { background: var(--accent-bg); color: var(--accent); }
 .rarity-rare { background: var(--accent-bg); color: var(--accent2); }
 .rarity-epic { background: linear-gradient(90deg,#c084fc,#818cf8); color: #fff; }
+
+
+/* Habit PNG icon pack */
+.habit-icon-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  border-radius: 12px;
+  pointer-events: none;
+}
+.habit-icon-tile {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  overflow: hidden;
+  background: transparent;
+}
+#h-icon-picker .habit-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+#timer-habit-icon .habit-icon-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
 </style>
 </head>
 <body>
@@ -2090,7 +2124,7 @@ function renderHabits() {
       } else {
         html += '<div onclick="toggleHabit(event,\'' + h.id + '\')" style="width:28px;height:28px;border-radius:50%;border:2.5px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s"></div>';
       }
-      html += '<div style="width:36px;height:36px;border-radius:10px;background:' + color + '22;border:1.5px solid ' + color + '44;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">' + icon + '</div>';
+      html += '<div class="habit-icon-tile">' + icon + '</div>';
       html += '<div style="flex:1;min-width:0">';
       html += '<div style="font-size:.95rem;font-weight:800;' + (done ? "text-decoration:line-through;color:var(--text3)" : "color:var(--text1)") + '">' + esc(h.name) + '</div>';
       if (h.notes) html += '<div style="font-size:.75rem;color:var(--text3);font-weight:600;margin-top:1px">' + esc(h.notes) + '</div>';
@@ -2192,38 +2226,42 @@ async function awardHabitXP(habitId) {
   evaluateBadges({ trigger: "habit" });
 }
 
+function habitIconImg(file, label) {
+  return '<img class="habit-icon-img" src="icons/habits/' + file + '" alt="' + (label || '') + '" loading="lazy">';
+}
+
 var HABIT_ICONS = {
-  "meditate": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-4 5c0-2.2 1.8-4 4-4s4 1.8 4 4v1H6V9z" fill="currentColor" opacity=".8"/><path d="M3 13h14M1 16h18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "run": '<svg viewBox="0 0 20 20" fill="none"><circle cx="13" cy="3" r="1.5" fill="currentColor"/><path d="M10 6l-2 4 3 2-1 4M10 6l3 1 2-2M8 10l-3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  "read": '<svg viewBox="0 0 20 20" fill="none"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H16v14H6.5A2.5 2.5 0 0 0 4 18.5V4.5z" stroke="currentColor" stroke-width="1.4"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H16" stroke="currentColor" stroke-width="1.4"/></svg>',
-  "write": '<svg viewBox="0 0 20 20" fill="none"><path d="M13 3l4 4-9 9-5 1 1-5 9-9z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 5l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "water": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 2s-6 6-6 10a6 6 0 0 0 12 0c0-4-6-10-6-10z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 14a3 3 0 0 0 3 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".5"/></svg>',
-  "food": '<svg viewBox="0 0 20 20" fill="none"><path d="M7 2v6a3 3 0 0 0 6 0V2M10 8v10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "sleep": '<svg viewBox="0 0 20 20" fill="none"><path d="M14 11.5A6 6 0 0 1 6.5 4c0-.4 0-.8.1-1.2A7 7 0 1 0 15.2 13c-.4.2-.8.4-1.2.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "brain": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 3C7 3 5 5 5 7.5c0 1 .4 2 1 2.7C5.4 11 5 12 5 13c0 2 1.5 3.5 3.5 4V18h3v-1c2-.5 3.5-2 3.5-4 0-1-.4-2-1-2.8.6-.7 1-1.7 1-2.7C15 5 13 3 10 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
-  "music": '<svg viewBox="0 0 20 20" fill="none"><path d="M8 15V5l9-2v10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="15" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="15" cy="13" r="2" stroke="currentColor" stroke-width="1.4"/></svg>',
-  "leaf": '<svg viewBox="0 0 20 20" fill="none"><path d="M17 3c-5 0-10 4-10 9 0 2 1.6 3.5 3.5 3.5C15 15.5 18 11 18 6c0-1.5-1-3-1-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 12c1.5-2 4-4 8-4.5M3 17l5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
-  "sunrise": '<svg viewBox="0 0 20 20" fill="none"><path d="M6 13a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 4v3M4 13h12M3 10l1.5 1.5M17 10l-1.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "gratitude": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 16s-7-4-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 17 7c0 5-7 9-7 9z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
-  "strength": '<svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M2 8h2v4H2zM16 8h2v4h-2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 6v8M14 6v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "target": '<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.3" opacity=".55"/><circle cx="10" cy="10" r="1.3" fill="currentColor"/></svg>',
-  "notes": '<svg viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 7h7M6.5 10h7M6.5 13h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".7"/></svg>',
-  "swim": '<svg viewBox="0 0 20 20" fill="none"><path d="M2 12c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M2 15c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/><circle cx="14" cy="5" r="2" stroke="currentColor" stroke-width="1.4"/></svg>',
-  "flame": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 2.1-1.4 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
-  "star": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 2l1.8 4.8H17l-4 2.9 1.5 4.8L10 11.8l-4.5 2.7 1.5-4.8L3 6.8h5.2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
-  "lightbulb": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 0 1 3.5 10.8V15H6.5v-2.2A6 6 0 0 1 10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 17h6M8 19h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "art": '<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="8" r="1.2" fill="currentColor"/><circle cx="13" cy="8" r="1.2" fill="currentColor"/><circle cx="10" cy="13" r="1.2" fill="currentColor"/></svg>',
-  "clean": '<svg viewBox="0 0 20 20" fill="none"><path d="M5 15l8-8M9 5l6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M3 17l2-2M13 3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 17h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "nophone": '<svg viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="14" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M3 3l14 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="14" r="1" fill="currentColor"/></svg>',
-  "drink": '<svg viewBox="0 0 20 20" fill="none"><path d="M6 3h8l-1 11H7L6 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5 3h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M10 14v3M8 17h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "breathe": '<svg viewBox="0 0 20 20" fill="none"><path d="M10 10V4M10 4C10 4 7 2 5 4s0 5 3 4M10 4c0 0 3-2 5 0s0 5-3 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10c-2 0-4 1.5-4 3.5S5 17 7 17h6c2 0 4-1.5 4-3.5S15 10 13 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "moon": '<svg viewBox="0 0 20 20" fill="none"><path d="M14 11.5A6 6 0 0 1 6.5 4c0-.4 0-.8.1-1.2A7 7 0 1 0 15.2 13c-.4.2-.8.4-1.2.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "sun": '<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.9 4.9l1.4 1.4M13.7 13.7l1.4 1.4M4.9 15.1l1.4-1.4M13.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  "stretch": '<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="3" r="1.5" fill="currentColor"/><path d="M10 5v5l-3 4M10 10l3 4M7 9H4M13 9h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  "books": '<svg viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="9" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="5" width="9" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4" opacity=".5"/><path d="M5 7h3M5 10h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".6"/></svg>',
-  "check": '<svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  "chat": '<svg viewBox="0 0 20 20" fill="none"><path d="M3 4h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6l-4 3V5a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
-  "walk": '<svg viewBox="0 0 20 20" fill="none"><circle cx="12" cy="3" r="1.5" fill="currentColor"/><path d="M10 6l-1 4 3 2-1 4M10 6l3 1.5M9 10l-3 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  "meditate": habitIconImg("meditate.png", "Meditate"),
+  "run": habitIconImg("run.png", "Run"),
+  "read": habitIconImg("read.png", "Read"),
+  "write": habitIconImg("write.png", "Write"),
+  "water": habitIconImg("water.png", "Water"),
+  "food": habitIconImg("food.png", "Food"),
+  "sleep": habitIconImg("sleep.png", "Sleep"),
+  "brain": habitIconImg("brain.png", "Brain"),
+  "music": habitIconImg("music.png", "Music"),
+  "leaf": habitIconImg("leaf.png", "Leaf"),
+  "sunrise": habitIconImg("sunrise.png", "Sunrise"),
+  "gratitude": habitIconImg("gratitude.png", "Gratitude"),
+  "strength": habitIconImg("strength.png", "Strength"),
+  "target": habitIconImg("target.png", "Target"),
+  "notes": habitIconImg("notes.png", "Notes"),
+  "swim": habitIconImg("swim.png", "Swim"),
+  "flame": habitIconImg("flame.png", "Flame"),
+  "star": habitIconImg("star.png", "Star"),
+  "lightbulb": habitIconImg("lightbulb.png", "Lightbulb"),
+  "art": habitIconImg("art.png", "Art"),
+  "clean": habitIconImg("clean.png", "Clean"),
+  "nophone": habitIconImg("nophone.png", "No Phone"),
+  "drink": habitIconImg("drink.png", "Drink"),
+  "breathe": habitIconImg("breathe.png", "Breathe"),
+  "moon": habitIconImg("moon.png", "Moon"),
+  "sun": habitIconImg("sun.png", "Sun"),
+  "stretch": habitIconImg("stretch.png", "Stretch"),
+  "books": habitIconImg("books.png", "Books"),
+  "check": habitIconImg("check.png", "Check"),
+  "chat": habitIconImg("chat.png", "Chat"),
+  "walk": habitIconImg("walk.png", "Walk")
 };
 
 function populateHabitIconPicker(selected) {
@@ -2236,9 +2274,7 @@ function populateHabitIconPicker(selected) {
     btn.type = "button";
     btn.title = key;
     btn.innerHTML = HABIT_ICONS[key];
-    btn.style.cssText = "width:36px;height:36px;border-radius:8px;border:2px solid " + (isSelected ? "var(--accent)" : "var(--border)") + ";background:" + (isSelected ? "var(--accent-bg)" : "var(--bg3)") + ";cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;color:var(--text2);";
-    var s = btn.querySelector("svg");
-    if (s) s.style.cssText = "width:20px;height:20px;pointer-events:none;";
+    btn.style.cssText = "width:42px;height:42px;border-radius:10px;border:2px solid " + (isSelected ? "var(--accent)" : "var(--border)") + ";background:" + (isSelected ? "var(--accent-bg)" : "var(--bg2)") + ";cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;color:var(--text2);padding:3px;overflow:hidden;";
     btn.onclick = function() {
       document.getElementById("h-icon").value = key;
       document.querySelectorAll("#h-icon-picker button").forEach(function(b) {
@@ -2409,7 +2445,7 @@ window.startHabitTimer = function(habitId) {
   var nameEl = document.getElementById("timer-habit-name");
   var iconEl = document.getElementById("timer-habit-icon");
   if (nameEl) nameEl.textContent = h.name;
-  if (iconEl) iconEl.textContent = h.icon || "⏱";
+  if (iconEl) iconEl.innerHTML = HABIT_ICONS[h.icon || "meditate"] || HABIT_ICONS["meditate"];
   var ringEl = document.getElementById("timer-ring");
   if (ringEl) ringEl.style.stroke = "var(--accent)";
   document.getElementById("habit-timer-widget").style.display = "block";
@@ -2524,7 +2560,7 @@ async function applySession(user) {
 <div id="habit-timer-widget" style="display:none;position:fixed;bottom:24px;right:24px;z-index:9998;background:var(--bg2);border:1.5px solid var(--border);border-radius:20px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.2);width:220px;font-family:inherit">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div style="display:flex;align-items:center;gap:8px">
-      <span id="timer-habit-icon" style="font-size:1.2rem">⏱</span>
+      <span id="timer-habit-icon" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:8px">⏱</span>
       <span id="timer-habit-name" style="font-size:.82rem;font-weight:800;color:var(--text);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     </div>
     <button onclick="cancelHabitTimer()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:1.1rem;padding:2px 5px;border-radius:6px;line-height:1" title="Cancel">✕</button>
