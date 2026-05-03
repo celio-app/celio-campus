@@ -284,7 +284,9 @@ input, select, textarea { font-family: inherit; }
 .inp { width: 100%; background: var(--bg3); border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text); font-size: .87rem; outline: none; font-family: inherit; transition: border-color .15s; }
 .inp:focus { border-color: var(--accent); background: var(--bg2); }
 select.inp { cursor: pointer; }
-.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.form-grid-2 > div { display: flex; flex-direction: column; }
+.form-grid-2 > div .flbl { min-height: 32px; display: flex; align-items: flex-end; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .btn { padding: 8px 16px; border-radius: 10px; font-size: .82rem; font-weight: 700; cursor: pointer; border: none; transition: all .15s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
 .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(108,71,255,.3); }
