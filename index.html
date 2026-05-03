@@ -166,7 +166,7 @@ input, select, textarea { font-family: inherit; }
 .today-panel { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--card-shadow); }
 .today-panel-title { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 12px; display:flex; align-items:center; gap:7px; }
 .today-focus-main { display:flex; flex-direction:column; gap:10px; min-width:0; }
-.today-focus-task { display:grid; grid-template-columns:38px minmax(0,1fr) auto auto; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border2); transition:border-color .15s, transform .15s; min-height:70px; }
+.today-focus-task { display:grid; grid-template-columns:38px minmax(0,1fr) auto auto 282px; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border2); transition:border-color .15s, transform .15s; min-height:70px; }
 .today-focus-task:hover { border-color:var(--accent); }
 .today-focus-task-info { min-width:0; cursor:pointer; }
 .today-focus-icon { width:38px; height:38px; flex:0 0 38px; border-radius:12px; background:var(--bg2); display:flex; align-items:center; justify-content:center; }
@@ -174,11 +174,21 @@ input, select, textarea { font-family: inherit; }
 .today-focus-meta { font-size:.74rem; color:var(--text3); font-weight:700; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .today-focus-actions { display:flex; align-items:center; gap:8px; white-space:nowrap; }
 .today-focus-actions .btn { min-height:30px; }
+.today-mini-row { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; width:282px; justify-self:end; }
+.today-mini { background:var(--bg2); border:1px solid var(--border2); border-radius:12px; padding:8px 8px; text-align:center; cursor:pointer; transition:background .15s, border-color .15s, transform .15s; min-height:54px; display:flex; flex-direction:column; justify-content:center; }
+.today-mini:hover { background:var(--accent-bg); border-color:var(--accent); transform:translateY(-1px); }
+.today-mini-value { font-size:1.05rem; font-weight:900; line-height:1; }
+.today-mini-label { font-size:.54rem; font-weight:900; text-transform:uppercase; letter-spacing:.6px; color:var(--text3); margin-top:5px; }
 .today-note { font-size:.72rem;color:var(--text3);font-weight:650;line-height:1.45;margin:0;max-width:720px; }
+@media (max-width: 1200px) {
+  .today-focus-task { grid-template-columns:38px minmax(0,1fr) auto auto; }
+  .today-mini-row { grid-column:2 / -1; width:100%; max-width:360px; justify-self:start; margin-top:2px; }
+}
 @media (max-width: 900px) {
   .today-focus-task { grid-template-columns:38px minmax(0,1fr); }
   .today-focus-actions { grid-column:2; margin-top:2px; flex-wrap:wrap; }
   .today-focus-task .countdown-badge { grid-column:2; justify-self:start; }
+  .today-mini-row { grid-column:2; width:100%; max-width:360px; }
 }
 .student-warning-card { background:linear-gradient(135deg,var(--amber-bg),var(--bg2)); border:1.5px solid rgba(245,158,11,.45); border-radius:var(--radius); padding:12px 14px; margin-bottom:14px; box-shadow:var(--card-shadow); display:flex; gap:12px; align-items:flex-start; }
 .student-warning-card strong { color:var(--amber); }
@@ -1398,6 +1408,11 @@ function renderDashboard() {
     html += '<button class="btn btn-ghost btn-sm" onclick="openEditAssignment(\'' + a.id + '\')">Edit</button>';
     html += '</div>';
     html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
+    html += '<div class="today-mini-row">';
+    html += '<div class="today-mini" title="Review items that need attention" onclick="assignFilter=\'overdue\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--red)">' + attentionItems.length + '</div><div class="today-mini-label">Review</div></div>';
+    html += '<div class="today-mini" title="View items planned for today" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--amber)">' + dueTodayItems.length + '</div><div class="today-mini-label">Today</div></div>';
+    html += '<div class="today-mini" title="Open habits" onclick="showTab(\'habits\')"><div class="today-mini-value" style="color:var(--green)">' + completedTodayHabits + '/' + totalHabits + '</div><div class="today-mini-label">Habits</div></div>';
+    html += '</div>';
     html += '</div>';
     if (todayFocusItems.length > 1) {
       html += '<div class="today-note">' + (todayFocusItems.length - 1) + ' more item' + (todayFocusItems.length - 1 === 1 ? '' : 's') + ' queued. Start with one clear action first.</div>';
