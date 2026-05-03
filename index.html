@@ -2785,8 +2785,8 @@ window.startAssignmentFocus = function(e, assignmentId) {
   if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
   _timerHabitId = null;
   _timerAssignmentId = assignmentId;
-  var minutes = parseInt(a.estimated_minutes || 25, 10);
-  if (isNaN(minutes) || minutes <= 0) minutes = 25;
+  var minutes = parseInt(a.estimated_minutes || 20, 10);
+  if (isNaN(minutes) || minutes <= 0) minutes = 20;
   minutes = Math.max(5, Math.min(180, minutes));
   _timerTotalSeconds = minutes * 60;
   _timerSecondsLeft = _timerTotalSeconds;
