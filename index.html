@@ -542,8 +542,13 @@ select.inp { cursor: pointer; }
         <div><label class="flbl">Course</label><select id="a-course" class="inp"><option value="">— Select course —</option></select></div>
         <div><label class="flbl">Type</label><select id="a-type" class="inp"><option value="assignment">Assignment</option><option value="exam">Exam</option><option value="test">Test</option><option value="quiz">Quiz</option><option value="lab">Lab</option><option value="project">Project</option></select></div>
       </div>
+      <div><label class="flbl">Next Action <span style="font-weight:500;text-transform:none;letter-spacing:0">(what is the next clear step?)</span></label><input id="a-next-action" class="inp" placeholder="e.g. Block out first pass, review rubric, upload draft"></div>
       <div class="form-grid-2">
+        <div><label class="flbl">Start Date</label><input id="a-start" class="inp" type="date"></div>
         <div><label class="flbl">Due Date</label><input id="a-due" class="inp" type="date"></div>
+      </div>
+      <div class="form-grid-2">
+        <div><label class="flbl">Estimated Time <span style="font-weight:500;text-transform:none;letter-spacing:0">(minutes)</span></label><input id="a-estimated-minutes" class="inp" type="number" min="0" step="5" placeholder="e.g. 90"></div>
         <div><label class="flbl">Priority</label><select id="a-priority" class="inp"><option value="low">Low</option><option value="med" selected>Medium</option><option value="high">High</option></select></div>
       </div>
       <div><label class="flbl">Status</label><select id="a-status" class="inp"><option value="todo">To Do</option><option value="inprogress">In Progress</option><option value="done">Done</option></select></div>
@@ -571,6 +576,7 @@ select.inp { cursor: pointer; }
     <div style="display:flex;flex-direction:column;gap:14px">
       <div><label class="flbl">Habit Name</label><input id="h-name" class="inp" placeholder="e.g. Meditate, Review notes, Exercise"></div>
       <div><label class="flbl">Description <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional)</span></label><input id="h-notes" class="inp" placeholder="e.g. 5 minutes of deep breathing"></div>
+      <div><label class="flbl">Minimum Version <span style="font-weight:500;text-transform:none;letter-spacing:0">(fallback for busy days)</span></label><input id="h-minimum-version" class="inp" placeholder="e.g. Open the file and work for 5 minutes"></div>
       <div><label class="flbl">Timer Duration <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional — minutes)</span></label><input id="h-duration" class="inp" type="number" min="1" max="120" step="1" placeholder="e.g. 25 for a focused session"></div>
       <div><label class="flbl">Icon</label><div id="h-icon-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div><input type="hidden" id="h-icon" value="meditate"></div>
       <div><label class="flbl">Colour</label><div class="color-swatches" id="h-color-picker"></div></div>
@@ -1250,9 +1256,16 @@ function renderDashboard() {
     .sort(function(a,b) { return (a.title||"").localeCompare(b.title||""); });
   var attentionItems = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; })
     .sort(function(a,b) { return (daysUntil(a.due_date)||0) - (daysUntil(b.due_date)||0); });
+  var startItems = semA.filter(function(a) {
+    var sd = daysUntil(a.start_date);
+    var dd = daysUntil(a.due_date);
+    return a.status !== "done" && sd !== null && sd <= 0 && !(dd !== null && dd < 0) && dd !== 0;
+  }).sort(function(a,b) {
+    return (daysUntil(a.start_date)||0) - (daysUntil(b.start_date)||0);
+  });
   var soonItems = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d > 0 && d <= 3; })
     .sort(function(a,b) { return (daysUntil(a.due_date)||99) - (daysUntil(b.due_date)||99); });
-  var todayFocusItems = attentionItems.concat(dueTodayItems).concat(soonItems).filter(function(a, i, arr) {
+  var todayFocusItems = attentionItems.concat(dueTodayItems).concat(startItems).concat(soonItems).filter(function(a, i, arr) {
     return arr.findIndex(function(x) { return x.id === a.id; }) === i;
   }).slice(0, 4);
   var weekLoad = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d >= 0 && d <= 7; }).length;
@@ -1279,11 +1292,18 @@ function renderDashboard() {
     var days = daysUntil(a.due_date);
     var badge = getDueBadge(days, a.status);
     var typeIcon = COUNTDOWN_ICON[a.type] || COUNTDOWN_ICON.assignment;
-    var timing = days < 0 ? 'Review soon' : (days === 0 ? 'Planned for today' : 'Due in ' + days + 'd');
+    var sd = daysUntil(a.start_date);
+    var timing = days < 0 ? 'Review soon' : (days === 0 ? 'Planned for today' : (sd !== null && sd <= 0 ? 'Ready to start' : 'Due in ' + days + 'd'));
+    var primaryText = a.next_action || a.title;
+    var metaParts = [];
+    if (course) metaParts.push(esc(course.code));
+    if (a.next_action) metaParts.push(esc(a.title));
+    metaParts.push(timing);
+    if (a.estimated_minutes) metaParts.push(a.estimated_minutes + ' min');
     html += '<div class="today-focus-list">';
     html += '<div class="today-focus-item" onclick="openEditAssignment(\'' + a.id + '\')">';
     html += '<div class="today-focus-icon">' + typeIcon + '</div>';
-    html += '<div style="flex:1;min-width:0"><div class="today-focus-title">' + esc(a.title) + '</div><div class="today-focus-meta">' + (course ? esc(course.code) + ' · ' : '') + timing + '</div></div>';
+    html += '<div style="flex:1;min-width:0"><div class="today-focus-title">' + esc(primaryText) + '</div><div class="today-focus-meta">' + metaParts.join(' · ') + '</div></div>';
     html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
     html += '</div></div>';
     if (todayFocusItems.length > 1) {
@@ -1329,7 +1349,10 @@ function renderDashboard() {
       var typeIcon = COUNTDOWN_ICON[a.type] || COUNTDOWN_ICON.assignment;
       html += '<div class="countdown-item" onclick="openEditAssignment(\'' + a.id + '\')">';
       html += '<div class="countdown-icon">' + typeIcon + '</div>';
-      html += '<div class="countdown-info"><div class="countdown-title">' + esc(a.title) + '</div><div class="countdown-meta">' + (course ? esc(course.code) + ' · ' : '') + esc(formatDate(a.due_date)) + '</div></div>';
+      var meta = (course ? esc(course.code) + ' · ' : '') + esc(formatDate(a.due_date));
+      if (a.start_date) meta += ' · Start ' + esc(formatDate(a.start_date));
+      if (a.estimated_minutes) meta += ' · ' + a.estimated_minutes + ' min';
+      html += '<div class="countdown-info"><div class="countdown-title">' + esc(a.title) + '</div><div class="countdown-meta">' + meta + '</div></div>';
       html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
       html += '</div>';
     });
@@ -1388,7 +1411,7 @@ function renderAssignments() {
   }).filter(function(a) {
     if (!assignSearch) return true;
     var q = assignSearch.toLowerCase();
-    return (a.title||"").toLowerCase().includes(q) || (a.notes||"").toLowerCase().includes(q);
+    return (a.title||"").toLowerCase().includes(q) || (a.notes||"").toLowerCase().includes(q) || (a.next_action||"").toLowerCase().includes(q);
   });
 
   var html = '<div class="fade-in">';
@@ -1427,7 +1450,7 @@ function renderAssignments() {
       var dueClass = getDueClass(days, a.status);
       var dueText = a.due_date ? formatDate(a.due_date) : "No date";
       if (days !== null && a.status !== "done") {
-        if (days < 0) dueText += " (" + Math.abs(days) + "d late)";
+        if (days < 0) dueText += " (review " + Math.abs(days) + "d)";
         else if (days === 0) dueText = "Due today!";
         else if (days === 1) dueText += " (tomorrow)";
       }
@@ -1442,7 +1465,11 @@ function renderAssignments() {
       if (course) html += '<span class="a-course-tag" style="background:' + (course.color||"#6c47ff") + '22;color:' + (course.color||"#6c47ff") + '">' + esc(course.code) + '</span>';
       html += '<span class="a-type-tag type-' + (a.type||"assignment") + '">' + (TYPE_EMOJI[a.type]||TYPE_EMOJI.assignment) + ' ' + (a.type||"assignment") + '</span>';
       if (a.weight) html += '<span style="font-size:.68rem;color:var(--text3);font-weight:700">' + a.weight + '% weight</span>';
-      html += '</div></div>';
+      if (a.estimated_minutes) html += '<span style="font-size:.68rem;color:var(--text3);font-weight:700">~' + a.estimated_minutes + ' min</span>';
+      if (a.start_date && a.status !== "done") html += '<span style="font-size:.68rem;color:var(--text3);font-weight:700">Start ' + esc(formatDate(a.start_date)) + '</span>';
+      html += '</div>';
+      if (a.next_action) html += '<div style="font-size:.73rem;color:var(--text3);font-weight:650;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Next: ' + esc(a.next_action) + '</div>';
+      html += '</div>';
       if (a.total_marks != null && a.total_marks > 0) {
         html += '<div class="a-grade-inline" onclick="event.stopPropagation()">';
         if (hasGrade) {
@@ -2056,7 +2083,7 @@ window.openDeleteCourse = function(e, courseId) {
 window.openAddAssignmentModal = function() {
   editingAssignmentId = null;
   document.getElementById("assign-modal-title").textContent = "New Assignment";
-  ["a-title","a-due","a-notes"].forEach(function(id) { document.getElementById(id).value = ""; });
+  ["a-title","a-next-action","a-start","a-due","a-estimated-minutes","a-notes"].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ""; });
   document.getElementById("a-type").value = "assignment";
   document.getElementById("a-priority").value = "med";
   document.getElementById("a-status").value = "todo";
@@ -2072,7 +2099,10 @@ window.openEditAssignment = function(id) {
   editingAssignmentId = id;
   document.getElementById("assign-modal-title").textContent = "Edit Assignment";
   document.getElementById("a-title").value = a.title || "";
+  document.getElementById("a-next-action").value = a.next_action || "";
+  document.getElementById("a-start").value = a.start_date || "";
   document.getElementById("a-due").value = a.due_date || "";
+  document.getElementById("a-estimated-minutes").value = a.estimated_minutes || "";
   document.getElementById("a-type").value = a.type || "assignment";
   document.getElementById("a-priority").value = a.priority || "med";
   document.getElementById("a-status").value = a.status || "todo";
@@ -2129,15 +2159,19 @@ window.saveAssignment = async function() {
       due_date: document.getElementById("a-due").value || null,
       priority: document.getElementById("a-priority").value,
       status: document.getElementById("a-status").value,
+      next_action: document.getElementById("a-next-action").value.trim() || null,
+      start_date: document.getElementById("a-start").value || null,
       notes: document.getElementById("a-notes").value.trim() || null
     };
     if (!editingAssignmentId) payload.user_id = currentUser.id;
     var wVal = document.getElementById("a-weight").value;
     var tmVal = document.getElementById("a-total-marks").value;
     var mrVal = document.getElementById("a-marks-received").value;
+    var estVal = document.getElementById("a-estimated-minutes").value;
     if (wVal) payload.weight = parseFloat(wVal);
     if (tmVal) payload.total_marks = parseFloat(tmVal);
     if (mrVal) payload.marks_received = parseFloat(mrVal);
+    payload.estimated_minutes = estVal ? parseInt(estVal, 10) : null;
     var res = editingAssignmentId
       ? await sb.from("assignments").update(payload).eq("id", editingAssignmentId).select().single()
       : await sb.from("assignments").insert(payload).select().single();
@@ -2211,6 +2245,7 @@ function renderHabits() {
       html += '<div style="flex:1;min-width:0">';
       html += '<div style="font-size:.95rem;font-weight:800;' + (done ? "text-decoration:line-through;color:var(--text3)" : "color:var(--text1)") + '">' + esc(h.name) + '</div>';
       if (h.notes) html += '<div style="font-size:.75rem;color:var(--text3);font-weight:600;margin-top:1px">' + esc(h.notes) + '</div>';
+      if (h.minimum_version) html += '<div style="font-size:.7rem;color:var(--text3);font-weight:650;margin-top:2px">Minimum: ' + esc(h.minimum_version) + '</div>';
       html += '<div style="font-size:.72rem;color:' + color + ';font-weight:700;margin-top:3px;opacity:.8" id="streak-' + h.id + '">...</div>';
       if (h.duration_minutes) html += '<div style="font-size:.68rem;color:var(--text3);font-weight:600;margin-top:1px">⏱ ' + h.duration_minutes + ' min session</div>';
       html += '</div>';
@@ -2397,6 +2432,7 @@ window.openAddHabitModal = function() {
   document.getElementById("habit-modal-title").textContent = "New Habit";
   document.getElementById("h-name").value = "";
   document.getElementById("h-notes").value = "";
+  document.getElementById("h-minimum-version").value = "";
   document.getElementById("h-icon").value = "meditate";
   document.getElementById("habit-delete-btn").style.display = "none";
   document.getElementById("h-duration").value = "";
@@ -2412,6 +2448,7 @@ window.openEditHabitModal = function(id) {
   document.getElementById("habit-modal-title").textContent = "Edit Habit";
   document.getElementById("h-name").value = h.name || "";
   document.getElementById("h-notes").value = h.notes || "";
+  document.getElementById("h-minimum-version").value = h.minimum_version || "";
   document.getElementById("h-icon").value = h.icon || "meditate";
   document.getElementById("h-duration").value = h.duration_minutes || "";
   populateHabitIconPicker(h.icon || "meditate");
@@ -2430,9 +2467,10 @@ window.saveHabit = async function() {
   var color = colorEl ? colorEl.getAttribute("data-color") : "#6c47ff";
   try {
     var notes = document.getElementById("h-notes").value.trim() || null;
+    var minimum_version = document.getElementById("h-minimum-version").value.trim() || null;
     var durVal = document.getElementById("h-duration").value;
-    var duration_minutes = durVal ? parseInt(durVal) : null;
-    var payload = { name: name, icon: icon, color: color, notes: notes, duration_minutes: duration_minutes };
+    var duration_minutes = durVal ? parseInt(durVal, 10) : null;
+    var payload = { name: name, icon: icon, color: color, notes: notes, minimum_version: minimum_version, duration_minutes: duration_minutes };
     var res;
     if (editingHabitId) {
       res = await sb.from("habits").update(payload).eq("id", editingHabitId).select().single();
