@@ -349,15 +349,11 @@ select.inp { cursor: pointer; }
 .color-swatch { width: 28px; height: 28px; border-radius: 7px; cursor: pointer; transition: transform .15s; border: 2px solid transparent; }
 .color-swatch:hover { transform: scale(1.15); }
 .color-swatch.selected { border-color: var(--text); }
-.badge-chip { display: inline-flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; background: var(--bg2); border: 1.5px solid var(--border); box-shadow: var(--card-shadow); transition: all .15s; }
+.badge-chip { display: inline-flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; background: var(--bg2); border: 1.5px solid var(--border); box-shadow: var(--card-shadow); transition: all .15s; }
 .badge-chip.is-earned { border-color: var(--accent); background: var(--accent-bg); }
-.badge-chip.is-locked { opacity: .42; filter: grayscale(.2); }
-.badge-chip__mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; flex: 0 0 auto; }
-.badge-chip__mark svg { width: 20px; height: 20px; }
-.badge-chip[data-rarity="common"] .badge-chip__mark { background: linear-gradient(135deg,#a98cff,#7e58ff); }
-.badge-chip[data-rarity="uncommon"] .badge-chip__mark { background: linear-gradient(135deg,#8b7cff,#5d42f2); }
-.badge-chip[data-rarity="rare"] .badge-chip__mark { background: linear-gradient(135deg,#9e74ff,#5632dd); }
-.badge-chip[data-rarity="epic"] .badge-chip__mark { background: linear-gradient(135deg,#c084fc,#4a22cc); box-shadow:0 0 12px rgba(192,132,252,.5); }
+.badge-chip.is-locked { opacity: .44; filter: grayscale(.35); }
+.badge-chip__mark { width: 52px; height: 52px; border-radius: 0; display: grid; place-items: center; flex: 0 0 52px; background: transparent; box-shadow: none; overflow: visible; }
+.badge-icon-img { width: 52px; height: 52px; object-fit: contain; display: block; pointer-events: none; }
 .badge-chip__name { font-size: .78rem; font-weight: 800; color: var(--text); line-height: 1.1; }
 .badge-chip.is-earned .badge-chip__name { color: var(--accent); }
 .badge-chip__desc { font-size: .65rem; color: var(--text3); margin-top: 2px; line-height: 1.3; }
@@ -835,6 +831,20 @@ var BADGE_DEFS = [
   { id: "deans_list",          name: "Dean's List",         desc: "Meet or exceed your GPA goal",              icon: "seal",        rarity: "rare",     xpBonus: 200, cat: "milestones" }
 ];
 var BADGES = BADGE_DEFS;
+
+var BADGE_ICON_PATH = "icons/badges/";
+function badgeIconImg(badgeId, label) {
+  return '<img class="badge-icon-img" src="' + BADGE_ICON_PATH + badgeId + '.png" alt="' + esc(label || badgeId) + '" loading="lazy">';
+}
+
+function preloadBadgeIcons() {
+  BADGE_DEFS.forEach(function(b) {
+    var img = new Image();
+    img.src = BADGE_ICON_PATH + b.id + ".png";
+  });
+}
+preloadBadgeIcons();
+
 
 var LEVEL_ICON_SVGS = {
   "shield": '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M10 2l7 3.5v4.5c0 4-3 6.5-7 8-4-1.5-7-4-7-8V5.5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
@@ -1321,7 +1331,7 @@ function renderDashboard() {
         catBadges.forEach(function(badge) {
           var earned = earnedBadgeIds.indexOf(badge.id) > -1;
           html += '<div class="badge-chip ' + (earned ? 'is-earned' : 'is-locked') + '" data-rarity="' + badge.rarity + '" title="' + esc(badge.desc) + '">';
-          html += '<div class="badge-chip__mark"><svg aria-hidden="true"><use href="#i-' + badge.icon + '"></use></svg></div>';
+          html += '<div class="badge-chip__mark">' + badgeIconImg(badge.id, badge.name) + '</div>';
           html += '<div class="badge-chip__meta">';
           html += '<div class="badge-chip__name">' + esc(badge.name) + '</div>';
           html += '<div class="badge-chip__desc">' + esc(badge.desc) + '</div>';
@@ -1776,7 +1786,7 @@ async function grantBadge(badgeId) {
       userStats.xp = newXp;
     }
     setTimeout(function() {
-      showBadgeToast({ icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M7 2h2.5l.5 3H8L7 2zm3.5 0H13l-1 3h-2l.5-3z" fill="white" opacity=".9"/><circle cx="10" cy="12" r="5" fill="white" opacity=".9"/><path d="M8.5 12.2l1 1 2-2.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>', name: bdef.name, desc: bdef.desc + " · +" + bdef.xpBonus + " XP" });
+      showBadgeToast({ id: bdef.id, name: bdef.name, desc: bdef.desc + " · +" + bdef.xpBonus + " XP" });
       if (activeTab === "dashboard") renderDashboard();
     }, 600);
   }
@@ -1910,7 +1920,8 @@ function showBadgeToast(badge) {
   if (!container) return;
   var el = document.createElement("div");
   el.style.cssText = "background:linear-gradient(135deg,#6c47ff,#ec4899);color:#fff;padding:12px 18px;border-radius:14px;box-shadow:0 6px 24px rgba(108,71,255,.4);display:flex;align-items:center;gap:10px;font-family:inherit;animation:slideIn .3s ease;max-width:280px;";
-  el.innerHTML = '<div style="font-size:1.8rem">' + badge.icon + '</div><div><div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.85">Badge Unlocked!</div><div style="font-size:.95rem;font-weight:900">' + badge.name + '</div><div style="font-size:.7rem;opacity:.8;margin-top:1px">' + badge.desc + '</div></div>';
+  var iconHtml = badge.id ? '<img src="' + BADGE_ICON_PATH + badge.id + '.png" alt="" style="width:42px;height:42px;object-fit:contain;display:block">' : (badge.icon || '');
+  el.innerHTML = '<div style="width:46px;height:46px;display:flex;align-items:center;justify-content:center;flex:0 0 46px">' + iconHtml + '</div><div><div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.85">Badge Unlocked!</div><div style="font-size:.95rem;font-weight:900">' + badge.name + '</div><div style="font-size:.7rem;opacity:.8;margin-top:1px">' + badge.desc + '</div></div>';
   container.appendChild(el);
   setTimeout(function() { el.style.opacity = "0"; el.style.transition = "opacity .4s"; setTimeout(function() { el.remove(); }, 400); }, 4000);
 }
