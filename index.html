@@ -1096,6 +1096,14 @@ window.selectCourse = function(courseId) {
   closeSidebar();
 };
 
+window.openAssignmentOverview = function() {
+  activeCourse = null;
+  assignFilter = "all";
+  assignSearch = "";
+  showTab("assignments");
+  renderSidebar();
+};
+
 window.toggleSemExpand = function(e, semId) {
   e.stopPropagation();
   uiExpanded[semId] = !uiExpanded[semId];
@@ -1386,6 +1394,10 @@ function renderDashboard() {
     html += '<div class="today-focus-icon">' + typeIcon + '</div>';
     html += '<div style="flex:1;min-width:0"><div class="today-focus-title">' + esc(primaryText) + '</div><div class="today-focus-meta">' + metaParts.join(' · ') + '</div></div>';
     html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    html += '<button class="btn btn-primary btn-sm" onclick="startAssignmentFocus(event,\'' + a.id + '\')">Start Focus</button>';
+    html += '<button class="btn btn-ghost btn-sm" onclick="openEditAssignment(\'' + a.id + '\')">Edit</button>';
     html += '</div></div>';
     if (todayFocusItems.length > 1) {
       html += '<div class="today-note">' + (todayFocusItems.length - 1) + ' more item' + (todayFocusItems.length - 1 === 1 ? '' : 's') + ' are queued. Start with one clear action before reviewing the full list.</div>';
@@ -1549,6 +1561,7 @@ function renderAssignments() {
     var ca2 = assignments.filter(function(a) { return a.course_id === course.id; });
     var cdone = ca2.filter(function(a) { return a.status === "done"; }).length;
     html += '<div class="course-stats"><div class="course-stat"><div class="course-stat-val" style="color:' + (course.color||"var(--accent)") + '">' + cdone + '/' + ca2.length + '</div><div class="course-stat-lbl">Done</div></div></div>';
+    html += '<button class="btn btn-ghost btn-sm" onclick="openAssignmentOverview()" style="margin-left:auto;align-self:center;white-space:nowrap">All assignments</button>';
     html += '</div>';
   }
   html += '<div class="filter-bar">';
@@ -2721,6 +2734,7 @@ function buildAvatarHtml(initial, size, fontSize) {
 }
 
 var _timerHabitId = null;
+var _timerAssignmentId = null;
 var _timerInterval = null;
 var _timerSecondsLeft = 0;
 var _timerTotalSeconds = 0;
@@ -2763,12 +2777,45 @@ function updateTimerWidget() {
   }
 }
 
+
+window.startAssignmentFocus = function(e, assignmentId) {
+  if (e) e.stopPropagation();
+  var a = assignments.find(function(x) { return x.id === assignmentId; });
+  if (!a) return;
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+  _timerHabitId = null;
+  _timerAssignmentId = assignmentId;
+  var minutes = parseInt(a.estimated_minutes || 25, 10);
+  if (isNaN(minutes) || minutes <= 0) minutes = 25;
+  minutes = Math.max(5, Math.min(180, minutes));
+  _timerTotalSeconds = minutes * 60;
+  _timerSecondsLeft = _timerTotalSeconds;
+  _timerPaused = false; _timerPausedAt = null;
+  var nameEl = document.getElementById("timer-habit-name");
+  var iconEl = document.getElementById("timer-habit-icon");
+  if (nameEl) nameEl.textContent = a.next_action || a.title || "Focus session";
+  if (iconEl) iconEl.innerHTML = COUNTDOWN_ICON[a.type || "assignment"] || COUNTDOWN_ICON.assignment;
+  var ringEl = document.getElementById("timer-ring");
+  if (ringEl) ringEl.style.stroke = "var(--accent)";
+  document.getElementById("habit-timer-widget").style.display = "block";
+  updateTimerWidget();
+  _timerEndTime = Date.now() + _timerTotalSeconds * 1000;
+  _timerInterval = setInterval(function() {
+    if (_timerPaused) return;
+    var remaining = Math.max(0, Math.round((_timerEndTime - Date.now()) / 1000));
+    _timerSecondsLeft = remaining;
+    updateTimerWidget();
+    if (remaining <= 0) { clearInterval(_timerInterval); _timerInterval = null; completeHabitTimer(); }
+  }, 500);
+};
+
 window.startHabitTimer = function(habitId) {
   var h = habits.find(function(x) { return x.id === habitId; });
   if (!h || !h.duration_minutes) return;
   if (_timerHabitId === habitId && _timerInterval) { document.getElementById("habit-timer-widget").style.display = "block"; return; }
   if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
   _timerHabitId = habitId;
+  _timerAssignmentId = null;
   _timerTotalSeconds = h.duration_minutes * 60;
   _timerSecondsLeft = _timerTotalSeconds;
   _timerPaused = false; _timerPausedAt = null;
@@ -2811,7 +2858,7 @@ document.addEventListener("visibilitychange", function() {
 
 window.cancelHabitTimer = function() {
   if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
-  _timerHabitId = null; _timerPaused = false;
+  _timerHabitId = null; _timerAssignmentId = null; _timerPaused = false;
   document.getElementById("habit-timer-widget").style.display = "none";
   if (activeTab === "habits") renderHabits();
 };
@@ -2823,20 +2870,25 @@ window.skipHabitTimer = function() {
 
 async function completeHabitTimer() {
   var habitId = _timerHabitId;
-  _timerHabitId = null; _timerPaused = false;
+  var assignmentId = _timerAssignmentId;
+  _timerHabitId = null; _timerAssignmentId = null; _timerPaused = false;
   var widget = document.getElementById("habit-timer-widget");
   if (widget) {
     widget.style.transition = "opacity .4s"; widget.style.opacity = "0";
     setTimeout(function() { widget.style.display = "none"; widget.style.opacity = "1"; widget.style.transition = ""; }, 400);
   }
   playChime(); launchConfetti();
-  try {
-    var habit = habits.find(function(h) { return h.id === habitId; });
-    var target = habit ? Math.max(1, Math.min(24, parseInt(habit.target_count || 1, 10) || 1)) : 1;
-    await window.setHabitCount({ stopPropagation:function(){} }, habitId, target);
-  } catch(e) { console.warn("timer complete:", e); }
-  showToast("Session complete! 🎉 Great work!", "success");
-  if (activeTab === "habits") renderHabits();
+  if (habitId) {
+    try {
+      var habit = habits.find(function(h) { return h.id === habitId; });
+      var target = habit ? Math.max(1, Math.min(24, parseInt(habit.target_count || 1, 10) || 1)) : 1;
+      await window.setHabitCount({ stopPropagation:function(){} }, habitId, target);
+    } catch(e) { console.warn("timer complete:", e); }
+    showToast("Session complete! 🎉 Great work!", "success");
+    if (activeTab === "habits") renderHabits();
+  } else if (assignmentId) {
+    showToast("Focus session complete! 🎉", "success");
+  }
 }
 
 // ===== AUTH BOOT (RC2: semstr localStorage keys) =====
