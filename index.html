@@ -71,8 +71,8 @@ input, select, textarea { font-family: inherit; }
 .app-layout { display: flex; height: 100vh; }
 .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 39; }
 .sb-overlay.show { display: block; }
-.sidebar { width: var(--sb-w); background: var(--bg2); border-right: 1.5px solid var(--border); display: flex; flex-direction: column; transition: width .22s ease; overflow: hidden; flex-shrink: 0; z-index: 40; }
-.sidebar.collapsed { width: var(--sb-col); }
+.sidebar { width: var(--sb-w); background: var(--bg2); border-right: 1.5px solid var(--border); display: flex; flex-direction: column; transition: width .22s ease; overflow: hidden; flex: 0 0 var(--sb-w); z-index: 40; will-change: width, flex-basis; }
+.sidebar.collapsed { width: var(--sb-col); flex-basis: var(--sb-col); }
 .sb-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 12px 12px; border-bottom: 1.5px solid var(--border); min-height: 56px; flex-shrink: 0; }
 .sb-logo { font-size: 1.15rem; font-weight: 900; white-space: nowrap; overflow: hidden; letter-spacing: -0.5px; }
 .sb-logo .c { color: var(--accent); }
@@ -123,7 +123,7 @@ input, select, textarea { font-family: inherit; }
 .sb-email { font-size: .72rem; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .sb-signout { background: var(--bg3); border: 1.5px solid var(--border); cursor: pointer; color: var(--text3); font-size: .72rem; padding: 5px 10px; border-radius: 7px; white-space: nowrap; font-family: inherit; font-weight: 700; transition: background .15s, color .15s; }
 .sb-signout:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
-.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.main-content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; overflow: hidden; transition: none; }
 .topbar { display: flex; align-items: center; gap: 10px; padding: 0 18px; height: 56px; border-bottom: 1.5px solid var(--border); background: var(--bg2); flex-shrink: 0; }
 .topbar-title { font-size: 1rem; font-weight: 800; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: -0.3px; }
 .topbar-pill { font-size: .68rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; background: var(--accent-bg); color: var(--accent); letter-spacing: .3px; }
@@ -173,7 +173,8 @@ input, select, textarea { font-family: inherit; }
 .today-focus-title { font-size:.82rem; font-weight:800; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .today-focus-meta { font-size:.68rem; color:var(--text3); font-weight:700; margin-top:1px; }
 .today-mini-grid { display:grid; grid-template-columns:repeat(3,88px); gap:8px; }
-.today-mini { background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px 8px; text-align:center; }
+.today-mini { background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:10px 8px; text-align:center; cursor:pointer; transition:background .15s, border-color .15s, transform .15s; }
+.today-mini:hover { background:var(--accent-bg); border-color:var(--accent); transform:translateY(-1px); }
 .today-mini-value { font-size:1.18rem; font-weight:900; line-height:1; }
 .today-mini-label { font-size:.58rem; font-weight:900; text-transform:uppercase; letter-spacing:.6px; color:var(--text3); margin-top:5px; }
 .today-note { font-size:.72rem;color:var(--text3);font-weight:650;line-height:1.45;margin-top:10px;max-width:720px; }
@@ -304,9 +305,9 @@ select.inp { cursor: pointer; }
 @keyframes confettiFall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 .confetti-piece { position: fixed; width: 10px; height: 10px; top: -20px; z-index: 9999; animation: confettiFall linear forwards; pointer-events: none; }
 @media (max-width: 768px) {
-  .sidebar { position: fixed; left: -280px; top: 0; bottom: 0; transition: left .25s ease, width .22s ease; z-index: 40; }
+  .sidebar { position: fixed; left: -280px; top: 0; bottom: 0; transition: left .25s ease, width .22s ease; z-index: 40; flex-basis: var(--sb-w); }
   .sidebar.mobile-open { left: 0; }
-  .sidebar.collapsed { width: var(--sb-w); left: -280px; }
+  .sidebar.collapsed { width: var(--sb-w); flex-basis: var(--sb-w); left: -280px; }
   .sidebar.collapsed.mobile-open { left: 0; }
   .hamburger { display: flex; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
@@ -858,8 +859,14 @@ function applyLevelPalette(xp) {
 
 window.toggleSidebar = function() {
   var sb = document.getElementById("sidebar");
+  if (!sb) return;
+  var isMobile = window.matchMedia && window.matchMedia("(max-width: 768px)").matches;
+  if (isMobile) {
+    closeSidebar();
+    return;
+  }
   sb.classList.toggle("collapsed");
-  localStorage.setItem("semstr-sb-collapsed", sb.classList.contains("collapsed") ? "1" : "0");  // RC2
+  localStorage.setItem("semstr-sb-collapsed", sb.classList.contains("collapsed") ? "1" : "0");
 };
 window.openSidebar = function() {
   var sb = document.getElementById("sidebar");
@@ -1298,9 +1305,9 @@ function renderDashboard() {
   html += '</div>';
   html += '<div>';
   html += '<div class="today-mini-grid">';
-  html += '<div class="today-mini"><div class="today-mini-value" style="color:var(--red)">' + attentionItems.length + '</div><div class="today-mini-label">Review</div></div>';
-  html += '<div class="today-mini"><div class="today-mini-value" style="color:var(--amber)">' + dueTodayItems.length + '</div><div class="today-mini-label">Today</div></div>';
-  html += '<div class="today-mini"><div class="today-mini-value" style="color:var(--green)">' + completedTodayHabits + '/' + totalHabits + '</div><div class="today-mini-label">Habits</div></div>';
+  html += '<div class="today-mini" title="Review items that need attention" onclick="assignFilter=\'overdue\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--red)">' + attentionItems.length + '</div><div class="today-mini-label">Review</div></div>';
+  html += '<div class="today-mini" title="View items planned for today" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--amber)">' + dueTodayItems.length + '</div><div class="today-mini-label">Today</div></div>';
+  html += '<div class="today-mini" title="Open habits" onclick="showTab(\'habits\')"><div class="today-mini-value" style="color:var(--green)">' + completedTodayHabits + '/' + totalHabits + '</div><div class="today-mini-label">Habits</div></div>';
   html += '</div>';
   html += '</div>';
   html += '</div></div></div>';
