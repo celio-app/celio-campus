@@ -412,6 +412,37 @@ select.inp { cursor: pointer; }
 }
 
 </style>
+<link rel="preload" as="image" href="icons/habits/meditate.png">
+<link rel="preload" as="image" href="icons/habits/run.png">
+<link rel="preload" as="image" href="icons/habits/read.png">
+<link rel="preload" as="image" href="icons/habits/write.png">
+<link rel="preload" as="image" href="icons/habits/water.png">
+<link rel="preload" as="image" href="icons/habits/food.png">
+<link rel="preload" as="image" href="icons/habits/sleep.png">
+<link rel="preload" as="image" href="icons/habits/brain.png">
+<link rel="preload" as="image" href="icons/habits/music.png">
+<link rel="preload" as="image" href="icons/habits/leaf.png">
+<link rel="preload" as="image" href="icons/habits/sunrise.png">
+<link rel="preload" as="image" href="icons/habits/gratitude.png">
+<link rel="preload" as="image" href="icons/habits/strength.png">
+<link rel="preload" as="image" href="icons/habits/target.png">
+<link rel="preload" as="image" href="icons/habits/notes.png">
+<link rel="preload" as="image" href="icons/habits/swim.png">
+<link rel="preload" as="image" href="icons/habits/flame.png">
+<link rel="preload" as="image" href="icons/habits/star.png">
+<link rel="preload" as="image" href="icons/habits/lightbulb.png">
+<link rel="preload" as="image" href="icons/habits/art.png">
+<link rel="preload" as="image" href="icons/habits/clean.png">
+<link rel="preload" as="image" href="icons/habits/nophone.png">
+<link rel="preload" as="image" href="icons/habits/drink.png">
+<link rel="preload" as="image" href="icons/habits/breathe.png">
+<link rel="preload" as="image" href="icons/habits/moon.png">
+<link rel="preload" as="image" href="icons/habits/sun.png">
+<link rel="preload" as="image" href="icons/habits/stretch.png">
+<link rel="preload" as="image" href="icons/habits/books.png">
+<link rel="preload" as="image" href="icons/habits/check.png">
+<link rel="preload" as="image" href="icons/habits/chat.png">
+<link rel="preload" as="image" href="icons/habits/walk.png">
 </head>
 <body>
 <div style="position:absolute;width:0;height:0;overflow:hidden"><svg xmlns="http://www.w3.org/2000/svg" style="display:none">
@@ -2496,6 +2527,19 @@ var HABIT_ICONS = {
   "chat": habitIconImg("chat.png", "Chat"),
   "walk": habitIconImg("walk.png", "Walk")
 };
+
+
+function preloadHabitIconImages() {
+  Object.keys(HABIT_ICONS).forEach(function(key) {
+    var match = HABIT_ICONS[key].match(/src="([^"]+)"/);
+    if (!match) return;
+    var img = new Image();
+    img.src = match[1];
+  });
+}
+preloadHabitIconImages();
+
+
 
 function populateHabitIconPicker(selected) {
   var el = document.getElementById("h-icon-picker");
