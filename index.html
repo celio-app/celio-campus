@@ -165,23 +165,21 @@ input, select, textarea { font-family: inherit; }
 .today-grid { display: block; margin-bottom: 16px; }
 .today-panel { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--card-shadow); }
 .today-panel-title { font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 12px; display:flex; align-items:center; gap:7px; }
-.today-focus-shell { display:grid; grid-template-columns:minmax(0,1fr) 276px; gap:16px; align-items:stretch; }
 .today-focus-main { display:flex; flex-direction:column; gap:10px; min-width:0; }
-.today-focus-task { display:flex; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border2); cursor:pointer; transition:border-color .15s, transform .15s; min-height:76px; }
-.today-focus-task:hover { border-color:var(--accent); transform:translateX(2px); }
+.today-focus-task { display:grid; grid-template-columns:38px minmax(0,1fr) auto auto; align-items:center; gap:12px; padding:14px; border-radius:14px; background:var(--bg3); border:1px solid var(--border2); transition:border-color .15s, transform .15s; min-height:70px; }
+.today-focus-task:hover { border-color:var(--accent); }
+.today-focus-task-info { min-width:0; cursor:pointer; }
 .today-focus-icon { width:38px; height:38px; flex:0 0 38px; border-radius:12px; background:var(--bg2); display:flex; align-items:center; justify-content:center; }
 .today-focus-title { font-size:1rem; font-weight:900; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.2; }
 .today-focus-meta { font-size:.74rem; color:var(--text3); font-weight:700; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.today-focus-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.today-focus-actions { display:flex; align-items:center; gap:8px; white-space:nowrap; }
 .today-focus-actions .btn { min-height:30px; }
-.today-focus-side { display:flex; align-items:stretch; }
-.today-mini-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; width:100%; }
-.today-mini { background:var(--bg3); border:1px solid var(--border2); border-radius:12px; padding:12px 8px; text-align:center; cursor:pointer; transition:background .15s, border-color .15s, transform .15s; min-height:76px; display:flex; flex-direction:column; justify-content:center; }
-.today-mini:hover { background:var(--accent-bg); border-color:var(--accent); transform:translateY(-1px); }
-.today-mini-value { font-size:1.28rem; font-weight:900; line-height:1; }
-.today-mini-label { font-size:.58rem; font-weight:900; text-transform:uppercase; letter-spacing:.6px; color:var(--text3); margin-top:7px; }
 .today-note { font-size:.72rem;color:var(--text3);font-weight:650;line-height:1.45;margin:0;max-width:720px; }
-@media (max-width: 900px) { .today-focus-shell { grid-template-columns:1fr; } .today-focus-side { max-width:none; } }
+@media (max-width: 900px) {
+  .today-focus-task { grid-template-columns:38px minmax(0,1fr); }
+  .today-focus-actions { grid-column:2; margin-top:2px; flex-wrap:wrap; }
+  .today-focus-task .countdown-badge { grid-column:2; justify-self:start; }
+}
 .student-warning-card { background:linear-gradient(135deg,var(--amber-bg),var(--bg2)); border:1.5px solid rgba(245,158,11,.45); border-radius:var(--radius); padding:12px 14px; margin-bottom:14px; box-shadow:var(--card-shadow); display:flex; gap:12px; align-items:flex-start; }
 .student-warning-card strong { color:var(--amber); }
 .student-warning-icon { width:32px; height:32px; border-radius:10px; flex:0 0 32px; background:rgba(245,158,11,.14); color:var(--amber); display:flex; align-items:center; justify-content:center; }
@@ -1377,7 +1375,6 @@ function renderDashboard() {
   html += '<div class="section-title">Today Focus</div>';
   html += '<div class="today-grid"><div class="today-panel">';
   html += '<div class="today-panel-title"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".75"/></svg> Next useful step</div>';
-  html += '<div class="today-focus-shell">';
   html += '<div class="today-focus-main">';
   if (todayFocusItems.length > 0) {
     var a = todayFocusItems[0];
@@ -1393,14 +1390,14 @@ function renderDashboard() {
     if (a.next_action) metaParts.push(esc(a.title));
     metaParts.push(timing);
     if (a.estimated_minutes) metaParts.push(a.estimated_minutes + ' min');
-    html += '<div class="today-focus-task" onclick="openEditAssignment(\'' + a.id + '\')">';
+    html += '<div class="today-focus-task">';
     html += '<div class="today-focus-icon">' + typeIcon + '</div>';
-    html += '<div style="flex:1;min-width:0"><div class="today-focus-title">' + esc(primaryText) + '</div><div class="today-focus-meta">' + metaParts.join(' · ') + '</div></div>';
-    html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
-    html += '</div>';
+    html += '<div class="today-focus-task-info" onclick="openEditAssignment(\'' + a.id + '\')"><div class="today-focus-title">' + esc(primaryText) + '</div><div class="today-focus-meta">' + metaParts.join(' · ') + '</div></div>';
     html += '<div class="today-focus-actions">';
     html += '<button class="btn btn-primary btn-sm" onclick="startAssignmentFocus(event,\'' + a.id + '\')">Start Focus</button>';
     html += '<button class="btn btn-ghost btn-sm" onclick="openEditAssignment(\'' + a.id + '\')">Edit</button>';
+    html += '</div>';
+    html += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
     html += '</div>';
     if (todayFocusItems.length > 1) {
       html += '<div class="today-note">' + (todayFocusItems.length - 1) + ' more item' + (todayFocusItems.length - 1 === 1 ? '' : 's') + ' queued. Start with one clear action first.</div>';
@@ -1410,14 +1407,6 @@ function renderDashboard() {
   } else {
     html += '<div style="padding:14px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text3);font-size:.82rem;font-weight:700;line-height:1.5">No urgent academic items today. Good time to plan ahead or maintain your core habits.</div>';
   }
-  html += '</div>';
-  html += '<div class="today-focus-side">';
-  html += '<div class="today-mini-grid">';
-  html += '<div class="today-mini" title="Review items that need attention" onclick="assignFilter=\'overdue\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--red)">' + attentionItems.length + '</div><div class="today-mini-label">Review</div></div>';
-  html += '<div class="today-mini" title="View items planned for today" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--amber)">' + dueTodayItems.length + '</div><div class="today-mini-label">Today</div></div>';
-  html += '<div class="today-mini" title="Open habits" onclick="showTab(\'habits\')"><div class="today-mini-value" style="color:var(--green)">' + completedTodayHabits + '/' + totalHabits + '</div><div class="today-mini-label">Habits</div></div>';
-  html += '</div>';
-  html += '</div>';
   html += '</div></div></div>';
 
   if (weekLoad >= 4) {
