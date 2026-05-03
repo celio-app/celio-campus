@@ -832,15 +832,40 @@ var BADGE_DEFS = [
 ];
 var BADGES = BADGE_DEFS;
 
-var BADGE_ICON_PATH = "icons/badges/";
+var BADGE_ICON_PATHS = [
+  "icons/badges/",
+  "./icons/badges/",
+  "badges/",
+  "./badges/",
+  "/icons/badges/"
+];
+var BADGE_ICON_PATH = BADGE_ICON_PATHS[0];
+
+function badgeIconSrc(badgeId, pathIndex) {
+  pathIndex = pathIndex || 0;
+  return BADGE_ICON_PATHS[pathIndex] + badgeId + ".png";
+}
+
+function badgeIconFallback(img) {
+  var badgeId = img.getAttribute("data-badge-id");
+  var nextIndex = parseInt(img.getAttribute("data-path-index") || "0", 10) + 1;
+  if (!badgeId || nextIndex >= BADGE_ICON_PATHS.length) {
+    console.warn("Badge icon missing:", badgeId, img.src);
+    img.style.display = "none";
+    return;
+  }
+  img.setAttribute("data-path-index", String(nextIndex));
+  img.src = badgeIconSrc(badgeId, nextIndex);
+}
+
 function badgeIconImg(badgeId, label) {
-  return '<img class="badge-icon-img" src="' + BADGE_ICON_PATH + badgeId + '.png" alt="' + esc(label || badgeId) + '" loading="lazy">';
+  return '<img class="badge-icon-img" src="' + badgeIconSrc(badgeId, 0) + '" data-badge-id="' + badgeId + '" data-path-index="0" onerror="badgeIconFallback(this)" alt="' + esc(label || badgeId) + '" loading="lazy">';
 }
 
 function preloadBadgeIcons() {
   BADGE_DEFS.forEach(function(b) {
     var img = new Image();
-    img.src = BADGE_ICON_PATH + b.id + ".png";
+    img.src = badgeIconSrc(b.id, 0);
   });
 }
 preloadBadgeIcons();
@@ -1920,7 +1945,7 @@ function showBadgeToast(badge) {
   if (!container) return;
   var el = document.createElement("div");
   el.style.cssText = "background:linear-gradient(135deg,#6c47ff,#ec4899);color:#fff;padding:12px 18px;border-radius:14px;box-shadow:0 6px 24px rgba(108,71,255,.4);display:flex;align-items:center;gap:10px;font-family:inherit;animation:slideIn .3s ease;max-width:280px;";
-  var iconHtml = badge.id ? '<img src="' + BADGE_ICON_PATH + badge.id + '.png" alt="" style="width:42px;height:42px;object-fit:contain;display:block">' : (badge.icon || '');
+  var iconHtml = badge.id ? '<img src="' + badgeIconSrc(badge.id, 0) + '" data-badge-id="' + badge.id + '" data-path-index="0" onerror="badgeIconFallback(this)" alt="" style="width:42px;height:42px;object-fit:contain;display:block">' : (badge.icon || '');
   el.innerHTML = '<div style="width:46px;height:46px;display:flex;align-items:center;justify-content:center;flex:0 0 46px">' + iconHtml + '</div><div><div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.85">Badge Unlocked!</div><div style="font-size:.95rem;font-weight:900">' + badge.name + '</div><div style="font-size:.7rem;opacity:.8;margin-top:1px">' + badge.desc + '</div></div>';
   container.appendChild(el);
   setTimeout(function() { el.style.opacity = "0"; el.style.transition = "opacity .4s"; setTimeout(function() { el.remove(); }, 400); }, 4000);
