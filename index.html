@@ -439,7 +439,7 @@ select.inp { cursor: pointer; }
 .prio-tag { font-size: .7rem; font-weight: 800; color: var(--red); background: var(--red-bg); padding: 2px 8px; border-radius: 6px; flex-shrink: 0; }
 .more-toggle { align-self: flex-start; background: none; border: none; color: var(--accent); font-family: inherit; font-size: .82rem; font-weight: 800; cursor: pointer; padding: 6px 0; }
 .a-more { display: none; flex-direction: column; gap: 12px; }
-.auth-forgot { display: block; margin: 10px auto 0; background: none; border: none; color: var(--accent); font-family: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; padding: 6px; }
+.auth-forgot { display: block; width: 100%; margin-top: 8px; padding: 6px; background: none; border: none; color: var(--text3); font-family: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
 .setup-card { display: flex; align-items: center; gap: 16px; justify-content: space-between; flex-wrap: wrap; background: var(--accent-bg); border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; }
 .setup-card-title { font-size: .95rem; font-weight: 900; color: var(--text); }
 .setup-card-text { font-size: .8rem; font-weight: 600; color: var(--text2); margin-top: 3px; max-width: 520px; line-height: 1.45; }
@@ -613,9 +613,15 @@ select.inp { cursor: pointer; }
       <div class="form-row"><label>Password</label><input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password"></div>
       <div class="form-row" id="name-row" style="display:none"><label>Display Name</label><input type="text" id="auth-name" placeholder="Your name"></div>
       <button class="btn-auth" onclick="doAuth()" id="auth-submit-btn">Sign In</button>
-      <div class="auth-msg" id="auth-msg"></div>
       <button type="button" class="auth-forgot" id="auth-forgot" onclick="doForgotPassword()">Forgot password?</button>
     </div>
+    <div id="recovery-form" style="display:none">
+      <div style="font-size:.85rem;font-weight:700;margin-bottom:10px;text-align:center">Set a new password</div>
+      <div class="form-row"><label>New password</label><input id="rp-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password"></div>
+      <div class="form-row"><label>Confirm password</label><input id="rp-pass2" type="password" placeholder="Repeat password" autocomplete="new-password"></div>
+      <button class="btn-auth" onclick="doUpdatePassword()">Save New Password</button>
+    </div>
+    <div class="auth-msg" id="auth-msg"></div>
   </div>
 </div>
 
@@ -782,19 +788,6 @@ select.inp { cursor: pointer; }
     <div class="modal-title"><span id="day-modal-title">Due</span><button class="modal-close" onclick="closeDayModal()">×</button></div>
     <div id="day-modal-list" class="day-list"></div>
     <div class="modal-actions"><button class="btn btn-primary" id="day-modal-add">＋ Add for this day</button></div>
-  </div>
-</div>
-
-<!-- NEW PASSWORD MODAL (RC3) -->
-<div class="modal-bg" id="pw-modal">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-title"><span>Choose a new password</span></div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div><label class="flbl">New Password</label><input id="pw-new" class="inp" type="password" autocomplete="new-password"></div>
-      <div><label class="flbl">Type It Again</label><input id="pw-new2" class="inp" type="password" autocomplete="new-password"></div>
-      <div id="pw-msg" style="color:var(--red);font-size:.8rem;font-weight:700;min-height:1em"></div>
-    </div>
-    <div class="modal-actions"><button class="btn btn-primary" onclick="saveNewPassword()">Save password</button></div>
   </div>
 </div>
 
@@ -1091,39 +1084,55 @@ window.doAuth = async function() {
 window.doForgotPassword = async function() {
   var email = document.getElementById("auth-email").value.trim();
   var msgEl = document.getElementById("auth-msg");
-  if (!email) { msgEl.className = "auth-msg error"; msgEl.textContent = "Type your email above, then tap Forgot password."; return; }
+  if (!email) { msgEl.className = "auth-msg error"; msgEl.textContent = "Enter your email above, then click Forgot password."; return; }
+  msgEl.className = "auth-msg"; msgEl.textContent = "Sending reset link...";
   try {
     var r = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
     if (r.error) throw r.error;
     msgEl.className = "auth-msg success";
-    msgEl.textContent = "Check your email for a reset link. Look in spam too.";
+    msgEl.textContent = "Check your email for a password reset link.";
   } catch (err) {
     msgEl.className = "auth-msg error";
     msgEl.textContent = err.message || "Couldn't send the reset email.";
   }
 };
-window.saveNewPassword = async function() {
-  var p1 = document.getElementById("pw-new").value;
-  var p2 = document.getElementById("pw-new2").value;
-  var msg = document.getElementById("pw-msg");
-  if (p1.length < 6) { msg.textContent = "Use at least 6 characters."; return; }
-  if (p1 !== p2) { msg.textContent = "The two passwords don't match."; return; }
-  var r = await sb.auth.updateUser({ password: p1 });
-  if (r.error) { msg.textContent = r.error.message; return; }
-  document.getElementById("pw-modal").classList.remove("open");
-  showToast("Password updated", "success");
+var _recoveryMode = /type=recovery/.test(window.location.hash);
+function setAuthMsg(text, cls) { var el = document.getElementById("auth-msg"); el.className = "auth-msg" + (cls ? " " + cls : ""); el.textContent = text; }
+function showRecoveryForm() {
+  document.getElementById("app-screen").style.display = "none";
+  document.getElementById("auth-screen").style.display = "flex";
+  document.querySelector(".auth-tabs").style.display = "none";
+  document.getElementById("auth-form").style.display = "none";
+  document.getElementById("recovery-form").style.display = "block";
+  setAuthMsg("", "");
+}
+window.doUpdatePassword = async function() {
+  var p = document.getElementById("rp-pass").value, p2 = document.getElementById("rp-pass2").value;
+  if (!p || p.length < 6) { setAuthMsg("Password must be at least 6 characters.", "error"); return; }
+  if (p !== p2) { setAuthMsg("Passwords don't match.", "error"); return; }
+  setAuthMsg("Saving...", "");
+  var r = await sb.auth.updateUser({ password: p });
+  if (r.error) { setAuthMsg(r.error.message, "error"); return; }
+  _recoveryMode = false;
+  document.getElementById("recovery-form").style.display = "none";
+  document.querySelector(".auth-tabs").style.display = "";
+  document.getElementById("auth-form").style.display = "";
+  switchAuthTab("login");
+  history.replaceState({}, "", window.location.pathname + window.location.search);
+  showToast("Password updated!", "success");
+  var sess = await sb.auth.getSession();
+  await applySession(sess.data && sess.data.session ? sess.data.session.user : null);
 };
-sb.auth.onAuthStateChange(function(event) {
-  if (event === "PASSWORD_RECOVERY") {
-    document.getElementById("pw-new").value = "";
-    document.getElementById("pw-new2").value = "";
-    document.getElementById("pw-msg").textContent = "";
-    document.getElementById("pw-modal").classList.add("open");
-  }
+sb.auth.onAuthStateChange(function(event, session) {
+  // Defer so Supabase calls don't run inside the auth callback (can stall)
+  setTimeout(function() {
+    if (event === "PASSWORD_RECOVERY") _recoveryMode = true;
+    if (_recoveryMode && session) { currentUser = session.user; showRecoveryForm(); }
+  }, 0);
 });
 
 document.addEventListener("keydown", function(e) {
-  if (e.key === "Enter" && document.getElementById("auth-screen").style.display !== "none") { doAuth(); }
+  if (e.key === "Enter" && document.getElementById("auth-screen").style.display !== "none") { if (_recoveryMode) doUpdatePassword(); else doAuth(); }
 });
 
 window.doSignOut = async function() {
@@ -3379,6 +3388,7 @@ async function completeHabitTimer() {
 
 // ===== AUTH BOOT (RC2: semstr localStorage keys) =====
 async function applySession(user) {
+  if (user && _recoveryMode) { currentUser = user; showRecoveryForm(); return; }
   currentUser = user || null;
   if (currentUser) {
     document.getElementById("auth-screen").style.display = "none";
