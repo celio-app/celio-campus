@@ -829,6 +829,27 @@ body.plan-open #toast { bottom: 84px; }
   .plan-scroll { padding-bottom: 90px; }
   .plan-routine-btn { padding: 8px 9px; font-size: .76rem; }
 }
+
+/* RC7: Today uses the room it has. Phones keep one column in this order: next, plan, courses, week, due. */
+.dash-v2 { container-type: inline-size; }
+.t-grid { display: flex; flex-direction: column; }
+.t-col-a, .t-col-b { display: contents; }
+.t-grid .t-next { order: 1; } .t-grid .t-plan { order: 2; } .t-grid .t-courses { order: 3; } .t-grid .t-week { order: 4; } .t-grid .t-due { order: 5; }
+@media (min-width: 769px) { .dash-v2 { max-width: 1240px; } }
+@media (min-width: 1600px) { .dash-v2 { max-width: 1380px; } }
+@container (min-width: 620px) {
+  .t-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 20px; align-items: start; }
+  .t-col-a, .t-col-b { display: block; }
+  .t-col-b { position: sticky; top: 12px; }
+  .t-col-b .t-courses { flex-wrap: wrap; overflow: visible; gap: 14px 6px; background: var(--bg2); border-radius: 20px; padding: 14px 10px 10px; box-shadow: var(--card-shadow); margin-bottom: 16px; }
+  .t-col-b .t-course { width: 72px; }
+  .t-greet h1 { font-size: 2rem; }
+}
+@container (min-width: 1000px) {
+  .t-grid { grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr); gap: 0 28px; }
+  .t-next { padding: 22px 24px; }
+  .t-days { gap: 10px; }
+}
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1991,6 +2012,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   }
   html += '</div>';
 
+  var _top = html; html = "";
   // a planned session today goes first in Do this next
   (function() {
     var nm = planNowMin(), nb = blocksFor(todayStr).find(function(b) { return !b.done && b.assignment_id && b.start_min + b.dur_min > nm; });
@@ -2018,6 +2040,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   }
 
   html += renderTodayPlan(todayStr);
+  var _main = html; html = "";
   // course bubbles
   if (semCourses.length) {
     html += '<div class="t-courses" aria-label="Courses">';
@@ -2053,6 +2076,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   for (var k = 0; k < 7; k++) { var dk = tlAddDays(mon, k); html += '<span' + (localDateStr(dk) === todayStr ? ' class="is-today"' : '') + '>' + "SMTWTFS"[dk.getDay()] + '</span>'; }
   html += '</div><span class="sr-only">' + esc(desc.join("; ")) + '</span></div>';
 
+  var _side = html; html = "";
   // due list
   var list, title;
   if (todayDaySel && todayDaySel !== todayStr) {
@@ -2079,7 +2103,8 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
     });
     html += '</div>';
   }
-  return html;
+  return _top + '<div class="t-grid"><div class="t-col-a">' + _main + '<section class="t-due" aria-label="Due soon">' + html + '</section></div>'
+    + '<div class="t-col-b">' + _side + '</div></div>';
 }
 
 function renderDashboard() {
