@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Semstr">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FBF5E9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1F3D" media="(prefers-color-scheme: dark)">
 <title>Semstr</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -876,6 +884,46 @@ body.plan-open #toast { bottom: 84px; }
 .t-up-sub { display: flex; align-items: center; gap: 6px; font-size: .74rem; font-weight: 600; color: var(--text3); margin-top: 1px; }
 .t-up-sub i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
 @container (min-width: 620px) { .t-wide-only { display: block; } }
+
+/* RC9: split sign-in, like Workprint */
+#auth-screen { align-items: stretch; justify-content: stretch; background: var(--bg); }
+#auth-screen::before, #auth-screen::after { display: none; }
+.auth-brand { flex: 1 1 52%; position: relative; overflow: hidden; background: #6E58B4; color: #FBF3E2; padding: 48px 60px; display: flex; flex-direction: column; justify-content: space-between; gap: 28px;
+  background-image: radial-gradient(circle at 85% 10%, rgba(255,255,255,.16) 0, rgba(255,255,255,0) 40%), radial-gradient(circle at 10% 100%, rgba(30,20,70,.35) 0, rgba(30,20,70,0) 50%); }
+.auth-brand .ab-mark { color: #FBF3E2; font-size: 26px; }
+.ab-mid { position: relative; z-index: 1; max-width: 560px; }
+.ab-big { margin: 0; font-family: "Outfit", "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: clamp(72px, 9vw, 150px); line-height: .9; letter-spacing: -.05em; color: #FBF3E2; display: flex; align-items: baseline; }
+.ab-dot { width: .19em; height: .19em; border-radius: 50%; background: #F5C343; margin-left: .04em; flex: none; box-shadow: 0 0 0 .02em rgba(0,0,0,.05); }
+.ab-rule { height: 1px; background: rgba(251,243,226,.4); margin: 26px 0 20px; max-width: 460px; }
+.ab-tag { margin: 0; font-size: clamp(19px, 1.7vw, 26px); font-weight: 600; line-height: 1.35; max-width: 470px; color: #FBF3E2; }
+.ab-list { list-style: none; padding: 0; margin: 30px 0 0; display: grid; gap: 14px; max-width: 470px; }
+.ab-list li { display: flex; align-items: center; gap: 14px; font-size: .95rem; line-height: 1.4; color: rgba(251,243,226,.92); }
+.ab-list b { color: #fff; font-weight: 800; }
+.ab-list img { width: 48px; height: 48px; border-radius: 13px; flex: none; box-shadow: 0 0 0 3px rgba(255,255,255,.9), 0 6px 14px rgba(20,10,60,.25); }
+.ab-foot { position: relative; z-index: 1; font-size: .72rem; letter-spacing: 2.5px; font-weight: 800; opacity: .8; }
+.ab-stickers { position: absolute; right: -30px; top: 0; bottom: 0; width: 220px; pointer-events: none; }
+.ab-stickers img { position: absolute; width: 112px; height: 112px; border-radius: 26px; box-shadow: 0 0 0 5px #fff, 0 14px 30px rgba(20,10,60,.3); }
+.ab-stickers img:nth-child(1) { top: 9%; right: 60px; transform: rotate(-8deg); }
+.ab-stickers img:nth-child(2) { top: 29%; right: -4px; transform: rotate(7deg); }
+.ab-stickers img:nth-child(3) { top: 49%; right: 74px; transform: rotate(-4deg); }
+.ab-stickers img:nth-child(4) { top: 68%; right: 6px; transform: rotate(9deg); }
+.ab-stickers img:nth-child(5) { top: 86%; right: 84px; transform: rotate(-10deg); }
+.auth-side { flex: 1 1 48%; display: flex; align-items: center; justify-content: center; padding: 32px; }
+.auth-side .auth-box { box-shadow: 0 20px 60px rgba(80,60,30,.10); }
+.auth-logo { text-align: left; margin-bottom: 22px; }
+.auth-hello { margin: 0; font-family: "Outfit", "Plus Jakarta Sans", sans-serif; font-size: 2rem; font-weight: 700; letter-spacing: -.03em; color: var(--text); }
+.auth-logo .auth-tagline { font-size: .92rem; margin-top: 4px; }
+@media (max-width: 1300px) { .ab-stickers { display: none; } }
+@media (max-width: 1100px) { .auth-brand { padding: 40px 44px; } }
+@media (max-width: 860px) {
+  #auth-screen { flex-direction: column; }
+  .auth-brand { flex: 0 0 auto; padding: 22px 22px 26px; gap: 0; }
+  .ab-top, .ab-list, .ab-foot, .ab-rule { display: none; }
+  .ab-big { font-size: 58px; }
+  .ab-tag { font-size: 16px; margin-top: 10px; }
+  .auth-side { padding: 22px 16px 40px; align-items: flex-start; }
+  .auth-side .auth-box { width: 100%; max-width: 440px; padding: 28px 22px; }
+}
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -950,10 +998,28 @@ body.plan-open #toast { bottom: 84px; }
 
 <!-- AUTH SCREEN — SEMSTR BRANDING -->
 <div id="auth-screen">
+  <section class="auth-brand" aria-label="About Semstr">
+    <div class="ab-top"><span class="brand-tag ab-mark" role="img" aria-label="Semstr">semstr</span></div>
+    <div class="ab-mid">
+      <h1 class="ab-big">semstr<span class="ab-dot" aria-hidden="true"></span></h1>
+      <div class="ab-rule" aria-hidden="true"></div>
+      <p class="ab-tag">Know what&#8217;s due. Plan when you&#8217;ll do it. Keep the habits that help.</p>
+      <ul class="ab-list">
+        <li><img src="icons/habits/check.png" alt="" onerror="this.style.visibility='hidden'"><span><b>Every course in one place.</b> Due dates, tests and projects, with a clear next step.</span></li>
+        <li><img src="icons/habits/sunrise.png" alt="" onerror="this.style.visibility='hidden'"><span><b>A plan for today.</b> Short 25-minute sessions that fit around school.</span></li>
+        <li><img src="icons/habits/flame.png" alt="" onerror="this.style.visibility='hidden'"><span><b>Streaks that forgive.</b> Miss a week and pick it back up.</span></li>
+      </ul>
+    </div>
+    <div class="ab-foot">FOR GRADES 9&#8211;12 &#183; PLAN &#183; FOCUS &#183; HABITS</div>
+    <div class="ab-stickers" aria-hidden="true">
+      <img src="icons/habits/read.png" alt="" onerror="this.remove()"><img src="icons/habits/music.png" alt="" onerror="this.remove()"><img src="icons/habits/run.png" alt="" onerror="this.remove()"><img src="icons/habits/moon.png" alt="" onerror="this.remove()"><img src="icons/habits/write.png" alt="" onerror="this.remove()">
+    </div>
+  </section>
+  <div class="auth-side">
   <div class="auth-box">
     <div class="auth-logo">
-      <div class="brand-tag brand-tag-lg" role="img" aria-label="Semstr">semstr</div>
-      <div class="auth-tagline">Your semester, organised</div>
+      <h2 class="auth-hello" id="auth-hello">Welcome back</h2>
+      <div class="auth-tagline" id="auth-sub">Sign in to see what&#8217;s next.</div>
     </div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
@@ -973,6 +1039,7 @@ body.plan-open #toast { bottom: 84px; }
       <button class="btn-auth" onclick="doUpdatePassword()">Save New Password</button>
     </div>
     <div class="auth-msg" id="auth-msg"></div>
+  </div>
   </div>
 </div>
 
@@ -1460,6 +1527,9 @@ window.switchAuthTab = function(tab) {
   document.getElementById("auth-msg").textContent = "";
   var fg = document.getElementById("auth-forgot");
   if (fg) fg.style.display = tab === "login" ? "" : "none";
+  var hi = document.getElementById("auth-hello"), sub = document.getElementById("auth-sub");
+  if (hi) hi.textContent = tab === "login" ? "Welcome back" : "Make your account";
+  if (sub) sub.innerHTML = tab === "login" ? "Sign in to see what&#8217;s next." : "Free, and it takes about a minute.";
 };
 
 window.doAuth = async function() {
