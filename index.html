@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Semstr</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%239BE22D%27/%3E%3Ctext x=%2732%27 y=%2747%27 text-anchor=%27middle%27 font-family=%27Arial Black,Arial,sans-serif%27 font-weight=%27900%27 font-size=%2744%27 fill=%27%231E1646%27%3Es%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23FBF5E9%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2727%27 fill=%27%232E2840%27/%3E%3Ctext x=%2729%27 y=%2743%27 text-anchor=%27middle%27 font-family=%27Arial,Helvetica,sans-serif%27 font-weight=%27700%27 font-size=%2734%27 fill=%27%23FBF3E2%27%3Es%3C/text%3E%3Ccircle cx=%2742%27 cy=%2740%27 r=%274.4%27 fill=%27%23F5C343%27/%3E%3C/svg%3E">
 <style>
 :root {
-  --bg: #F6F4FF; --bg2: #FFFFFF; --bg3: #F1EEFF; --bg4: #E7E2FB;
-  --border: #E3DEF6; --border2: #ECE8FA; --text: #1E1646; --text2: #3A3363;
-  --text3: #5E5785; --text4: #7A729F; --accent: #6C47FF; --accent2: #5A35F0;
-  --accent-bg: #EDE8FF; --green: #15803D; --green-bg: #DCF5E5;
-  --amber: #B45309; --amber-bg: #FBEFD5; --red: #C2342B; --red-bg: #FFE8E5;
-  --pink: #C0266D; --pink-bg: #FBE3EE; --cyan: #0E7490; --cyan-bg: #DAF2F6;
-  --lime: #9BE22D; --lime-edge: #6FB514; --ink: #1E1646;
-  --sb-w: 248px; --sb-col: 54px; --card-shadow: 0 2px 10px rgba(60,40,140,.06);
+  --bg: #FBF5E9; --bg2: #FFFDF8; --bg3: #F4EAD5; --bg4: #EADFC6;
+  --border: #E6DAC0; --border2: #EFE6D2; --text: #2E2840; --text2: #463D56;
+  --text3: #5A5068; --text4: #6F6480; --accent: #6E58B4; --accent2: #5B48A0;
+  --accent-bg: #ECE6F7; --green: #4E8A36; --green-bg: #E3F0D8;
+  --amber: #A86A12; --amber-bg: #FBEBC8; --red: #C2473C; --red-bg: #FBE3DE;
+  --pink: #B8456E; --pink-bg: #F8E1E8; --cyan: #2F7A92; --cyan-bg: #DDEEF4;
+  --lime: #F5C343; --lime-edge: #D9A021; --ink: #2E2840;
+  --sb-w: 248px; --sb-col: 54px; --card-shadow: 0 2px 10px rgba(80,60,30,.06);
   --radius: 18px; --radius-sm: 12px;
 }
 [data-theme="dark"] {
-  --bg: #0F1122; --bg2: #1A1D35; --bg3: #22263F; --bg4: #2B2F4E;
-  --border: #2B2F4E; --border2: #262A45; --text: #EEF0FF; --text2: #C9CDEA;
-  --text3: #A3A8C9; --text4: #8A90B2; --accent: #9B87FF; --accent2: #B8A9FF;
-  --accent-bg: #2C2758; --green: #6EE7A8; --green-bg: #173827;
-  --amber: #FACC6B; --amber-bg: #3A2A12; --red: #FF9B8A; --red-bg: #44201E;
-  --pink: #F0A6CF; --pink-bg: #43243A; --cyan: #67E8F9; --cyan-bg: #163747;
-  --lime: #C6F24E; --lime-edge: #5E8F12; --ink: #0F1122;
+  --bg: #1B1F3D; --bg2: #262B52; --bg3: #31376A; --bg4: #3D4479;
+  --border: #454B82; --border2: #383E70; --text: #FBF3E2; --text2: #E8DFCB;
+  --text3: #C6BFD2; --text4: #ABA4BF; --accent: #B7A6F0; --accent2: #CFC3F7;
+  --accent-bg: #3A3570; --green: #9BD07A; --green-bg: #22402A;
+  --amber: #F5C343; --amber-bg: #43361A; --red: #F2897D; --red-bg: #4A2626;
+  --pink: #F0A6C4; --pink-bg: #47263A; --cyan: #8FD3E8; --cyan-bg: #1E3F50;
+  --lime: #F5C343; --lime-edge: #B98614; --ink: #2E2840;
   --card-shadow: 0 2px 10px rgba(0,0,0,.25);
 }
 [data-palette="ocean"] { --accent: #0ea5e9; --accent2: #38bdf8; --accent-bg: #dceff7; }
@@ -538,6 +538,34 @@ select.inp { cursor: pointer; }
 .t-empty { background: var(--bg2); border-radius: 18px; padding: 18px; color: var(--text3); font-weight: 600; margin-bottom: 16px; }
 .dash-v2 .dash-more-toggle { margin-top: 4px; }
 [data-theme="dark"] .t-next, [data-theme="dark"] .t-day.is-sel { background: #5B3FE0; }
+[data-theme="dark"] .t-check { border-color: var(--text4); background: transparent; }
+[data-theme="dark"] .t-bar { background: #3D4479; }
+[data-theme="dark"] .t-bar i { background: var(--lime); }
+[data-theme="dark"] .t-bar.is-today { box-shadow: 0 0 0 2px #fff; }
+[data-theme="dark"] .t-bar.is-rest { background: transparent; border-color: var(--text4); }
+[data-theme="dark"] .t-bar-labels .is-today, [data-theme="dark"] .t-list-head a { color: #fff; }
+[data-theme="dark"] .t-day { background: var(--bg2); }
+[data-theme="dark"] .cal-day { background: var(--bg2); border-color: var(--border2); }
+[data-theme="dark"] .cal-day.today { background: #2E2868; border-color: var(--accent); }
+[data-theme="dark"] .cal-day.other-month { opacity: .5; }
+[data-theme="dark"] .cal-day-num { color: var(--text); }
+[data-theme="dark"] .cal-event { color: #fff !important; background-image: linear-gradient(rgba(255,255,255,.08), rgba(255,255,255,.08)); }
+[data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: var(--bg3); border-color: var(--border); color: var(--text); }
+[data-theme="dark"] input::placeholder, [data-theme="dark"] textarea::placeholder { color: var(--text4); }
+[data-theme="dark"] .modal, [data-theme="dark"] .modal-content { border: 1.5px solid var(--border); }
+@media (max-width: 640px) {
+  .assignment-row { display: grid; grid-template-columns: 26px 1fr auto; grid-template-areas: "chk info due" "chk info prio" ". grade grade"; column-gap: 12px; row-gap: 4px; align-items: start; padding: 12px; }
+  .assignment-row > .a-checkbox { grid-area: chk; margin-top: 2px; }
+  .assignment-row > .a-info { grid-area: info; }
+  .assignment-row > .a-due { grid-area: due; white-space: nowrap; text-align: right; }
+  .assignment-row > .prio-tag { grid-area: prio; justify-self: end; }
+  .assignment-row > .a-grade-inline { grid-area: grade; margin: 4px 0 0; }
+  .assignment-row .a-title { white-space: normal; overflow: visible; font-size: .95rem; line-height: 1.25; }
+  .assignment-row .a-meta { flex-wrap: wrap; row-gap: 5px; column-gap: 8px; margin-top: 6px; }
+  .assignment-row .a-meta > span { white-space: nowrap; }
+}
+[data-theme="dark"] .a-checkbox:not(.checked) { border-color: var(--text4); }
+[data-theme="dark"] .mbar { background: #191C3B; border-top-color: var(--border); }
 [data-theme="dark"] .btn-primary, [data-theme="dark"] .auth-tab.active, [data-theme="dark"] .sb-new-btn { background: #5B3FE0; color: #fff; }
 
 @media (max-width: 768px) {
@@ -684,6 +712,26 @@ select.inp { cursor: pointer; }
   .tab-btn { padding: 10px 12px; }
   .a-due { white-space: normal; text-align: right; }
 }
+
+/* RC5: Outfit wordmark with sun dot, storybook palette */
+.brand-tag { display: inline-flex; align-items: baseline; background: none; box-shadow: none; padding: 0; border-radius: 0; color: var(--text); font-family: "Outfit", "Plus Jakarta Sans", sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -.04em; line-height: 1.1; }
+.brand-tag::after { content: ""; width: .2em; height: .2em; border-radius: 50%; background: var(--lime); margin-left: .05em; flex: none; }
+.brand-tag-lg { font-size: 50px; padding: 0; box-shadow: none; margin-bottom: 12px; }
+.chunky-btn, .mbar-add { color: var(--ink); }
+.t-streak { background: var(--lime); color: var(--ink); padding: 4px 10px 4px 4px; }
+.t-streak-ico { width: 26px; height: 26px; border-radius: 8px; display: block; }
+.t-bar.is-today, [data-theme="dark"] .t-bar.is-today { background: var(--lime); box-shadow: none; }
+.t-bar.is-today i { background: var(--lime-edge); }
+.t-bar-labels .is-today { color: #A86A12; }
+[data-theme="dark"] .t-bar-labels .is-today { color: var(--lime); }
+[data-theme="dark"] .t-bar i { background: var(--accent); }
+[data-theme="dark"] .t-next, [data-theme="dark"] .t-day.is-sel { background: #5B48A0; }
+[data-theme="dark"] .btn-primary, [data-theme="dark"] .auth-tab.active, [data-theme="dark"] .sb-new-btn { background: #5B48A0; color: #fff; }
+[data-theme="dark"] .mbar { background: var(--bg2); }
+[data-theme="dark"] .cal-day.today { background: #34306A; }
+[data-theme="dark"] .t-bubble b { background: var(--text); color: var(--bg); }
+#auth-screen::before { background: radial-gradient(circle, rgba(245,195,67,.22) 0%, transparent 70%); }
+#auth-screen::after { background: radial-gradient(circle, rgba(110,88,180,.12) 0%, transparent 70%); }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1054,9 +1102,9 @@ var habitHistory = [];
 var editingHabitId = null;
 
 var COURSE_COLORS = [
-  "#6c47ff","#ec4899","#f59e0b","#22c55e","#06b6d4",
-  "#ef4444","#8b5cf6","#14b8a6","#f97316","#64748b",
-  "#a855f7","#10b981","#3b82f6","#e11d48","#0ea5e9"
+  "#E9776A","#6FA3D6","#7DB25C","#E9A93A","#9B87D6",
+  "#D4574B","#4E86C2","#5E9A44","#C98A2E","#6E58B4",
+  "#E59AAE","#5FB3A6","#B8805A","#8C7FB8","#7A8EA8"
 ];
 
 // RC2: TYPE_EMOJI replaced with SVG strings
@@ -1837,7 +1885,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   var tag = ws.status === "paused" ? "STREAK PAUSED" : (ws.status === "new" ? "START A STREAK" : ws.run + "-WEEK STREAK");
   var hrs = function(m) { var h = Math.round(m / 30) / 2; return h % 1 ? h.toFixed(1) : String(h); };
   html += '<div class="t-week"><div class="t-week-head"><div><div class="t-week-title">This week</div><div class="t-week-sub">' + (pTot > 0 ? hrs(dTot) + ' of ' + hrs(pTot) + ' hours done' : 'Add time guesses to see your week') + '</div></div>'
-    + '<button class="t-streak" onclick="toggleDashMore(true)"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><path d="M12 2c2 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 3 1 4 2 4 0-4-1-7 1-10z" fill="#FF7A1F" stroke="#1E1646" stroke-width="2" stroke-linejoin="round"/></svg>' + tag + '</button></div>';
+    + '<button class="t-streak" onclick="toggleDashMore(true)"><img class="t-streak-ico" src="icons/habits/flame.png" alt="" onerror="this.remove()">' + tag + '</button></div>';
   var desc = [];
   html += '<div class="t-bars">';
   for (var j = 0; j < 7; j++) {
