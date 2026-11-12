@@ -454,6 +454,29 @@ select.inp { cursor: pointer; }
 .day-item-title.is-done { text-decoration: line-through; opacity: .6; }
 .day-item-sub { font-size: .72rem; font-weight: 600; color: var(--text3); }
 
+/* Calendar import */
+.ics-modal { max-width: 620px; }
+.ics-help { font-size: .8rem; color: var(--text2); font-weight: 600; line-height: 1.5; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 10px 14px; }
+.ics-help p { margin: 6px 0; }
+.ics-file { display: flex; align-items: center; justify-content: center; margin-top: 14px; padding: 14px; border: 2px dashed var(--accent); border-radius: 12px; color: var(--accent); font-weight: 800; font-size: .9rem; cursor: pointer; background: var(--accent-bg); }
+.ics-file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.ics-msg { margin-top: 10px; font-size: .8rem; font-weight: 700; color: var(--text3); }
+.ics-msg.error { color: var(--red); }
+.ics-list { max-height: 58vh; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
+.ics-summary { font-size: .8rem; color: var(--text2); font-weight: 600; line-height: 1.45; margin-bottom: 8px; }
+.ics-toggle { display: flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 700; color: var(--text3); margin-bottom: 10px; cursor: pointer; }
+.ics-group { border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+.ics-group.is-skip .ics-row { opacity: .4; }
+.ics-group-head { background: var(--bg3); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.ics-group-name { font-size: .78rem; font-weight: 900; color: var(--text2); text-transform: uppercase; letter-spacing: .3px; }
+.ics-course { padding: 7px 10px; font-size: .8rem; }
+.ics-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--border2); cursor: pointer; }
+.ics-row input { width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--accent); }
+.ics-row.is-exists { opacity: .5; }
+.ics-title { flex: 1; min-width: 0; font-size: .82rem; font-weight: 700; color: var(--text); }
+.ics-date { font-size: .75rem; font-weight: 800; color: var(--text3); white-space: nowrap; }
+.ics-tag { font-size: .7rem; font-weight: 800; color: var(--text3); background: var(--bg3); border-radius: 6px; padding: 2px 6px; white-space: nowrap; }
+
 /* Timeline */
 .tl-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
 .tl-range { font-size: 1.05rem; font-weight: 800; flex: 1; letter-spacing: -.3px; }
@@ -788,6 +811,26 @@ select.inp { cursor: pointer; }
     <div class="modal-title"><span id="day-modal-title">Due</span><button class="modal-close" onclick="closeDayModal()">×</button></div>
     <div id="day-modal-list" class="day-list"></div>
     <div class="modal-actions"><button class="btn btn-primary" id="day-modal-add">＋ Add for this day</button></div>
+  </div>
+</div>
+
+<!-- ICS IMPORT MODAL (RC3) -->
+<div class="modal-bg" id="ics-modal">
+  <div class="modal ics-modal">
+    <div class="modal-title"><span>Import due dates</span><button class="modal-close" onclick="closeIcsModal()">×</button></div>
+    <div id="ics-step1">
+      <div class="ics-help">
+        <p><b>From Brightspace:</b> open Calendar → Settings → tick <i>Enable Calendar Feeds</i> → Save → Subscribe → Download.</p>
+        <p><b>From Google Calendar</b> (for Google Classroom): Settings → Import &amp; export → Export, then unzip the download.</p>
+        <p>Then choose the <b>.ics</b> file here. Nothing is added until you check the list and tap Import.</p>
+      </div>
+      <label class="ics-file"><input type="file" id="ics-file" accept=".ics,text/calendar" onchange="icsFileChosen(this)">Choose .ics file</label>
+      <div id="ics-msg" class="ics-msg"></div>
+    </div>
+    <div id="ics-step2" style="display:none">
+      <div id="ics-list" class="ics-list"></div>
+      <div class="modal-actions"><button class="btn btn-ghost" onclick="icsBack()">Choose another file</button><button class="btn btn-primary" id="ics-import-btn" onclick="icsImport()">Import</button></div>
+    </div>
   </div>
 </div>
 
@@ -2171,6 +2214,7 @@ function renderCalendar() {
   html += '<div class="cal-month">' + monthNames[month] + ' ' + year + '</div>';
   html += '<button class="cal-nav" onclick="calNav(1)">▶</button>';
   html += '<button class="btn btn-ghost btn-sm" onclick="calToday()">Today</button>';
+  html += '<button class="btn btn-ghost btn-sm" onclick="openIcsModal()" style="margin-left:auto">Import due dates</button>';
   html += '</div><div class="cal-grid">';
   ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) { html += '<div class="cal-dow">' + d + '</div>'; });
   for (var i = 0; i < firstDay; i++) {
@@ -2295,6 +2339,209 @@ window.openCalDay = function(dateStr) {
   document.getElementById("day-modal").classList.add("open");
 };
 window.closeDayModal = function() { document.getElementById("day-modal").classList.remove("open"); };
+
+
+/* ===== RC3: import due dates from a calendar file (Brightspace or Google) ===== */
+var icsState = null;
+function icsUnescape(t) { return (t || "").replace(/\\n/gi, " ").replace(/\\([,;\\])/g, "$1").replace(/\s+/g, " ").trim(); }
+function icsDate(v) {
+  var m = (v || "").trim().match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})(Z)?)?/);
+  if (!m) return null;
+  // Times in UTC (ending in Z) must become local dates: 11:59 pm in Toronto is stored as the next day in UTC.
+  if (m[4] && m[7]) return localDateStr(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6])));
+  return m[1] + "-" + m[2] + "-" + m[3];
+}
+function icsParse(text) {
+  text = text.replace(/\r\n?/g, "\n").replace(/\n[ \t]/g, "");
+  var isD2L = /^PRODID:.*D2L/im.test(text);
+  var calName = icsUnescape((text.match(/^X-WR-CALNAME:(.*)$/m) || [])[1] || "");
+  var events = [];
+  text.split("BEGIN:VEVENT").slice(1).forEach(function(b) {
+    b = b.split("END:VEVENT")[0];
+    var ev = {};
+    b.split("\n").forEach(function(line) {
+      var m = line.match(/^([A-Z-]+)((?:;[^:]*)?):(.*)$/);
+      if (m && ev[m[1]] === undefined) ev[m[1]] = m[3];
+    });
+    if (!ev.DTSTART || !ev.SUMMARY) return;
+    var date = icsDate(ev.DTSTART);
+    if (!date) return;
+    events.push({ uid: ev.UID || "", title: icsUnescape(ev.SUMMARY), group: icsUnescape(ev.LOCATION) || calName || "Calendar", date: date });
+  });
+  return { events: events, isD2L: isD2L };
+}
+function icsKind(title, isD2L) {
+  if (!isD2L) return "due";
+  if (/ - (Available|Availability Ends|Availability Starts|Start|End)$/i.test(title)) return "access";
+  if (/ - Due$/i.test(title) || /\bdue\b/i.test(title)) return "due";
+  return "event";
+}
+function icsCleanTitle(t) { return t.replace(/\s+-\s+Due$/i, "").trim(); }
+function icsType(t) {
+  if (/\bexam\b/i.test(t)) return "exam";
+  if (/\bquiz\b/i.test(t)) return "quiz";
+  if (/\btest\b/i.test(t)) return "test";
+  if (/\blab\b/i.test(t)) return "lab";
+  if (/\bproject\b/i.test(t)) return "project";
+  return "assignment";
+}
+function icsWeight(t) { var m = t.match(/(\d+(?:\.\d+)?)\s*%/); var w = m ? parseFloat(m[1]) : null; return (w && w <= 100) ? w : null; }
+function icsCourseCode(group) { var m = group.toUpperCase().match(/\b([A-Z]{3,4}\d[A-Z0-9]{1,5})\b/); return m ? m[1] : ""; }
+function icsCourseName(group, code) {
+  var n = group.replace(/^\d{4}\s*[-–]\s*/, "");
+  if (code) n = n.replace(new RegExp(code, "i"), "");
+  n = n.replace(/^[\s\-–:]+|[\s\-–:]+$/g, "").trim();
+  return n || group;
+}
+function icsMatchCourse(group, code) {
+  var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
+  var g = group.toLowerCase();
+  for (var i = 0; i < semCourses.length; i++) {
+    var cc = (semCourses[i].code || "").toUpperCase().replace(/\s/g, "");
+    if (cc && code && (cc === code || code.indexOf(cc) === 0 || cc.indexOf(code) === 0)) return semCourses[i].id;
+  }
+  for (var j = 0; j < semCourses.length; j++) {
+    var nm = (semCourses[j].name || "").toLowerCase();
+    if (nm.length >= 4 && g.indexOf(nm) > -1) return semCourses[j].id;
+  }
+  return "new";
+}
+
+window.openIcsModal = function() {
+  icsState = null;
+  document.getElementById("ics-file").value = "";
+  document.getElementById("ics-msg").textContent = "";
+  document.getElementById("ics-step1").style.display = "";
+  document.getElementById("ics-step2").style.display = "none";
+  document.getElementById("ics-modal").classList.add("open");
+};
+window.closeIcsModal = function() { document.getElementById("ics-modal").classList.remove("open"); };
+window.icsBack = function() { openIcsModal(); };
+
+window.icsFileChosen = function(input) {
+  var f = input.files && input.files[0];
+  var msg = document.getElementById("ics-msg");
+  if (!f) return;
+  msg.className = "ics-msg"; msg.textContent = "Reading " + f.name + "...";
+  var reader = new FileReader();
+  reader.onload = function() {
+    var parsed;
+    try { parsed = icsParse(String(reader.result || "")); } catch (e) { parsed = { events: [] }; }
+    if (!parsed.events.length) { msg.className = "ics-msg error"; msg.textContent = "That file doesn't look like a calendar (.ics) file, or it has no events."; return; }
+    var today = localDateStr();
+    var from = activeSemester.start_date || localDateStr(new Date(Date.now() - 14 * 86400000));
+    var to = activeSemester.end_date || localDateStr(new Date(Date.now() + 200 * 86400000));
+    var semA = getSemAssignments();
+    var existing = {};
+    semA.forEach(function(a) { existing[(a.title || "").toLowerCase() + "|" + a.due_date] = true; });
+    var groups = {}, order = [], seen = {}, outside = 0;
+    parsed.events.forEach(function(ev) {
+      if (ev.date < from || ev.date > to) { outside++; return; }
+      var kind = icsKind(ev.title, parsed.isD2L);
+      var title = icsCleanTitle(ev.title);
+      var key = ev.group + "|" + title.toLowerCase() + "|" + ev.date;
+      if (seen[key]) return; seen[key] = true;
+      if (!groups[ev.group]) {
+        var code = icsCourseCode(ev.group);
+        groups[ev.group] = { label: ev.group, code: code, name: icsCourseName(ev.group, code), course: icsMatchCourse(ev.group, code), items: [] };
+        order.push(ev.group);
+      }
+      var exists = !!existing[title.toLowerCase() + "|" + ev.date];
+      groups[ev.group].items.push({ title: title, date: ev.date, kind: kind, exists: exists, past: ev.date < today,
+        checked: kind === "due" && !exists && ev.date >= today });
+    });
+    var list = order.map(function(k) { var g = groups[k]; g.items.sort(function(a, b) { return a.date.localeCompare(b.date); }); return g; })
+      .filter(function(g) { return g.items.length; })
+      .sort(function(a, b) { return b.items.filter(function(i) { return i.kind === "due"; }).length - a.items.filter(function(i) { return i.kind === "due"; }).length; });
+    if (!list.length) { msg.className = "ics-msg error"; msg.textContent = "None of the " + parsed.events.length + " events fall between " + formatDate(from) + " and " + formatDate(to) + " (this semester's dates)."; return; }
+    icsState = { groups: list, from: from, to: to, outside: outside, showOther: false };
+    document.getElementById("ics-step1").style.display = "none";
+    document.getElementById("ics-step2").style.display = "";
+    icsRender();
+  };
+  reader.onerror = function() { msg.className = "ics-msg error"; msg.textContent = "Couldn't read that file."; };
+  reader.readAsText(f);
+};
+
+function icsRender() {
+  var st = icsState; if (!st) return;
+  var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
+  var nDue = 0, nOther = 0;
+  st.groups.forEach(function(g) { g.items.forEach(function(it) { if (it.kind === "due") nDue++; else nOther++; }); });
+  var html = '<div class="ics-summary">Found <b>' + nDue + ' due date' + (nDue === 1 ? '' : 's') + '</b> between ' + formatDate(st.from) + ' and ' + formatDate(st.to) + '. Upcoming ones are ticked. Pick the matching course for each group.</div>';
+  if (nOther) html += '<label class="ics-toggle"><input type="checkbox" ' + (st.showOther ? 'checked' : '') + ' onchange="icsSetOther(this.checked)"> Show other events too (' + nOther + ', like class times and when work opens)</label>';
+  st.groups.forEach(function(g, gi) {
+    var vis = g.items.filter(function(it) { return it.kind === "due" || st.showOther; });
+    if (!vis.length) return;
+    var skip = g.course === "skip";
+    html += '<div class="ics-group' + (skip ? ' is-skip' : '') + '"><div class="ics-group-head"><div class="ics-group-name">' + esc(g.label) + '</div>';
+    html += '<select class="inp ics-course" onchange="icsSetCourse(' + gi + ',this.value)">';
+    semCourses.forEach(function(c) { html += '<option value="' + c.id + '"' + (g.course === c.id ? ' selected' : '') + '>' + esc(c.code) + ' · ' + esc(c.name) + '</option>'; });
+    html += '<option value="new"' + (g.course === "new" ? ' selected' : '') + '>＋ New course: ' + esc(g.code ? g.code + ' · ' : '') + esc(g.name) + '</option>';
+    html += '<option value="skip"' + (skip ? ' selected' : '') + '>Don\'t import this group</option></select></div>';
+    g.items.forEach(function(it, ii) {
+      if (!(it.kind === "due" || st.showOther)) return;
+      var tag = it.exists ? '<span class="ics-tag">Already added</span>' : (it.past ? '<span class="ics-tag">Past</span>' : (it.kind !== "due" ? '<span class="ics-tag">Event</span>' : ''));
+      html += '<label class="ics-row' + (it.exists ? ' is-exists' : '') + '"><input type="checkbox" ' + (it.checked ? 'checked ' : '') + (it.exists || skip ? 'disabled ' : '')
+        + 'onchange="icsSetItem(' + gi + ',' + ii + ',this.checked)">'
+        + '<span class="ics-title">' + esc(it.title) + '</span><span class="ics-date">' + formatDate(it.date) + '</span>' + tag + '</label>';
+    });
+    html += '</div>';
+  });
+  document.getElementById("ics-list").innerHTML = html;
+  icsCount();
+}
+window.icsSetOther = function(v) { icsState.showOther = v; icsRender(); };
+window.icsSetCourse = function(gi, v) { icsState.groups[gi].course = v; icsRender(); };
+window.icsSetItem = function(gi, ii, v) { icsState.groups[gi].items[ii].checked = v; icsCount(); };
+function icsPicked() {
+  var out = [];
+  icsState.groups.forEach(function(g) {
+    if (g.course === "skip") return;
+    g.items.forEach(function(it) { if (it.checked && !it.exists && (it.kind === "due" || icsState.showOther)) out.push({ g: g, it: it }); });
+  });
+  return out;
+}
+function icsCount() {
+  var n = icsPicked().length;
+  var btn = document.getElementById("ics-import-btn");
+  btn.textContent = n ? "Import " + n : "Nothing ticked";
+  btn.disabled = !n;
+}
+window.icsImport = async function() {
+  var picked = icsPicked(); if (!picked.length) return;
+  var btn = document.getElementById("ics-import-btn");
+  btn.disabled = true; btn.textContent = "Importing...";
+  try {
+    var newCount = 0, rows = [];
+    for (var i = 0; i < icsState.groups.length; i++) {
+      var g = icsState.groups[i];
+      var mine = picked.filter(function(p) { return p.g === g; });
+      if (!mine.length) continue;
+      if (g.course === "new") {
+        var res = await sb.from("courses").insert({
+          code: g.code || makeCourseCode(g.name), name: g.name.slice(0, 80),
+          color: COURSE_COLORS[(courses.length + newCount) % COURSE_COLORS.length],
+          semester_id: activeSemester.id, user_id: currentUser.id
+        }).select().single();
+        if (res.error) throw res.error;
+        g.course = res.data.id; newCount++;
+      }
+      mine.forEach(function(p) {
+        rows.push({ user_id: currentUser.id, course_id: g.course, title: p.it.title.slice(0, 200), type: icsType(p.it.title),
+          due_date: p.it.date, status: "todo", priority: "med", weight: icsWeight(p.it.title) });
+      });
+    }
+    var r = await sb.from("assignments").insert(rows);
+    if (r.error) throw r.error;
+    closeIcsModal();
+    await loadAll(); showTab("calendar");
+    showToast("Imported " + rows.length + " due date" + (rows.length === 1 ? "" : "s") + (newCount ? " and " + newCount + " new course" + (newCount === 1 ? "" : "s") : ""), "success");
+  } catch (err) {
+    showToast(err.message || "Import failed", "error");
+    btn.disabled = false; icsCount();
+  }
+};
 
 window.calNav = function(dir) { calViewDate.setMonth(calViewDate.getMonth() + dir); renderCalendar(); };
 window.calToday = function() { calViewDate = new Date(); renderCalendar(); };
