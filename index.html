@@ -924,6 +924,32 @@ body.plan-open #toast { bottom: 84px; }
   .auth-side { padding: 22px 16px 40px; align-items: flex-start; }
   .auth-side .auth-box { width: 100%; max-width: 440px; padding: 28px 22px; }
 }
+
+/* RC11: calmer Today */
+.t-hint { font-size: .78rem; font-weight: 600; color: var(--text4); margin: -6px 2px 14px; }
+.t-plan-head > div b { display: block; }
+.t-plan-head + .t-plan-row { border-top: none; margin-top: 4px; }
+.t-plan-sub { display: block; font-size: .76rem; font-weight: 600; color: var(--text3); }
+.t-plan-go { background: transparent; color: var(--accent); box-shadow: none; border: 1.5px solid var(--accent); font-family: inherit; font-weight: 800; font-size: .82rem; letter-spacing: 0; padding: 6px 14px; }
+.t-plan-go:hover { background: var(--accent-bg); }
+.t-week-head { display: block; }
+.t-streak-line { display: flex; align-items: center; gap: 10px; width: 100%; margin: 10px 0 4px; padding: 8px 10px; border: none; border-radius: 12px; background: var(--amber-bg); color: var(--text); font-family: inherit; font-size: .82rem; font-weight: 700; text-align: left; cursor: pointer; line-height: 1.3; }
+.t-streak-line img { width: 28px; height: 28px; border-radius: 8px; flex: none; }
+.t-key { display: flex; gap: 14px; margin-top: 10px; font-size: .72rem; font-weight: 700; color: var(--text3); }
+.t-key span { display: inline-flex; align-items: center; gap: 5px; }
+.t-key i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.t-key .k-plan { background: var(--bg3); border: 1px solid var(--border); }
+.t-key .k-done { background: var(--accent); }
+.t-key .k-today { background: var(--lime); }
+[data-theme="dark"] .t-key .k-plan { background: #3D4479; }
+.t-crow { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: none; border-top: 1px solid var(--border2); padding: 10px 0; text-align: left; cursor: pointer; font-family: inherit; color: var(--text); }
+.t-card-head + .t-crow { border-top: none; }
+.t-crow > i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.t-crow-main { flex: 1; min-width: 0; }
+.t-crow-name { display: block; font-weight: 700; font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t-crow-code { display: block; font-size: .74rem; font-weight: 600; color: var(--text3); }
+.t-crow-n { font-size: .76rem; font-weight: 800; color: var(--accent); background: var(--accent-bg); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+.t-crow-n.is-zero { background: none; color: var(--text4); font-weight: 600; }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -2149,11 +2175,14 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   }
   html += '</div>';
 
+  html += '<div class="t-hint">Tap a day to see what\'s due then.</div>';
   var _top = html; html = "";
+  var _nb = null;
   // a planned session today goes first in Do this next
   (function() {
     var nm = planNowMin(), nb = blocksFor(todayStr).find(function(b) { return !b.done && b.assignment_id && b.start_min + b.dur_min > nm; });
     if (!nb) return;
+    _nb = nb;
     var ix = focusItems.findIndex(function(x) { return x.id === nb.assignment_id; });
     if (ix > 0) { var it = focusItems.splice(ix, 1)[0]; focusItems.unshift(it); }
     else if (ix < 0) { var a0 = assignments.find(function(x) { return x.id === nb.assignment_id; }); if (a0) focusItems.unshift(a0); }
@@ -2165,10 +2194,12 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
     var dd = daysUntil(a.due_date);
     var when = dd === null ? "" : (dd < 0 ? "late" : dd === 0 ? "due today" : dd === 1 ? "due tomorrow" : "due " + new Date(a.due_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long" }));
     var meta = [a.next_action ? esc(a.title) : "", c ? esc(c.code) : "", when, a.estimated_minutes ? "~" + a.estimated_minutes + " min" : ""].filter(Boolean).join(" · ");
-    html += '<div class="t-next"><div class="t-next-label">Do this next</div>'
+    var _isPlanned = _nb && _nb.assignment_id === a.id;
+    if (_isPlanned) meta = (_nb.start_min <= planNowMin() ? "Now" : "Planned for " + min2label(_nb.start_min)) + " · " + meta;
+    html += '<div class="t-next"><div class="t-next-label">' + (_isPlanned ? 'Up next' : 'Do this next') + '</div>'
       + '<button class="t-next-title" onclick="openEditAssignment(\'' + a.id + '\')">' + esc(a.next_action || a.title) + '</button>'
       + '<div class="t-next-meta">' + meta + '</div>'
-      + '<div class="t-next-actions"><button class="chunky-btn" onclick="startAssignmentFocus(event,\'' + a.id + '\')">START 25 MIN</button>'
+      + '<div class="t-next-actions"><button class="chunky-btn" onclick="' + (_isPlanned ? 'planStart(\'' + _nb.id + '\')' : 'startAssignmentFocus(event,\'' + a.id + '\')') + '">START 25 MIN</button>'
       + (focusItems.length > 1 ? '<button class="t-ghost" onclick="todayFocusNext()">Not now</button>' : '<button class="t-ghost" onclick="openEditAssignment(\'' + a.id + '\')">Edit</button>')
       + '</div></div>';
   } else {
@@ -2176,17 +2207,17 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
       + '<div class="t-next-actions"><button class="chunky-btn" onclick="openAddAssignmentModal()">ADD SOMETHING</button></div></div>';
   }
 
-  html += renderTodayPlan(todayStr);
+  html += renderTodayPlan(todayStr, (focusItems.length && _nb && focusItems[todayFocusIdx % focusItems.length].id === _nb.assignment_id) ? _nb.id : null);
   var _main = html; html = "";
-  // course bubbles
+  // courses, as a plain list
   if (semCourses.length) {
-    html += '<div class="t-courses" aria-label="Courses">';
+    html += '<div class="t-card t-wide-only t-clist"><div class="t-card-head"><div><b>Your courses</b><span>Due in the next 7 days</span></div><button class="t-link" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">Add</button></div>';
     semCourses.forEach(function(c) {
       var n = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.course_id === c.id && a.status !== "done" && d !== null && d <= 7; }).length;
-      var label = (c.name || c.code || "").length > 10 ? (c.name || "").slice(0, 9) + "…" : (c.name || c.code);
-      html += '<button class="t-course" onclick="selectCourse(\'' + c.id + '\')" aria-label="' + esc(c.name || c.code) + (n ? ', ' + n + ' due this week' : '') + '"><span class="t-bubble" style="background:' + (c.color || "#6E58B4") + ';color:' + textOn(c.color || "#6E58B4") + '">' + esc(courseAbbrIn(c, semCourses)) + (n ? '<b>' + n + '</b>' : '') + '</span><span class="t-cname">' + esc(label) + '</span></button>';
+      html += '<button class="t-crow" onclick="selectCourse(\'' + c.id + '\')"><i style="background:' + (c.color || "var(--accent)") + '"></i>'
+        + '<span class="t-crow-main"><span class="t-crow-name">' + esc(c.name || c.code) + '</span><span class="t-crow-code">' + esc(c.code || "") + '</span></span>'
+        + '<span class="t-crow-n' + (n ? '' : ' is-zero') + '">' + (n ? n + ' due' : 'Nothing due') + '</span></button>';
     });
-    html += '<button class="t-course" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')" aria-label="Add a course"><span class="t-bubble is-add">+</span><span class="t-cname">Add</span></button>';
     html += '</div>';
   }
 
@@ -2194,10 +2225,10 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   var wp = weekPlan(semA, mon);
   var pTot = wp.planned.reduce(function(x, y) { return x + y; }, 0), dTot = wp.done.reduce(function(x, y) { return x + y; }, 0);
   var maxP = Math.max(60, Math.max.apply(null, wp.planned));
-  var tag = ws.status === "paused" ? "STREAK PAUSED" : (ws.status === "new" ? "START A STREAK" : ws.run + "-WEEK STREAK");
+  var tag = ws.status === "paused" ? "Streak paused. One session this week keeps it going." : (ws.status === "new" ? "No streak yet. Finish one session this week to start one." : ws.run + "-week streak. Keep it going this week.");
   var hrs = function(m) { var h = Math.round(m / 30) / 2; return h % 1 ? h.toFixed(1) : String(h); };
   html += '<div class="t-week"><div class="t-week-head"><div><div class="t-week-title">This week</div><div class="t-week-sub">' + (pTot > 0 ? hrs(dTot) + ' of ' + hrs(pTot) + ' hours done' : 'Add time guesses to see your week') + '</div></div>'
-    + '<button class="t-streak" onclick="toggleDashMore(true)"><img class="t-streak-ico" src="icons/habits/flame.png" alt="" onerror="this.remove()">' + tag + '</button></div>';
+    + '</div><button class="t-streak-line" onclick="toggleDashMore(true)"><img src="icons/habits/flame.png" alt="" onerror="this.remove()"><span>' + tag + '</span></button>';
   var desc = [];
   html += '<div class="t-bars">';
   for (var j = 0; j < 7; j++) {
@@ -2211,7 +2242,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   }
   html += '</div><div class="t-bar-labels">';
   for (var k = 0; k < 7; k++) { var dk = tlAddDays(mon, k); html += '<span' + (localDateStr(dk) === todayStr ? ' class="is-today"' : '') + '>' + "SMTWTFS"[dk.getDay()] + '</span>'; }
-  html += '</div><span class="sr-only">' + esc(desc.join("; ")) + '</span></div>';
+  html += '</div><div class="t-key" aria-hidden="true"><span><i class="k-plan"></i>Planned</span><span><i class="k-done"></i>Done</span><span><i class="k-today"></i>Today</span></div><span class="sr-only">' + esc(desc.join("; ")) + '</span></div>';
 
   var _side = html; html = "";
   // due list
@@ -3497,18 +3528,19 @@ window.routineSave = async function() {
 };
 
 // Today card
-function renderTodayPlan(todayStr) {
+function renderTodayPlan(todayStr, skipId) {
   var blocks = blocksFor(todayStr), nm = planNowMin();
-  var upcoming = blocks.filter(function(b) { return !b.done && b.start_min + b.dur_min > nm; }).slice(0, 3);
+  var upcoming = blocks.filter(function(b) { return !b.done && b.start_min + b.dur_min > nm && b.id !== skipId; }).slice(0, 3);
   var doneN = blocks.filter(function(b) { return b.done; }).length;
-  var h = '<div class="t-plan"><div class="t-plan-head"><b>Today\'s plan</b><button class="t-link" onclick="openPlanner()">' + (blocks.length ? 'Open planner' : 'Plan today') + '</button></div>';
-  if (!blocks.length) h += '<div class="t-plan-empty">Give your work a time. A plan with two or three short sessions is plenty.</div>';
-  else if (!upcoming.length) h += '<div class="t-plan-empty">' + (doneN ? 'All done for today. ' + doneN + ' session' + (doneN > 1 ? 's' : '') + ' finished.' : 'Nothing left on today\'s plan.') + '</div>';
+  var h = '<div class="t-plan"><div class="t-plan-head"><div><b>' + (skipId ? 'Later today' : 'Today\'s plan') + '</b>'
+    + '<span class="t-plan-sub">' + (blocks.length ? 'Times you set for your work' : 'Pick times for your work') + '</span></div><button class="t-link" onclick="openPlanner()">' + (blocks.length ? 'Open planner' : 'Plan today') + '</button></div>';
+  if (!blocks.length) h += '<div class="t-plan-empty">Two or three short sessions is plenty.</div>';
+  else if (!upcoming.length) h += '<div class="t-plan-empty">' + (skipId ? 'Nothing else planned today.' : doneN ? 'All done for today. ' + doneN + ' session' + (doneN > 1 ? 's' : '') + ' finished.' : 'Nothing left on today\'s plan.') + '</div>';
   upcoming.forEach(function(b) {
     var a = b.assignment_id ? assignments.find(function(x) { return x.id === b.assignment_id; }) : null, c = a ? getCourseById(a.course_id) : null;
     var live = b.start_min <= nm;
     h += '<div class="t-plan-row"><span class="t-plan-time">' + (live ? 'Now' : min2label(b.start_min)) + '</span><button class="t-plan-title t-row-main" style="padding:0" onclick="openPlanner()">' + esc(planBlockTitle(b)) + '<small>' + (c ? esc(c.code) + ' · ' : '') + durLabel(b.dur_min) + '</small></button>'
-      + (a ? '<button class="t-plan-go" onclick="planStart(\'' + b.id + '\')">START</button>' : '') + '</div>';
+      + (a ? '<button class="t-plan-go" onclick="planStart(\'' + b.id + '\')" aria-label="Start ' + esc(planBlockTitle(b)) + '">Start</button>' : '') + '</div>';
   });
   return h + '</div>';
 }
