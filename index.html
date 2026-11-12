@@ -454,6 +454,38 @@ select.inp { cursor: pointer; }
 .day-item-title.is-done { text-decoration: line-through; opacity: .6; }
 .day-item-sub { font-size: .72rem; font-weight: 600; color: var(--text3); }
 
+/* Calmer dashboard + streaks */
+.dash-later { display: block; margin: -6px 0 18px auto; background: none; border: none; color: var(--accent); font-family: inherit; font-size: .8rem; font-weight: 800; cursor: pointer; padding: 6px 2px; }
+.dash-strip { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 18px; margin: 4px 0 14px; box-shadow: var(--card-shadow); cursor: pointer; }
+.dash-strip-label { font-size: .72rem; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.dash-strip-main { font-size: .9rem; font-weight: 900; color: var(--text); }
+.dash-strip-sub { font-size: .74rem; font-weight: 600; color: var(--text3); margin-top: 2px; line-height: 1.35; }
+.dash-strip-xp { text-align: right; }
+.wk-dots { display: flex; gap: 5px; }
+.wk-dot { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; font-weight: 800; color: var(--text4); background: var(--bg3); border: 1.5px solid var(--border2); }
+.wk-dot.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.wk-dot.rest { background: transparent; border-style: dashed; color: var(--text4); }
+.wk-dot.is-today { box-shadow: 0 0 0 2px var(--bg2), 0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent); }
+.dash-more-toggle { display: block; width: 100%; margin: 6px 0 16px; padding: 12px; background: var(--bg3); border: 1.5px dashed var(--border); border-radius: var(--radius); color: var(--text2); font-family: inherit; font-size: .82rem; font-weight: 800; cursor: pointer; }
+.dash-more-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.comeback-card { background: var(--accent-bg); border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; font-size: .85rem; font-weight: 600; color: var(--text); line-height: 1.45; }
+.wk-settings { background: var(--bg2); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; gap: 12px; }
+.wk-set-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.wk-set-label { font-size: .8rem; font-weight: 800; color: var(--text2); min-width: 110px; }
+.wk-goal { width: auto; padding: 6px 10px; font-size: .82rem; }
+.wk-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.wk-chip { border: 1.5px solid var(--border); background: var(--bg2); color: var(--text2); border-radius: 999px; padding: 6px 11px; font-family: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; }
+.wk-chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.wk-swatch { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--bg2); box-shadow: 0 0 0 1.5px var(--border); cursor: pointer; }
+.wk-swatch.on { box-shadow: 0 0 0 2.5px var(--text); }
+.wk-set-note { font-size: .74rem; font-weight: 600; color: var(--text3); line-height: 1.45; }
+@media (max-width: 768px) {
+  .dash-strip { grid-template-columns: 1fr auto; gap: 10px 14px; padding: 12px 14px; }
+  .dash-strip-week { grid-column: 1 / -1; }
+}
+
+.badge-toast-more { background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-size: .8rem; font-weight: 800; box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+
 /* Calendar import */
 .ics-modal { max-width: 620px; }
 .ics-help { font-size: .8rem; color: var(--text2); font-weight: 600; line-height: 1.5; background: var(--bg3); border: 1px solid var(--border2); border-radius: 12px; padding: 10px 14px; }
@@ -903,6 +935,7 @@ var confirmCb = null;
 var userStats = null;
 var habits = [];
 var habitLogs = [];
+var habitHistory = [];
 var editingHabitId = null;
 
 var COURSE_COLORS = [
@@ -963,19 +996,19 @@ function getLevelIconSvg(k) { return LEVEL_ICON_SVGS[k] || k; }
 
 var BADGE_DEFS = [
   { id: "first_step",          name: "First Step",          desc: "Complete 1 assignment",                     icon: "check",       rarity: "common",   xpBonus: 25,  cat: "productivity" },
-  { id: "momentum",            name: "Momentum",            desc: "Complete 3 assignments in one day",         icon: "bolt",        rarity: "common",   xpBonus: 40,  cat: "productivity" },
-  { id: "speed_runner",        name: "Speed Runner",        desc: "Complete 5 assignments in one day",         icon: "bolt_ring",   rarity: "uncommon", xpBonus: 60,  cat: "productivity" },
+  { id: "momentum", name: "Head Start", desc: "Finish an assignment 2+ days before it's due",         icon: "bolt",        rarity: "common",   xpBonus: 40,  cat: "productivity" },
+  { id: "speed_runner", name: "Way Ahead", desc: "Finish 5 assignments 2+ days early",         icon: "bolt_ring",   rarity: "uncommon", xpBonus: 60,  cat: "productivity" },
   { id: "focused_finish",      name: "Focused Finish",      desc: "Complete 10 assignments total",             icon: "target",      rarity: "uncommon", xpBonus: 75,  cat: "productivity" },
   { id: "task_titan",          name: "Task Titan",          desc: "Complete 25 assignments total",             icon: "trophy",      rarity: "rare",     xpBonus: 120, cat: "productivity" },
   { id: "legend",              name: "Legend",              desc: "Complete 100 assignments total",            icon: "crown",       rarity: "epic",     xpBonus: 300, cat: "productivity" },
-  { id: "early_bird",          name: "Early Bird",          desc: "Complete a task before 8 AM",               icon: "sunrise",     rarity: "common",   xpBonus: 25,  cat: "productivity" },
-  { id: "night_owl",           name: "Night Owl",           desc: "Complete a task after midnight",            icon: "moon",        rarity: "common",   xpBonus: 25,  cat: "productivity" },
-  { id: "weekend_warrior",     name: "Weekend Warrior",     desc: "Complete 5 tasks on weekends",              icon: "starburst",   rarity: "uncommon", xpBonus: 50,  cat: "productivity" },
+  { id: "early_bird", name: "Early Start", desc: "Give 5 assignments a start date",               icon: "sunrise",     rarity: "common",   xpBonus: 25,  cat: "productivity" },
+  { id: "night_owl", name: "Rest Day", desc: "Plan a rest day in Your week",            icon: "moon",        rarity: "common",   xpBonus: 25,  cat: "productivity" },
+  { id: "weekend_warrior", name: "Comeback", desc: "Get back to work after a few days away",              icon: "starburst",   rarity: "uncommon", xpBonus: 50,  cat: "productivity" },
   { id: "perfect_week",        name: "Perfect Week",        desc: "Finish everything due this week",           icon: "ribbon",      rarity: "rare",     xpBonus: 120, cat: "productivity" },
-  { id: "on_fire",             name: "On Fire",             desc: "5 day completion streak",                   icon: "flame",       rarity: "common",   xpBonus: 50,  cat: "streaks" },
-  { id: "relentless",          name: "Relentless",          desc: "10 day completion streak",                  icon: "flame_ring",  rarity: "uncommon", xpBonus: 90,  cat: "streaks" },
-  { id: "unstoppable",         name: "Unstoppable",         desc: "30 day completion streak",                  icon: "comet",       rarity: "rare",     xpBonus: 180, cat: "streaks" },
-  { id: "semester_ironman",    name: "Semester Ironman",    desc: "60 day completion streak",                  icon: "shield",      rarity: "epic",     xpBonus: 350, cat: "streaks" },
+  { id: "on_fire", name: "Steady Start", desc: "Reach your weekly goal 2 weeks running",                   icon: "flame",       rarity: "common",   xpBonus: 50,  cat: "streaks" },
+  { id: "relentless", name: "Steady", desc: "Reach your weekly goal 4 weeks running",                  icon: "flame_ring",  rarity: "uncommon", xpBonus: 90,  cat: "streaks" },
+  { id: "unstoppable", name: "Unstoppable", desc: "Reach your weekly goal 8 weeks running",                  icon: "comet",       rarity: "rare",     xpBonus: 180, cat: "streaks" },
+  { id: "semester_ironman", name: "Whole Semester", desc: "Reach your weekly goal 12 weeks running",                  icon: "shield",      rarity: "epic",     xpBonus: 350, cat: "streaks" },
   { id: "routine_builder",     name: "Routine Builder",     desc: "Complete a habit 3 days in a row",          icon: "repeat",      rarity: "common",   xpBonus: 30,  cat: "habits" },
   { id: "consistency_king",    name: "Consistency King",    desc: "Complete a habit 7 days in a row",          icon: "repeat_ring", rarity: "uncommon", xpBonus: 60,  cat: "habits" },
   { id: "discipline_mode",     name: "Discipline Mode",     desc: "Complete a habit 30 days in a row",         icon: "diamond",     rarity: "rare",     xpBonus: 180, cat: "habits" },
@@ -983,7 +1016,7 @@ var BADGE_DEFS = [
   { id: "semester_architect",  name: "Semester Architect",  desc: "Create your first semester",                icon: "calendar",    rarity: "common",   xpBonus: 20,  cat: "setup" },
   { id: "course_starter",      name: "Course Starter",      desc: "Add your first course",                     icon: "book",        rarity: "common",   xpBonus: 20,  cat: "setup" },
   { id: "full_load",           name: "Full Load",           desc: "Add 5 courses to one semester",             icon: "stack",       rarity: "uncommon", xpBonus: 50,  cat: "setup" },
-  { id: "organized_mind",      name: "Organized Mind",      desc: "Add notes to 10 assignments",               icon: "spark",       rarity: "common",   xpBonus: 40,  cat: "setup" },
+  { id: "organized_mind", name: "First Steps", desc: "Add a first step to 10 assignments",               icon: "spark",       rarity: "common",   xpBonus: 40,  cat: "setup" },
   { id: "planner_mode",        name: "Planner Mode",        desc: "Add 20 assignments",                        icon: "grid",        rarity: "uncommon", xpBonus: 60,  cat: "setup" },
   { id: "course_master",       name: "Course Master",       desc: "Complete all assignments in a course",      icon: "medal",       rarity: "rare",     xpBonus: 120, cat: "setup" },
   { id: "double_major",        name: "Double Up",        desc: "Fully complete 2 courses",                  icon: "medal_duo",   rarity: "rare",     xpBonus: 180, cat: "setup" },
@@ -1194,8 +1227,7 @@ window.toggleTheme = function() {
 };
 
 function applyLevelPalette(xp) {
-  var level = getLevel(xp);
-  var palette = (level.theme && level.theme !== "default") ? level.theme : "";
+  var palette = userPrefs().palette;
   var html = document.documentElement;
   if (palette) { html.setAttribute("data-palette", palette); }
   else { html.removeAttribute("data-palette"); }
@@ -1257,6 +1289,8 @@ async function loadAll() {
       var today = localDateStr();
       var logsRes = await sb.from("habit_logs").select("*").eq("user_id", currentUser.id).eq("completed_date", today);
       habitLogs = (logsRes && logsRes.data) ? logsRes.data : [];
+      var histRes = await sb.from("habit_logs").select("habit_id,completed_date,completed_count").eq("user_id", currentUser.id).gte("completed_date", localDateStr(new Date(Date.now() - 200 * 86400000)));
+      habitHistory = (histRes && histRes.data) ? histRes.data : [];
     } catch(e) { habits = []; habitLogs = []; }
     var savedSemId = localStorage.getItem("semstr-sem-" + currentUser.id);  // RC2
     if (savedSemId) {
@@ -1465,6 +1499,130 @@ function calculateGPA(semAssignments) {
   return totalWeight > 0 ? Math.round(weightedScore / totalWeight * 100) : null;
 }
 
+/* ===== RC3: forgiving streaks — weekly goal, rest days, pause instead of reset ===== */
+var XP_EARLY = 15;
+var PALETTES = [["", "Purple", "#6c47ff"], ["ocean", "Ocean", "#0ea5e9"], ["sakura", "Sakura", "#e11d78"], ["forest", "Forest", "#16a34a"], ["midnight", "Midnight", "#4f46e5"], ["ember", "Ember", "#ea580c"], ["gold", "Gold", "#b45309"]];
+function userPrefs() {
+  var md = (currentUser && currentUser.user_metadata) || {};
+  var g = parseInt(md.week_goal || 3, 10);
+  return { weekGoal: isNaN(g) ? 3 : Math.max(1, Math.min(7, g)), restDays: Array.isArray(md.rest_days) ? md.rest_days : [], palette: md.palette || "" };
+}
+async function saveUserMeta(patch) {
+  currentUser.user_metadata = Object.assign({}, currentUser.user_metadata || {}, patch);
+  try { var r = await sb.auth.updateUser({ data: patch }); if (r && r.error) throw r.error; }
+  catch (e) { showToast(e.message || "Couldn't save that setting", "error"); }
+}
+// A day counts if you finished an assignment or did at least the minimum of any habit.
+function activeDaySet() {
+  var set = {};
+  assignments.forEach(function(a) { if (a.status === "done" && a.updated_at) set[localDateStr(new Date(a.updated_at))] = 1; });
+  habitHistory.concat(habitLogs).forEach(function(l) { if ((parseInt(l.completed_count || 1, 10) || 0) >= 1) set[l.completed_date] = 1; });
+  return set;
+}
+// Weekly streak: a week is kept when you hit your goal. One missed week pauses the streak; two in a row end it quietly.
+function weekStats() {
+  var p = userPrefs(), set = activeDaySet();
+  var need = Math.max(1, Math.min(p.weekGoal, 7 - p.restDays.length));
+  var thisMon = tlMonday(new Date());
+  var semStart = (activeSemester && activeSemester.start_date) ? activeSemester.start_date : null;
+  function count(mon) { var n = 0; for (var i = 0; i < 7; i++) if (set[localDateStr(tlAddDays(mon, i))]) n++; return n; }
+  var run = 0, best = 0, gap = 0, started = false;
+  for (var w = 30; w >= 1; w--) {
+    var kept = count(tlAddDays(thisMon, -7 * w)) >= need;
+    if (kept) { run++; gap = 0; started = true; }
+    else if (started) { gap++; if (gap >= 2) run = 0; }
+    if (run > best) best = run;
+  }
+  var thisCount = count(thisMon), thisKept = thisCount >= need;
+  var current = run + (thisKept ? 1 : 0);
+  if (current > best) best = current;
+  var semDays = 0, lastActive = null;
+  Object.keys(set).forEach(function(d) { if (!semStart || d >= semStart) semDays++; if (!lastActive || d > lastActive) lastActive = d; });
+  var status = current === 0 ? "new" : (gap === 1 && !thisKept ? "paused" : "active");
+  return { need: need, thisCount: thisCount, thisKept: thisKept, run: current, best: best, status: status, semDays: semDays, lastActive: lastActive, restDays: p.restDays, set: set, thisMon: thisMon };
+}
+// Per-habit streak: the minimum counts, rest days are skipped, one missed day pauses it.
+function habitStreakInfo(habitId) {
+  var rest = userPrefs().restDays, days = {};
+  habitHistory.concat(habitLogs).forEach(function(l) { if (l.habit_id === habitId && (parseInt(l.completed_count || 1, 10) || 0) >= 1) days[l.completed_date] = 1; });
+  var d = new Date(); d.setHours(0,0,0,0);
+  var todayDone = !!days[localDateStr(d)];
+  var cur = new Date(d); if (!todayDone) cur.setDate(cur.getDate() - 1);
+  var yesterdayMissed = !todayDone && !days[localDateStr(cur)] && rest.indexOf(cur.getDay()) === -1;
+  var streak = 0, misses = 0;
+  for (var i = 0; i < 400; i++) {
+    if (days[localDateStr(cur)]) { streak++; misses = 0; }
+    else if (rest.indexOf(cur.getDay()) === -1) { misses++; if (misses >= 2) break; }
+    cur.setDate(cur.getDate() - 1);
+  }
+  return { streak: streak, paused: yesterdayMissed && streak > 0, todayDone: todayDone };
+}
+function isEarlyFinish(a) {
+  if (!a.due_date || !a.updated_at) return false;
+  var done = new Date(a.updated_at); done.setHours(0,0,0,0);
+  return (new Date(a.due_date + "T00:00:00") - done) / 86400000 >= 2;
+}
+function xpForAssignment(a) {
+  var x = XP_VALUES[a.type] || 20;
+  if (a.marks_received != null && a.total_marks > 0) {
+    var pct = a.marks_received / a.total_marks * 100;
+    if (pct >= 90) x += XP_GRADE_A; else if (pct >= 80) x += XP_GRADE_B;
+  }
+  if (isEarlyFinish(a)) x += XP_EARLY;
+  return x;
+}
+function renderProgressStrip(ws) {
+  var xp = (userStats && userStats.xp) || 0, level = getLevel(xp);
+  var dots = "";
+  for (var i = 0; i < 7; i++) {
+    var d = tlAddDays(ws.thisMon, i), ds = localDateStr(d);
+    var cls = ws.set[ds] ? "on" : (ws.restDays.indexOf(d.getDay()) > -1 ? "rest" : "");
+    if (ds === localDateStr()) cls += " is-today";
+    dots += '<span class="wk-dot ' + cls + '" title="' + d.toLocaleDateString("en-US", { weekday: "long" }) + (ws.set[ds] ? ": done" : (cls.indexOf("rest") > -1 ? ": rest day" : "")) + '">' + "SMTWTFS"[d.getDay()] + '</span>';
+  }
+  var streakLine, sub;
+  if (ws.status === "paused") { streakLine = ws.run + " week streak · paused"; sub = "Do one small thing this week to keep it going."; }
+  else if (ws.status === "new") { streakLine = "Start a streak this week"; sub = "Reach " + ws.need + " day" + (ws.need === 1 ? "" : "s") + " this week. The minimum counts."; }
+  else { streakLine = ws.run + " week streak"; sub = "Best: " + ws.best + " week" + (ws.best === 1 ? "" : "s") + " · " + ws.semDays + " study day" + (ws.semDays === 1 ? "" : "s") + " this semester"; }
+  return '<div class="dash-strip" onclick="toggleDashMore(true)">'
+    + '<div class="dash-strip-week"><div class="dash-strip-label">This week · ' + ws.thisCount + ' of ' + ws.need + ' days' + (ws.thisKept ? ' ✓' : '') + '</div><div class="wk-dots">' + dots + '</div></div>'
+    + '<div class="dash-strip-streak"><div class="dash-strip-main">' + streakLine + '</div><div class="dash-strip-sub">' + sub + '</div></div>'
+    + '<div class="dash-strip-xp"><div class="dash-strip-main">' + esc(level.name) + '</div><div class="dash-strip-sub">' + xp + ' XP</div></div></div>';
+}
+function renderWeekSettings() {
+  var p = userPrefs();
+  var html = '<div class="section-title">Your week</div><div class="wk-settings">';
+  html += '<div class="wk-set-row"><div class="wk-set-label">Weekly goal</div><select class="inp wk-goal" onchange="saveWeekGoal(this.value)">';
+  for (var g = 1; g <= 7; g++) html += '<option value="' + g + '"' + (g === p.weekGoal ? ' selected' : '') + '>' + g + ' day' + (g === 1 ? '' : 's') + ' a week</option>';
+  html += '</select></div>';
+  html += '<div class="wk-set-row"><div class="wk-set-label">Rest days <span class="flbl-hint">(skipped, never missed)</span></div><div class="wk-chips">';
+  [1,2,3,4,5,6,0].forEach(function(d) {
+    html += '<button class="wk-chip' + (p.restDays.indexOf(d) > -1 ? ' on' : '') + '" onclick="toggleRestDay(' + d + ')">' + ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d] + '</button>';
+  });
+  html += '</div></div>';
+  html += '<div class="wk-set-row"><div class="wk-set-label">Colour</div><div class="wk-chips">';
+  PALETTES.forEach(function(pl) {
+    html += '<button class="wk-swatch' + (pl[0] === p.palette ? ' on' : '') + '" style="background:' + pl[2] + '" title="' + pl[1] + '" aria-label="' + pl[1] + '" onclick="setPalette(\'' + pl[0] + '\')"></button>';
+  });
+  html += '</div></div>';
+  html += '<div class="wk-set-note">A day counts when you finish an assignment or do at least the minimum of a habit. Missing a week pauses your streak instead of ending it.</div>';
+  html += '</div>';
+  return html;
+}
+window.toggleDashMore = function(forceOpen) {
+  uiExpanded["dashMore"] = forceOpen === true ? true : !uiExpanded["dashMore"];
+  renderDashboard();
+  if (uiExpanded["dashMore"]) { var el = document.getElementById("dash-more"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+};
+window.saveWeekGoal = async function(v) { await saveUserMeta({ week_goal: parseInt(v, 10) }); renderDashboard(); };
+window.toggleRestDay = async function(d) {
+  var r = userPrefs().restDays.slice(); var i = r.indexOf(d);
+  if (i > -1) r.splice(i, 1); else r.push(d);
+  await saveUserMeta({ rest_days: r }); renderDashboard();
+  if (r.length) evaluateBadges({ trigger: "prefs" });
+};
+window.setPalette = async function(k) { await saveUserMeta({ palette: k }); applyLevelPalette(); renderDashboard(); };
+
 function renderDashboard() {
   if (!activeSemester) return;
   var ca = document.getElementById("content-area");
@@ -1483,67 +1641,13 @@ function renderDashboard() {
     html += setupCard("Step 3: add what's due", "Add your next assignment, test or project. Give it a start date and a time guess so Semstr can help you plan your week.", "＋ Add an assignment", "openAddAssignmentModal()");
   }
 
+  var moreHtml = '', badgesHtml = '';
+  var earnedBadgeIds = _unlockedBadgeIds ? Array.from(_unlockedBadgeIds) : ((userStats && userStats.badges) || []);
+  var ws = weekStats();
+  if (ws.lastActive && daysUntil(ws.lastActive) <= -3 && total > 0) {
+    html += '<div class="comeback-card"><b>Welcome back.</b> Pick one small thing to restart. Ten minutes on the first step counts.</div>';
+  }
   if (userStats) {
-    var xp = userStats.xp || 0;
-    var streak = userStats.streak || 0;
-    var level = getLevel(xp);
-    var nextLevel = getNextLevel(xp);
-    var levelPct = nextLevel ? Math.min(100, Math.round((xp - level.min) / (nextLevel.min - level.min) * 100)) : 100;
-    var earnedBadgeIds = _unlockedBadgeIds ? Array.from(_unlockedBadgeIds) : (userStats.badges || []);
-    var userName = currentUser ? ((currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split("@")[0]) : "";
-    var lvlIdx = getLevelIndex(xp);
-    var paletteLabels = { default:"Purple", ocean:"Ocean", sakura:"Sakura", forest:"Forest", midnight:"Midnight", ember:"Ember", gold:"Gold" };
-    var recentBadges = earnedBadgeIds.slice(-3).map(function(bid) {
-      return BADGE_DEFS.find(function(b) { return b.id === bid; });
-    }).filter(Boolean);
-
-    html += '<div style="background:linear-gradient(135deg,#6c47ff 0%,#ec4899 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;color:#fff;box-shadow:0 6px 24px rgba(108,71,255,.3)">';
-    html += '<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">';
-    html += '<div style="position:relative;flex-shrink:0">';
-    html += '<div style="width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-1px;border:2.5px solid rgba(255,255,255,.5);box-shadow:0 2px 12px rgba(0,0,0,.2)">';
-    html += (userName[0] || "?").toUpperCase();
-    html += '</div>';
-    if (lvlIdx >= 2) {
-      // RC2: SVG level icon
-      html += '<div style="position:absolute;bottom:-2px;right:-2px;background:rgba(0,0,0,.4);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center">' + getLevelIconSvg(level.icon) + '</div>';
-    }
-    html += '</div>';
-    html += '<div style="flex:1;min-width:0">';
-    html += '<div style="font-size:1.1rem;font-weight:900;letter-spacing:-.3px;line-height:1.1">' + esc(userName) + '</div>';
-    // RC2: SVG level icon in badge
-    html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.8;margin-top:2px;display:flex;align-items:center;gap:4px">' + getLevelIconSvg(level.icon) + ' ' + level.name + ' · ' + xp + ' XP</div>';
-    if (level.theme && level.theme !== "default") {
-      html += '<div style="font-size:.7rem;font-weight:700;opacity:.75;margin-top:1px">Theme: ' + (paletteLabels[level.theme] || level.theme) + '</div>';
-    }
-    if (nextLevel) {
-      html += '<div style="background:rgba(255,255,255,.25);border-radius:10px;height:5px;margin-top:7px;overflow:hidden">';
-      html += '<div style="background:#fff;height:100%;width:' + levelPct + '%;border-radius:10px;transition:width .5s"></div></div>';
-      html += '<div style="font-size:.7rem;opacity:.75;margin-top:3px;font-weight:600">' + (nextLevel.min - xp) + ' XP to ' + nextLevel.name + '</div>';
-    }
-    html += '</div>';
-    // RC2: Streak SVG icon
-    var _sIco = streak > 0
-      ? '<svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 2.1-1.4 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" fill="#fff" opacity=".9"/></svg>'
-      : '<svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 3.3 0 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z" stroke="#fff" stroke-width="1.3" opacity=".5"/></svg>';
-    html += '<div style="text-align:center;flex-shrink:0;padding:0 4px">';
-    html += '<div style="font-size:2rem;font-weight:900;line-height:1">' + _sIco + '</div>';
-    html += '<div style="font-size:1.4rem;font-weight:900;line-height:1;margin-top:2px">' + streak + '</div>';
-    html += '<div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.75">Streak</div>';
-    html += '</div>';
-    if (recentBadges.length > 0) {
-      html += '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px">';
-      html += '<div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.75;margin-bottom:2px">Recent</div>';
-      html += '<div style="display:flex;gap:5px">';
-      recentBadges.forEach(function(b) {
-        var bg = b.rarity === "epic" ? "rgba(192,132,252,.4)" : b.rarity === "rare" ? "rgba(158,116,255,.35)" : "rgba(255,255,255,.2)";
-        html += '<div title="' + esc(b.name) + '" style="width:32px;height:32px;border-radius:9px;background:' + bg + ';display:grid;place-items:center;border:1.5px solid rgba(255,255,255,.3)">';
-        html += '<svg style="width:16px;height:16px;color:#fff" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg>';
-        html += '</div>';
-      });
-      html += '</div></div>';
-    }
-    html += '</div></div>';
-
     var BADGE_CATS = [
       { key: "productivity", label: "<svg width='13' height='13' viewBox='0 0 20 20' fill='none' style='display:inline-block;vertical-align:middle;'><rect x='3' y='2' width='14' height='16' rx='2' stroke='currentColor' stroke-width='1.4'/><path d='M6.5 7h7M6.5 10h7M6.5 13h4' stroke='currentColor' stroke-width='1.2' stroke-linecap='round' opacity='.7'/></svg> Productivity" },
       { key: "streaks",      label: "<svg width='13' height='13' viewBox='0 0 20 20' fill='none' style='display:inline-block;vertical-align:middle;'><path d='M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 2.1-1.4 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z' fill='currentColor' opacity='.85'/></svg> Streaks" },
@@ -1552,52 +1656,52 @@ function renderDashboard() {
       { key: "milestones",   label: "<svg width='13' height='13' viewBox='0 0 20 20' fill='none' style='display:inline-block;vertical-align:middle;'><path d='M10 2l1.6 4.5H17l-4 2.9 1.5 4.6L10 11.4l-4.5 2.6 1.5-4.6-4-2.9h5.4z' fill='currentColor' opacity='.85'/></svg> Milestones" }
     ];
     var badgesOpen = uiExpanded["badges"] || false;
-    html += '<div class="section-title" onclick="toggleBadgesPanel()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;margin-bottom:' + (badgesOpen ? '8px' : '20px') + '">';
-    html += '<div style="display:flex;align-items:center;gap:8px">Badges';
-    html += '<span style="font-size:.72rem;font-weight:600;color:var(--text3)">' + earnedBadgeIds.length + ' / ' + BADGE_DEFS.length + ' earned</span>';
+    badgesHtml += '<div class="section-title" onclick="toggleBadgesPanel()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;margin-bottom:' + (badgesOpen ? '8px' : '20px') + '">';
+    badgesHtml += '<div style="display:flex;align-items:center;gap:8px">Badges';
+    badgesHtml += '<span style="font-size:.72rem;font-weight:600;color:var(--text3)">' + earnedBadgeIds.length + ' / ' + BADGE_DEFS.length + ' earned</span>';
     if (!badgesOpen && earnedBadgeIds.length > 0) {
-      html += '<div style="display:flex;gap:3px;margin-left:2px">';
+      badgesHtml += '<div style="display:flex;gap:3px;margin-left:2px">';
       earnedBadgeIds.slice(0, 6).forEach(function(bid) {
         var b = BADGE_DEFS.find(function(x) { return x.id === bid; });
         if (!b) return;
         var bg = b.rarity === 'epic' ? 'linear-gradient(135deg,#c084fc,#4a22cc)' : b.rarity === 'rare' ? 'linear-gradient(135deg,#9e74ff,#5632dd)' : b.rarity === 'uncommon' ? 'linear-gradient(135deg,#8b7cff,#5d42f2)' : 'linear-gradient(135deg,#a98cff,#7e58ff)';
-        html += '<div style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;background:' + bg + '" title="' + esc(b.name) + '">';
-        html += '<svg style="width:12px;height:12px" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg></div>';
+        badgesHtml += '<div style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;background:' + bg + '" title="' + esc(b.name) + '">';
+        badgesHtml += '<svg style="width:12px;height:12px" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg></div>';
       });
-      if (earnedBadgeIds.length > 6) html += '<span style="font-size:.7rem;color:var(--text3);font-weight:700;align-self:center;margin-left:2px">+' + (earnedBadgeIds.length - 6) + '</span>';
-      html += '</div>';
+      if (earnedBadgeIds.length > 6) badgesHtml += '<span style="font-size:.7rem;color:var(--text3);font-weight:700;align-self:center;margin-left:2px">+' + (earnedBadgeIds.length - 6) + '</span>';
+      badgesHtml += '</div>';
     }
-    html += '</div>';
-    html += '<span style="font-size:.75rem;color:var(--text3);font-weight:700">' + (badgesOpen ? '▴ hide' : '▾ show') + '</span></div>';
+    badgesHtml += '</div>';
+    badgesHtml += '<span style="font-size:.75rem;color:var(--text3);font-weight:700">' + (badgesOpen ? '▴ hide' : '▾ show') + '</span></div>';
     if (badgesOpen) {
-      html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
+      badgesHtml += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
       BADGE_CATS.forEach(function(cat) {
         var catBadges = BADGE_DEFS.filter(function(b) { return b.cat === cat.key; });
-        html += '<div style="margin-bottom:16px">';
-        html += '<div style="font-size:.72rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">' + cat.label + '</div>';
-        html += '<div class="badge-grid">';
+        badgesHtml += '<div style="margin-bottom:16px">';
+        badgesHtml += '<div style="font-size:.72rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">' + cat.label + '</div>';
+        badgesHtml += '<div class="badge-grid">';
         catBadges.forEach(function(badge) {
           var earned = earnedBadgeIds.indexOf(badge.id) > -1;
-          html += '<div class="badge-chip ' + (earned ? 'is-earned' : 'is-locked') + '" data-rarity="' + badge.rarity + '" title="' + esc(badge.desc) + '">';
-          html += '<div class="badge-chip__mark">' + badgeIconImg(badge.id, badge.name) + '</div>';
-          html += '<div class="badge-chip__meta">';
-          html += '<div class="badge-chip__name">' + esc(badge.name) + '</div>';
-          html += '<div class="badge-chip__desc">' + esc(badge.desc) + '</div>';
+          badgesHtml += '<div class="badge-chip ' + (earned ? 'is-earned' : 'is-locked') + '" data-rarity="' + badge.rarity + '" title="' + esc(badge.desc) + '">';
+          badgesHtml += '<div class="badge-chip__mark">' + badgeIconImg(badge.id, badge.name) + '</div>';
+          badgesHtml += '<div class="badge-chip__meta">';
+          badgesHtml += '<div class="badge-chip__name">' + esc(badge.name) + '</div>';
+          badgesHtml += '<div class="badge-chip__desc">' + esc(badge.desc) + '</div>';
           if (!earned) {
             var prog = getBadgeProgress(badge.id);
             if (prog && prog.target > 0) {
               var pct = Math.min(100, Math.round(prog.current / prog.target * 100));
               var label = prog.unit === "%" ? prog.current + "%" : prog.current + " / " + prog.target + (prog.unit ? " " + prog.unit : "");
-              html += '<div style="margin-top:5px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><div style="font-size:.7rem;font-weight:700;color:var(--text3)">' + label + '</div><div style="font-size:.7rem;font-weight:800;color:var(--accent)">' + pct + '%</div></div><div style="height:4px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--accent);border-radius:4px;transition:width .3s"></div></div></div>';
+              badgesHtml += '<div style="margin-top:5px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><div style="font-size:.7rem;font-weight:700;color:var(--text3)">' + label + '</div><div style="font-size:.7rem;font-weight:800;color:var(--accent)">' + pct + '%</div></div><div style="height:4px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--accent);border-radius:4px;transition:width .3s"></div></div></div>';
             }
           } else {
-            html += '<div class="badge-chip__xp">+' + badge.xpBonus + ' XP · <span class="rarity-label rarity-' + badge.rarity + '">' + badge.rarity + '</span></div>';
+            badgesHtml += '<div class="badge-chip__xp">+' + badge.xpBonus + ' XP · <span class="rarity-label rarity-' + badge.rarity + '">' + badge.rarity + '</span></div>';
           }
-          html += '</div></div>';
+          badgesHtml += '</div></div>';
         });
-        html += '</div></div>';
+        badgesHtml += '</div></div>';
       });
-      html += '</div>';
+      badgesHtml += '</div>';
     }
   }
 
@@ -1629,18 +1733,18 @@ function renderDashboard() {
   }).slice(0, 4);
   var weekLoad = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d >= 0 && d <= 7; }).length;
 
-  html += '<div class="section-title">Academic Snapshot</div>';
-  html += '<div class="snapshot-panel">';
-  html += '<div class="stat-grid snapshot-grid">';
-  html += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')">' + statIcon('total','var(--accent)') + '<div style="flex:1"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div></div>';
-  html += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')">' + statIcon('done','var(--green)') + '<div style="flex:1"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div></div>';
-  html += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Late</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">past due</div></div></div>';
-  html += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div></div>';
-  html += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('week','var(--pink)') + '<div style="flex:1"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div></div>';
-  html += '</div>';
+  moreHtml += '<div class="section-title">Academic Snapshot</div>';
+  moreHtml += '<div class="snapshot-panel">';
+  moreHtml += '<div class="stat-grid snapshot-grid">';
+  moreHtml += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')">' + statIcon('total','var(--accent)') + '<div style="flex:1"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div></div>';
+  moreHtml += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')">' + statIcon('done','var(--green)') + '<div style="flex:1"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div></div>';
+  moreHtml += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Late</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">past due</div></div></div>';
+  moreHtml += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div></div>';
+  moreHtml += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('week','var(--pink)') + '<div style="flex:1"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div></div>';
+  moreHtml += '</div>';
 
-  html += '</div>';
-  html += '<div class="section-title">Today Focus</div>';
+  moreHtml += '</div>';
+  html += '<div class="section-title">Do this next</div>';
   html += '<div class="today-grid"><div class="today-panel">';
   html += '<div class="today-panel-title"><svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".75"/></svg> Next useful step</div>';
   html += '<div class="today-focus-main">';
@@ -1688,7 +1792,7 @@ function renderDashboard() {
 
   var upcoming7 = semA.filter(function(a) {
     var d = daysUntil(a.due_date);
-    return a.status !== "done" && d !== null && d <= 14;
+    return a.status !== "done" && d !== null && d <= 7;
   }).sort(function(a, b) { return (daysUntil(a.due_date)||99) - (daysUntil(b.due_date)||99); }).slice(0, 8);
   var overdueItems = semA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; });
   var todayFocusIds = todayFocusItems.map(function(a) { return a.id; });
@@ -1699,7 +1803,7 @@ function renderDashboard() {
   }).slice(0, 10);
 
   if (combined.length > 0) {
-    html += '<div class="section-title">Upcoming</div><div class="countdown-grid">';
+    html += '<div class="section-title">Due this week</div><div class="countdown-grid">';
     combined.forEach(function(a) {
       var course = getCourseById(a.course_id);
       var days = daysUntil(a.due_date);
@@ -1716,6 +1820,9 @@ function renderDashboard() {
     });
     html += '</div>';
   }
+  var laterCount = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d > 7; }).length;
+  if (laterCount) html += '<button class="dash-later" onclick="assignFilter=\'all\';showTab(\'assignments\')">' + laterCount + ' more due later →</button>';
+  html += renderProgressStrip(ws);
 
 
   var weekItems = semA.filter(function(a) {
@@ -1740,53 +1847,57 @@ function renderDashboard() {
   var habitTargets = habits ? habits.filter(function(h) { return h.target_count && h.target_count > 1; }).length : 0;
   var resetPriority = weekItems[0] || attentionItems[0] || todayFocusItems[0] || null;
 
-  html += '<div class="section-title">Weekly Reset</div>';
-  html += '<div class="weekly-reset-panel">';
-  html += '<div class="weekly-reset-grid">';
-  html += '<div class="weekly-reset-card"><div class="weekly-reset-label">Due this week</div><div class="weekly-reset-main">' + weekItems.length + ' active item' + (weekItems.length === 1 ? '' : 's') + '</div><div class="weekly-reset-sub">' + (weekItems[0] ? 'Next: ' + esc(weekItems[0].title) + ' · ' + esc(formatDate(weekItems[0].due_date)) : 'No dated items due in the next 7 days.') + '</div></div>';
-  html += '<div class="weekly-reset-card"><div class="weekly-reset-label">Start before urgent</div><div class="weekly-reset-main">' + startThisWeek.length + ' start cue' + (startThisWeek.length === 1 ? '' : 's') + '</div><div class="weekly-reset-sub">' + (startThisWeek[0] ? 'Begin: ' + esc(startThisWeek[0].next_action || startThisWeek[0].title) : 'Add start dates to avoid working only from deadlines.') + '</div></div>';
-  html += '<div class="weekly-reset-card"><div class="weekly-reset-label">Planned workload</div><div class="weekly-reset-main">' + estimatedLabel + '</div><div class="weekly-reset-sub">' + (estimatedWeekMinutes > 0 ? 'Based on estimates for items due this week.' : 'Add estimated time to assignments for a clearer weekly load.') + '</div></div>';
-  html += '</div>';
-  html += '<div class="weekly-reset-actions">';
-  html += '<button class="weekly-reset-chip" onclick="assignFilter=&quot;upcoming&quot;;showTab(&quot;assignments&quot;)">Review this week</button>';
-  html += '<button class="weekly-reset-chip" onclick="showTab(&quot;habits&quot;)">' + (habitTargets > 0 ? 'Check multi-step habits' : 'Review habits') + '</button>';
-  if (resetPriority) html += '<button class="weekly-reset-chip" onclick="openEditAssignment(&quot;' + resetPriority.id + '&quot;)">Set a first step</button>';
-  html += '</div>';
-  html += '</div>';
+  moreHtml = renderWeekSettings() + moreHtml;
+  moreHtml += '<div class="section-title">Weekly Reset</div>';
+  moreHtml += '<div class="weekly-reset-panel">';
+  moreHtml += '<div class="weekly-reset-grid">';
+  moreHtml += '<div class="weekly-reset-card"><div class="weekly-reset-label">Due this week</div><div class="weekly-reset-main">' + weekItems.length + ' active item' + (weekItems.length === 1 ? '' : 's') + '</div><div class="weekly-reset-sub">' + (weekItems[0] ? 'Next: ' + esc(weekItems[0].title) + ' · ' + esc(formatDate(weekItems[0].due_date)) : 'No dated items due in the next 7 days.') + '</div></div>';
+  moreHtml += '<div class="weekly-reset-card"><div class="weekly-reset-label">Start before urgent</div><div class="weekly-reset-main">' + startThisWeek.length + ' start cue' + (startThisWeek.length === 1 ? '' : 's') + '</div><div class="weekly-reset-sub">' + (startThisWeek[0] ? 'Begin: ' + esc(startThisWeek[0].next_action || startThisWeek[0].title) : 'Add start dates to avoid working only from deadlines.') + '</div></div>';
+  moreHtml += '<div class="weekly-reset-card"><div class="weekly-reset-label">Planned workload</div><div class="weekly-reset-main">' + estimatedLabel + '</div><div class="weekly-reset-sub">' + (estimatedWeekMinutes > 0 ? 'Based on estimates for items due this week.' : 'Add estimated time to assignments for a clearer weekly load.') + '</div></div>';
+  moreHtml += '</div>';
+  moreHtml += '<div class="weekly-reset-actions">';
+  moreHtml += '<button class="weekly-reset-chip" onclick="assignFilter=&quot;upcoming&quot;;showTab(&quot;assignments&quot;)">Review this week</button>';
+  moreHtml += '<button class="weekly-reset-chip" onclick="showTab(&quot;habits&quot;)">' + (habitTargets > 0 ? 'Check multi-step habits' : 'Review habits') + '</button>';
+  if (resetPriority) moreHtml += '<button class="weekly-reset-chip" onclick="openEditAssignment(&quot;' + resetPriority.id + '&quot;)">Set a first step</button>';
+  moreHtml += '</div>';
+  moreHtml += '</div>';
 
   if (semCourses.length > 0) {
-    html += '<div class="section-title" style="margin-top:20px">Courses</div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">';
+    moreHtml += '<div class="section-title" style="margin-top:20px">Courses</div>';
+    moreHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">';
     semCourses.forEach(function(course) {
       var ca2 = assignments.filter(function(a) { return a.course_id === course.id; });
       var cdone = ca2.filter(function(a) { return a.status === "done"; }).length;
       var cpct = ca2.length > 0 ? Math.round(cdone / ca2.length * 100) : 0;
-      html += '<div class="course-header-card" style="cursor:pointer;margin-bottom:0" onclick="selectCourse(\'' + course.id + '\')">';
-      html += '<div class="course-color-block" style="background:' + (course.color||"#6c47ff") + '">' + (course.code||"?")[0] + '</div>';
-      html += '<div class="course-header-info" style="flex:1"><div class="course-header-code">' + esc(course.code) + '</div>';
-      html += '<div class="course-header-name" style="font-size:.9rem">' + esc(course.name) + '</div>';
-      html += '<div class="progress-bar-wrap" style="margin-top:6px"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div></div>';
+      moreHtml += '<div class="course-header-card" style="cursor:pointer;margin-bottom:0" onclick="selectCourse(\'' + course.id + '\')">';
+      moreHtml += '<div class="course-color-block" style="background:' + (course.color||"#6c47ff") + '">' + (course.code||"?")[0] + '</div>';
+      moreHtml += '<div class="course-header-info" style="flex:1"><div class="course-header-code">' + esc(course.code) + '</div>';
+      moreHtml += '<div class="course-header-name" style="font-size:.9rem">' + esc(course.name) + '</div>';
+      moreHtml += '<div class="progress-bar-wrap" style="margin-top:6px"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div></div>';
       var cGrade = calculateCourseGrade(course.id);
-      html += '<div style="text-align:right;flex-shrink:0"><span style="font-size:.75rem;font-weight:800;color:' + (course.color||"var(--accent)") + '">' + cpct + '%</span>';
+      moreHtml += '<div style="text-align:right;flex-shrink:0"><span style="font-size:.75rem;font-weight:800;color:' + (course.color||"var(--accent)") + '">' + cpct + '%</span>';
       if (cGrade) {
         var cColor = cGrade.grade >= 80 ? "var(--green)" : cGrade.grade >= 60 ? "var(--amber)" : "var(--red)";
-        html += '<div style="font-size:.68rem;font-weight:800;color:' + cColor + '">' + cGrade.grade + '% grade</div>';
-        html += '<div style="font-size:.7rem;color:var(--text3);font-weight:600">' + cGrade.weightCovered + '% covered</div>';
+        moreHtml += '<div style="font-size:.68rem;font-weight:800;color:' + cColor + '">' + cGrade.grade + '% grade</div>';
+        moreHtml += '<div style="font-size:.7rem;color:var(--text3);font-weight:600">' + cGrade.weightCovered + '% covered</div>';
       }
-      html += '</div></div>';
+      moreHtml += '</div></div>';
     });
-    html += '</div>';
+    moreHtml += '</div>';
   }
   if (total > 0) {
     var pct = Math.round(done / total * 100);
-    html += '<div class="section-title">Semester Progress</div>';
-    html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:.82rem;font-weight:700;color:var(--text2)">' + done + ' of ' + total + ' completed</span><span style="font-size:1rem;font-weight:900;color:var(--accent)">' + pct + '%</span></div>';
-    html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + pct + '%"></div></div>';
-    html += '</div>';
+    moreHtml += '<div class="section-title">Semester Progress</div>';
+    moreHtml += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
+    moreHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:.82rem;font-weight:700;color:var(--text2)">' + done + ' of ' + total + ' completed</span><span style="font-size:1rem;font-weight:900;color:var(--accent)">' + pct + '%</span></div>';
+    moreHtml += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + pct + '%"></div></div>';
+    moreHtml += '</div>';
   }
 
 
+  var moreOpen = !!uiExpanded["dashMore"];
+  html += '<button class="dash-more-toggle" onclick="toggleDashMore()">' + (moreOpen ? 'Show less ▴' : 'More: your week, counts, courses, badges ▾') + '</button>';
+  if (moreOpen) html += '<div class="dash-more" id="dash-more">' + moreHtml + badgesHtml + '</div>';
   html += '</div>';
   ca.innerHTML = html;
 }
@@ -1915,6 +2026,7 @@ window.toggleDone = async function(e, id) {
   var a = assignments.find(function(x) { return x.id === id; });
   if (!a) return;
   var newStatus = a.status === "done" ? "todo" : "done";
+  var wsBefore = weekStats();
   try {
     var updatePayload = { status: newStatus };
     if (newStatus === "done") updatePayload.updated_at = new Date().toISOString();
@@ -1922,7 +2034,13 @@ window.toggleDone = async function(e, id) {
     if (res.error) throw res.error;
     a.status = newStatus;
     if (newStatus === "done") a.updated_at = updatePayload.updated_at;
-    if (newStatus === "done") { launchConfetti(); await awardXP(a); }
+    if (newStatus === "done") {
+      var wasAway = wsBefore.lastActive && daysUntil(wsBefore.lastActive) <= -3;
+      var hr = new Date().getHours();
+      if (hr >= 23 || hr < 5) { await awardXP(a, true); showToast("Done. It's late, so this is a good place to stop. Sleep helps you remember what you studied.", "success"); }
+      else { launchConfetti(); await awardXP(a); }
+      if (wasAway) evaluateBadges({ trigger: "comeback" });
+    }
     else { await deductXP(a); }
     renderActiveTab();
   } catch (err) { showToast(err.message, "error"); }
@@ -1942,16 +2060,21 @@ function getBadgeProgress(badgeId) {
   var xp        = (userStats && userStats.xp) || 0;
   var levelIdx  = getLevelIndex(xp);
   var semCourses = activeSemester ? courses.filter(function(c) { return c.semester_id === activeSemester.id; }) : [];
-  var withNotes  = assignments.filter(function(a) { return a.notes && a.notes.trim().length > 0; }).length;
+  var withNotes  = assignments.filter(function(a) { return a.next_action && a.next_action.trim().length > 0; }).length;
+  var wsP = weekStats();
+  var earlyDone = assignments.filter(function(a) { return a.status === "done" && isEarlyFinish(a); }).length;
   switch (badgeId) {
     case "first_step":     return { current: doneCount, target: 1 };
     case "focused_finish": return { current: doneCount, target: 10 };
     case "task_titan":     return { current: doneCount, target: 25 };
     case "legend":         return { current: doneCount, target: 100 };
-    case "on_fire":           return { current: streak, target: 5 };
-    case "relentless":        return { current: streak, target: 10 };
-    case "unstoppable":       return { current: streak, target: 30 };
-    case "semester_ironman":  return { current: streak, target: 60 };
+    case "on_fire":          return { current: Math.min(wsP.best, 2), target: 2, unit: "weeks" };
+    case "relentless":       return { current: Math.min(wsP.best, 4), target: 4, unit: "weeks" };
+    case "unstoppable":      return { current: Math.min(wsP.best, 8), target: 8, unit: "weeks" };
+    case "semester_ironman": return { current: Math.min(wsP.best, 12), target: 12, unit: "weeks" };
+    case "momentum":         return { current: Math.min(earlyDone, 1), target: 1 };
+    case "speed_runner":     return { current: Math.min(earlyDone, 5), target: 5 };
+    case "early_bird":       return { current: Math.min(assignments.filter(function(a) { return a.start_date; }).length, 5), target: 5 };
     case "semester_architect": return { current: semesters.length, target: 1 };
     case "course_starter":     return { current: courses.length,   target: 1 };
     case "full_load":          return { current: semCourses.length, target: 5 };
@@ -2060,26 +2183,20 @@ async function evaluateBadges(context) {
     var doneCount = allDone.length;
     var doneToday = allDone.filter(function(a) { return a.updated_at && sameLocalDay(a.updated_at, now); }).length;
     if (doneCount >= 1   && !unlocked.has("first_step"))     await grantBadge("first_step");
-    if (doneToday >= 3   && !unlocked.has("momentum"))       await grantBadge("momentum");
-    if (doneToday >= 5   && !unlocked.has("speed_runner"))   await grantBadge("speed_runner");
+    var earlyCount = allDone.filter(isEarlyFinish).length;
+    if (earlyCount >= 1 && !unlocked.has("momentum")) await grantBadge("momentum");
+    if (earlyCount >= 5 && !unlocked.has("speed_runner")) await grantBadge("speed_runner");
     if (doneCount >= 10  && !unlocked.has("focused_finish")) await grantBadge("focused_finish");
     if (doneCount >= 25  && !unlocked.has("task_titan"))     await grantBadge("task_titan");
     if (doneCount >= 100 && !unlocked.has("legend"))         await grantBadge("legend");
-    if (context && context.trigger === "assignment") {
-      if (hour < 8  && !unlocked.has("early_bird"))       await grantBadge("early_bird");
-      if (hour >= 0 && hour < 3 && !unlocked.has("night_owl")) await grantBadge("night_owl");
-      if ((dow === 0 || dow === 6) && !unlocked.has("weekend_warrior")) {
-        var wkRes = await sb.from("assignments").select("id,updated_at").eq("user_id", currentUser.id).eq("status","done");
-        if (!wkRes.error) {
-          var wkCount = (wkRes.data || []).filter(function(a) { if (!a.updated_at) return false; var d = new Date(a.updated_at).getDay(); return d === 0 || d === 6; }).length;
-          if (wkCount >= 5) await grantBadge("weekend_warrior");
-        }
-      }
-    }
-    if (streak >= 5  && !unlocked.has("on_fire"))          await grantBadge("on_fire");
-    if (streak >= 10 && !unlocked.has("relentless"))        await grantBadge("relentless");
-    if (streak >= 30 && !unlocked.has("unstoppable"))       await grantBadge("unstoppable");
-    if (streak >= 60 && !unlocked.has("semester_ironman"))  await grantBadge("semester_ironman");
+    if (assignments.filter(function(a) { return a.start_date; }).length >= 5 && !unlocked.has("early_bird")) await grantBadge("early_bird");
+    if (userPrefs().restDays.length && !unlocked.has("night_owl")) await grantBadge("night_owl");
+    if (context && context.trigger === "comeback" && !unlocked.has("weekend_warrior")) await grantBadge("weekend_warrior");
+    var wsB = weekStats();
+    if (wsB.best >= 2  && !unlocked.has("on_fire"))          await grantBadge("on_fire");
+    if (wsB.best >= 4  && !unlocked.has("relentless"))       await grantBadge("relentless");
+    if (wsB.best >= 8  && !unlocked.has("unstoppable"))      await grantBadge("unstoppable");
+    if (wsB.best >= 12 && !unlocked.has("semester_ironman")) await grantBadge("semester_ironman");
     var habRes = await sb.from("habits").select("id",{count:"exact",head:true}).eq("user_id", currentUser.id);
     if (!habRes.error && habRes.count >= 5 && !unlocked.has("habit_garden")) await grantBadge("habit_garden");
     if (semesters.length >= 1 && !unlocked.has("semester_architect")) await grantBadge("semester_architect");
@@ -2090,8 +2207,8 @@ async function evaluateBadges(context) {
       if (semCourses.length >= 5) await grantBadge("full_load");
     }
     if (!unlocked.has("organized_mind")) {
-      var withNotes = assignments.filter(function(a) { return a.notes && a.notes.trim().length > 0; }).length;
-      if (withNotes >= 10) await grantBadge("organized_mind");
+      var withSteps = assignments.filter(function(a) { return a.next_action && a.next_action.trim().length > 0; }).length;
+      if (withSteps >= 10) await grantBadge("organized_mind");
     }
     if (!unlocked.has("course_master")) {
       var completedCourses = 0;
@@ -2112,15 +2229,10 @@ async function evaluateBadges(context) {
   } catch(err) { console.warn("evaluateBadges:", err); }
 }
 
-async function awardXP(assignment) {
+async function awardXP(assignment, quiet) {
   try {
     var stats = await ensureStats();
-    var xpGain = XP_VALUES[assignment.type] || 20;
-    if (assignment.marks_received != null && assignment.total_marks > 0) {
-      var pct = assignment.marks_received / assignment.total_marks * 100;
-      if (pct >= 90) xpGain += XP_GRADE_A;
-      else if (pct >= 80) xpGain += XP_GRADE_B;
-    }
+    var xpGain = xpForAssignment(assignment);
     var today = localDateStr();
     var yesterday = localDateStr(new Date(Date.now() - 86400000));
     var lastDate = stats.last_completion_date;
@@ -2135,7 +2247,7 @@ async function awardXP(assignment) {
     var upRes = await sb.from("user_stats").update(updates).eq("user_id", currentUser.id);
     if (upRes.error) throw upRes.error;
     userStats = Object.assign({}, stats, updates);
-    var msg = "+" + xpGain + " XP";
+    var msg = "+" + xpGain + " XP" + (isEarlyFinish(assignment) ? " · finished early" : "");
     if (newLevel.name !== oldLevel.name) {
       applyLevelPalette(newXP);
       setTimeout(function() {
@@ -2143,10 +2255,8 @@ async function awardXP(assignment) {
         showBadgeToast({ icon: getLevelIconSvg(newLevel.icon), name: "Level Up! " + newLevel.name, desc: "You reached " + newLevel.name + " · " + newXP + " XP total" });
       }, 500);
       if (activeTab === "dashboard") renderDashboard();
-    } else if (newStreak > 1) {
-      msg += " · " + newStreak + " day streak! 🔥";
     }
-    showToast(msg, "success");
+    if (!quiet) showToast(msg, "success");
     evaluateBadges({ trigger: "assignment", data: { assignment: assignment } });
   } catch(err) { console.warn("XP error:", err); }
 }
@@ -2159,7 +2269,19 @@ window.toggleBadgesPanel = function() {
 function showBadgeToast(badge) {
   var container = document.getElementById("toast-container");
   if (!container) return;
+  if (container.querySelectorAll(".badge-toast").length >= 2) {
+    var more = container.querySelector(".badge-toast-more");
+    if (!more) {
+      more = document.createElement("div"); more.className = "badge-toast-more"; more._n = 0;
+      container.appendChild(more);
+      setTimeout(function() { more.remove(); }, 5000);
+    }
+    more._n++;
+    more.textContent = "+" + more._n + " more badge" + (more._n === 1 ? "" : "s") + " unlocked";
+    return;
+  }
   var el = document.createElement("div");
+  el.className = "badge-toast";
   el.style.cssText = "background:linear-gradient(135deg,#6c47ff,#ec4899);color:#fff;padding:12px 18px;border-radius:14px;box-shadow:0 6px 24px rgba(108,71,255,.4);display:flex;align-items:center;gap:10px;font-family:inherit;animation:slideIn .3s ease;max-width:280px;";
   var iconHtml = badge.id ? '<img src="' + badgeIconSrc(badge.id, 0) + '" data-badge-id="' + badge.id + '" data-path-index="0" onerror="badgeIconFallback(this)" alt="" style="width:52px;height:52px;object-fit:contain;display:block">' : (badge.icon || '');
   el.innerHTML = '<div style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;flex:0 0 56px">' + iconHtml + '</div><div><div style="font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.85">Badge Unlocked!</div><div style="font-size:.95rem;font-weight:900">' + badge.name + '</div><div style="font-size:.7rem;opacity:.8;margin-top:1px">' + badge.desc + '</div></div>';
@@ -2170,11 +2292,10 @@ function showBadgeToast(badge) {
 async function deductXP(assignment) {
   try {
     if (!userStats) return;
-    var xpLoss = XP_VALUES[assignment.type] || 20;
+    var xpLoss = xpForAssignment(assignment);
     var newXP = Math.max(0, (userStats.xp || 0) - xpLoss);
     await sb.from("user_stats").update({ xp: newXP }).eq("user_id", currentUser.id);
     userStats = Object.assign({}, userStats, { xp: newXP });
-    showToast("-" + xpLoss + " XP");
   } catch(err) { console.warn("XP deduct error:", err); }
 }
 
@@ -3169,24 +3290,12 @@ function renderHabits() {
 
 
 async function loadHabitStreak(habitId) {
-  try {
-    var habit = habits.find(function(h) { return h.id === habitId; });
-    var target = habit ? Math.max(1, parseInt(habit.target_count || 1, 10) || 1) : 1;
-    var res = await sb.from("habit_logs").select("completed_date,completed_count").eq("habit_id", habitId).order("completed_date", { ascending: false }).limit(60);
-    var logs = (res && res.data) ? res.data.filter(function(l) { return (parseInt(l.completed_count || 1, 10) || 0) >= target; }).map(function(l) { return l.completed_date; }) : [];
-    var streak = 0;
-    var d = new Date(); d.setHours(0,0,0,0);
-    var todayStr = localDateStr(d);
-    var checkDate = new Date(d);
-    if (logs.indexOf(todayStr) === -1) checkDate.setDate(checkDate.getDate() - 1);
-    while (true) {
-      var ds = localDateStr(checkDate);
-      if (logs.indexOf(ds) > -1) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
-      else break;
-    }
-    var el = document.getElementById("streak-" + habitId);
-    if (el) el.innerHTML = streak > 0 ? "<svg width=\"13\" height=\"13\" viewBox=\"0 0 20 20\" fill=\"none\" style=\"display:inline-block;vertical-align:middle;margin-right:2px\"><path d=\"M10 3c.4 2.2-1 3.8-1.9 5-.9 1.1-1.4 2.1-1.4 3.3a3.3 3.3 0 0 0 6.6 0c0-1-.4-1.9-1.1-2.7C14.2 9.3 15.5 11 15.5 13A5.5 5.5 0 0 1 5 13C5 9.8 7.6 7.5 10 3z\" fill=\"currentColor\" opacity=\".9\"/></svg>" + streak + " day streak" : "Start your streak today!";
-  } catch(e) {}
+  var info = habitStreakInfo(habitId);
+  var el = document.getElementById("streak-" + habitId);
+  if (!el) return;
+  if (info.paused) el.textContent = info.streak + "-day streak · paused. The minimum today keeps it going.";
+  else if (info.streak > 0) el.textContent = info.streak + "-day streak";
+  else el.textContent = "Start today. The minimum counts.";
 }
 
 async function subtractHabitXP() {
@@ -3194,7 +3303,6 @@ async function subtractHabitXP() {
   var newXP = Math.max(0, (userStats.xp || 0) - 10);
   await sb.from("user_stats").update({ xp: newXP }).eq("user_id", currentUser.id);
   userStats = Object.assign({}, userStats, { xp: newXP });
-  showToast("-10 XP");
 }
 
 window.setHabitCount = async function(e, habitId, requestedCount) {
@@ -3237,6 +3345,7 @@ window.setHabitCount = async function(e, habitId, requestedCount) {
       try { await subtractHabitXP(); } catch(xe2) {}
     }
 
+    habitHistory = habitHistory.filter(function(l) { return !(l.habit_id === habitId && l.completed_date === today); });
     renderHabits();
   } catch(err) { showToast(err.message, "error"); }
 };
@@ -3268,21 +3377,13 @@ async function awardHabitXP(habitId) {
   var msg = "+10 XP";
   // RC2: getLevelIconSvg for level up message
   if (newLevel.name !== oldLevel.name) msg += " · Level up! " + newLevel.name;
-  else if (newStreak > 1) msg += " · " + newStreak + " day streak! 🔥";
   showToast(msg, "success");
   try {
     var habit = habits.find(function(h) { return h.id === habitId; });
     var target = habit ? Math.max(1, parseInt(habit.target_count || 1, 10) || 1) : 1;
-    var logRes = await sb.from("habit_logs").select("completed_date,completed_count").eq("habit_id", habitId).order("completed_date", {ascending: false}).limit(31);
+    var logRes = { error: null, data: [] };
     if (!logRes.error && logRes.data) {
-      var dates = logRes.data.filter(function(l) { return (parseInt(l.completed_count || 1, 10) || 0) >= target; }).map(function(l) { return l.completed_date; });
-      var streak2 = 0;
-      var cursor = new Date(); cursor.setHours(0,0,0,0);
-      for (var i = 0; i < dates.length; i++) {
-        var d = new Date(dates[i]); d.setHours(0,0,0,0);
-        if (d.getTime() === cursor.getTime()) { streak2++; cursor.setDate(cursor.getDate()-1); }
-        else break;
-      }
+      var streak2 = habitStreakInfo(habitId).streak;
       var unlocked2 = _unlockedBadgeIds || await fetchUserBadgeIds();
       if (streak2 >= 3  && !unlocked2.has("routine_builder"))  await grantBadge("routine_builder");
       if (streak2 >= 7  && !unlocked2.has("consistency_king")) await grantBadge("consistency_king");
