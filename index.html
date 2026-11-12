@@ -735,6 +735,100 @@ select.inp { cursor: pointer; }
 [data-theme="dark"] .t-bubble b { background: var(--text); color: var(--bg); }
 #auth-screen::before { background: radial-gradient(circle, rgba(245,195,67,.22) 0%, transparent 70%); }
 #auth-screen::after { background: radial-gradient(circle, rgba(110,88,180,.12) 0%, transparent 70%); }
+
+/* RC6: day planner */
+.plan-sheet { position: fixed; inset: 0; z-index: 90; background: var(--bg); display: none; flex-direction: column; }
+.plan-sheet.open { display: flex; }
+.plan-head { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+.plan-icon-btn { width: 40px; height: 40px; border-radius: 12px; border: none; background: transparent; color: var(--text); display: grid; place-items: center; cursor: pointer; flex: none; }
+.plan-icon-btn:hover { background: var(--bg3); }
+.plan-title-wrap { flex: 1; min-width: 0; text-align: center; }
+.plan-title-wrap h2 { margin: 0; font-size: 1.1rem; font-weight: 800; }
+.plan-sub { font-size: .78rem; font-weight: 600; color: var(--text3); }
+.plan-routine-btn { border: 1.5px solid var(--border); background: var(--bg2); color: var(--text); border-radius: 12px; padding: 8px 12px; font-family: inherit; font-weight: 700; font-size: .82rem; cursor: pointer; flex: none; }
+.plan-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; flex-wrap: wrap; }
+.plan-bar .chunky-btn { height: 42px; font-size: 16px; }
+.plan-bar-note { font-size: .85rem; font-weight: 600; color: var(--text2); flex: 1; min-width: 160px; }
+.plan-bar-note b { color: var(--text); }
+.plan-undo, .plan-cancel { border: none; background: none; color: var(--accent); font-family: inherit; font-weight: 800; font-size: .9rem; cursor: pointer; padding: 8px 4px; }
+.plan-placing { background: var(--accent-bg); border-radius: 14px; padding: 10px 14px; margin: 0 14px 6px; display: flex; align-items: center; gap: 10px; font-size: .88rem; font-weight: 700; color: var(--text); }
+.plan-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 330px; }
+.plan-scroll { overflow-y: auto; padding: 6px 14px 30px 0; position: relative; }
+.plan-tl { position: relative; margin-left: 58px; cursor: pointer; background-image: repeating-linear-gradient(to bottom, var(--border2) 0, var(--border2) 1px, transparent 1px, transparent var(--hour)); }
+.plan-tl.is-placing { cursor: copy; }
+.plan-hour { position: absolute; left: -54px; width: 46px; text-align: right; font-size: .72rem; font-weight: 700; color: var(--text4); transform: translateY(-50%); pointer-events: none; }
+.plan-now { position: absolute; left: -6px; right: 0; height: 2px; background: var(--red); pointer-events: none; z-index: 3; }
+.plan-now::before { content: ""; position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+.plan-routine { position: absolute; left: 0; right: 0; border-radius: 10px; background: repeating-linear-gradient(135deg, var(--bg3) 0 8px, transparent 8px 14px), var(--bg2); border: 1px dashed var(--border); padding: 4px 10px; font-size: .78rem; font-weight: 700; color: var(--text3); overflow: hidden; pointer-events: none; }
+.plan-block { position: absolute; left: 4px; right: 4px; border-radius: 10px; padding: 3px 10px; font-size: .8rem; font-weight: 700; color: var(--text); overflow: hidden; cursor: grab; display: flex; align-items: center; gap: 8px; touch-action: pan-y; user-select: none; -webkit-user-select: none; z-index: 2; box-shadow: var(--card-shadow); }
+.plan-block.is-drag { cursor: grabbing; opacity: .9; z-index: 5; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.plan-block.is-done { opacity: .55; }
+.plan-block.is-done .plan-block-title { text-decoration: line-through; }
+.plan-block-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-block-time { font-size: .72rem; font-weight: 700; color: var(--text3); white-space: nowrap; }
+.plan-block.is-short { font-size: .74rem; }
+.plan-ghost { position: absolute; left: 4px; right: 4px; border-radius: 10px; border: 2px dashed var(--accent); background: var(--accent-bg); pointer-events: none; opacity: .8; z-index: 4; }
+.plan-tray { border-left: 1px solid var(--border); background: var(--bg2); overflow-y: auto; padding: 14px; }
+.plan-tray h3 { margin: 0 0 4px; font-size: .95rem; font-weight: 800; }
+.plan-tray-help { font-size: .78rem; color: var(--text3); font-weight: 600; margin: 0 0 10px; }
+.plan-item { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; font-family: inherit; color: var(--text); }
+.plan-item:hover, .plan-item.is-picked { border-color: var(--accent); }
+.plan-item.is-picked { background: var(--accent-bg); }
+.plan-item i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.plan-item-main { flex: 1; min-width: 0; }
+.plan-item-title { display: block; font-weight: 700; font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-item-sub { display: block; font-size: .74rem; font-weight: 600; color: var(--text3); margin-top: 1px; }
+.plan-item-add { font-size: 1.3rem; font-weight: 600; color: var(--accent); flex: none; }
+.plan-tray-sec { font-size: .7rem; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; color: var(--text4); margin: 14px 0 8px; }
+.plan-custom { display: flex; gap: 6px; flex-wrap: wrap; }
+.plan-custom input { flex: 1 1 140px; min-width: 0; }
+.plan-custom select { flex: 0 0 auto; }
+.plan-custom input, .plan-custom select { padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: .85rem; }
+.plan-tray-toggle { display: none; }
+.day-plan-line { font-size: .85rem; font-weight: 700; color: var(--text3); margin: 0 0 10px; }
+.plan-hint { background: var(--accent-bg); border-radius: 14px; padding: 12px 14px; margin: 0 14px 8px; font-size: .86rem; font-weight: 600; color: var(--text2); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.plan-hint button { border: none; background: var(--accent); color: #fff; border-radius: 10px; padding: 7px 12px; font-family: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; }
+[data-theme="dark"] .plan-hint button { background: var(--accent-fill); }
+.pb-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.pb-actions .btn { justify-content: center; }
+.pb-dur { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-weight: 700; font-size: .9rem; }
+.pb-dur button { width: 38px; height: 34px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg2); color: var(--text); font-weight: 800; cursor: pointer; font-family: inherit; }
+.pb-meta { font-size: .85rem; color: var(--text3); font-weight: 600; margin-top: 2px; }
+.routine-help { font-size: .85rem; color: var(--text3); margin: 0 0 12px; line-height: 1.4; }
+.routine-row { border: 1.5px solid var(--border); border-radius: 14px; padding: 10px; margin-bottom: 10px; display: grid; gap: 8px; }
+.routine-top { display: flex; gap: 6px; align-items: center; }
+.routine-top input[type=text] { flex: 1; min-width: 0; }
+.routine-row input { padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: .85rem; }
+.routine-times { display: flex; gap: 6px; align-items: center; font-size: .8rem; font-weight: 700; color: var(--text3); }
+.routine-days { display: flex; gap: 4px; flex-wrap: wrap; }
+.routine-days button { width: 34px; height: 30px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--bg2); color: var(--text2); font-family: inherit; font-weight: 800; font-size: .72rem; cursor: pointer; }
+.routine-days button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+[data-theme="dark"] .routine-days button.on { background: var(--accent-fill); border-color: var(--accent-fill); }
+.routine-del { border: none; background: none; color: var(--text3); font-size: 1.2rem; cursor: pointer; padding: 4px 8px; }
+.routine-add { margin-bottom: 4px; }
+.t-plan { background: var(--bg2); border-radius: 20px; padding: 14px 16px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
+.t-plan-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.t-plan-head b { font-size: 1rem; font-weight: 800; }
+.t-plan-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--border2); }
+.t-plan-row:first-of-type { border-top: none; }
+.t-plan-time { font-size: .78rem; font-weight: 800; color: var(--text3); width: 64px; flex: none; }
+.t-plan-title { flex: 1; min-width: 0; font-weight: 700; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.t-plan-title small { display: block; font-size: .74rem; color: var(--text3); font-weight: 600; }
+.t-plan-go { border: none; background: var(--lime); color: var(--ink); border-radius: 10px; padding: 6px 12px; font-family: "Lilita One", sans-serif; font-size: 14px; letter-spacing: .3px; cursor: pointer; box-shadow: 0 2px 0 var(--lime-edge); flex: none; }
+.t-plan-empty { font-size: .86rem; color: var(--text3); font-weight: 600; margin-top: 4px; }
+.cal-plan-btn { margin-left: 6px; }
+body.plan-open #toast { bottom: 84px; }
+@media (max-width: 900px) {
+  .plan-body { grid-template-columns: 1fr; position: relative; }
+  .plan-tray { position: absolute; left: 0; right: 0; bottom: 0; border-left: none; border-top: 1px solid var(--border); border-radius: 22px 22px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.12); max-height: 62px; overflow: hidden; padding: 0 14px 14px; transition: max-height .2s; z-index: 6; }
+  .plan-tray.open { max-height: 58vh; overflow-y: auto; }
+  .plan-tray-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 62px; border: none; background: none; font-family: inherit; color: var(--text); font-weight: 800; font-size: .95rem; cursor: pointer; padding: 0; position: sticky; top: 0; background: var(--bg2); z-index: 1; }
+  .plan-tray-toggle span { font-size: .8rem; color: var(--accent); }
+  .plan-tray .plan-tray-inner { display: none; }
+  .plan-tray.open .plan-tray-inner { display: block; }
+  .plan-scroll { padding-bottom: 90px; }
+  .plan-routine-btn { padding: 8px 9px; font-size: .76rem; }
+}
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1003,12 +1097,38 @@ select.inp { cursor: pointer; }
   </div>
 </div>
 
+
+<!-- DAY PLANNER (RC6) -->
+<div class="plan-sheet" id="plan-sheet" role="dialog" aria-modal="true" aria-labelledby="plan-title">
+  <div class="plan-head">
+    <button class="plan-icon-btn" onclick="closePlanner()" aria-label="Close planner"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="plan-icon-btn" onclick="planShiftDay(-1)" aria-label="Previous day"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div class="plan-title-wrap"><h2 id="plan-title">Today</h2><div class="plan-sub" id="plan-sub"></div></div>
+    <button class="plan-icon-btn" onclick="planShiftDay(1)" aria-label="Next day"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <button class="plan-routine-btn" onclick="openRoutine()">My routine</button>
+  </div>
+  <div class="plan-bar" id="plan-bar"></div>
+  <div class="plan-body">
+    <div class="plan-scroll" id="plan-scroll"><div class="plan-tl" id="plan-tl"></div></div>
+    <aside class="plan-tray" id="plan-tray" aria-label="Things to plan"></aside>
+  </div>
+</div>
+<div class="modal-bg" id="plan-block-modal"><div class="modal" style="max-width:380px" id="plan-block-body"></div></div>
+<div class="modal-bg" id="routine-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title"><span>My routine</span><button class="modal-close" onclick="closeRoutine()">×</button></div>
+    <p class="routine-help">Things that happen most weeks, like school, practice or a job. The planner keeps these times free.</p>
+    <div id="routine-list"></div>
+    <button class="btn btn-ghost routine-add" onclick="routineAdd()">＋ Add a time</button>
+    <div class="modal-actions"><button class="btn" onclick="closeRoutine()">Cancel</button><button class="btn btn-primary" onclick="routineSave()">Save</button></div>
+  </div>
+</div>
 <!-- DAY MODAL (RC3) -->
 <div class="modal-bg" id="day-modal">
   <div class="modal" style="max-width:420px">
     <div class="modal-title"><span id="day-modal-title">Due</span><button class="modal-close" onclick="closeDayModal()">×</button></div>
     <div id="day-modal-list" class="day-list"></div>
-    <div class="modal-actions"><button class="btn btn-primary" id="day-modal-add">＋ Add for this day</button></div>
+    <div class="modal-actions"><button class="btn" id="day-modal-plan">Plan this day</button><button class="btn btn-primary" id="day-modal-add">＋ Add for this day</button></div>
   </div>
 </div>
 
@@ -1458,6 +1578,7 @@ async function loadAll() {
       var histRes = await sb.from("habit_logs").select("habit_id,completed_date,completed_count").eq("user_id", currentUser.id).gte("completed_date", localDateStr(new Date(Date.now() - 200 * 86400000)));
       habitHistory = (histRes && histRes.data) ? histRes.data : [];
     } catch(e) { habits = []; habitLogs = []; }
+    await loadPlanBlocks();
     var savedSemId = localStorage.getItem("semstr-sem-" + currentUser.id);  // RC2
     if (savedSemId) {
       activeSemester = semesters.find(function(s) { return s.id === savedSemId; }) || null;
@@ -1696,6 +1817,7 @@ function activeDaySet() {
   var set = {};
   assignments.forEach(function(a) { if (a.status === "done" && a.updated_at) set[localDateStr(new Date(a.updated_at))] = 1; });
   habitHistory.concat(habitLogs).forEach(function(l) { if ((parseInt(l.completed_count || 1, 10) || 0) >= 1) set[l.completed_date] = 1; });
+  planBlocks.forEach(function(b) { if (b.done && b.kind !== "event") set[b.date] = 1; });
   return set;
 }
 // Weekly streak: a week is kept when you hit your goal. One missed week pauses the streak; two in a row end it quietly.
@@ -1836,6 +1958,14 @@ function weekPlan(semA, mon) {
       if (a.status === "done") done[di] += mins / days;
     }
   });
+  for (var di = 0; di < 7; di++) {
+    var ds = localDateStr(tlAddDays(mon, di));
+    var bl = planBlocks.filter(function(b) { return b.date === ds && b.kind !== "event"; });
+    if (bl.length) {
+      planned[di] = bl.reduce(function(t, b) { return t + b.dur_min; }, 0);
+      done[di] = bl.filter(function(b) { return b.done; }).reduce(function(t, b) { return t + b.dur_min; }, 0);
+    }
+  }
   return { planned: planned, done: done };
 }
 function renderTodayV2(semA, semCourses, ws, focusItems) {
@@ -1861,6 +1991,14 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   }
   html += '</div>';
 
+  // a planned session today goes first in Do this next
+  (function() {
+    var nm = planNowMin(), nb = blocksFor(todayStr).find(function(b) { return !b.done && b.assignment_id && b.start_min + b.dur_min > nm; });
+    if (!nb) return;
+    var ix = focusItems.findIndex(function(x) { return x.id === nb.assignment_id; });
+    if (ix > 0) { var it = focusItems.splice(ix, 1)[0]; focusItems.unshift(it); }
+    else if (ix < 0) { var a0 = assignments.find(function(x) { return x.id === nb.assignment_id; }); if (a0) focusItems.unshift(a0); }
+  })();
   // do this next
   if (focusItems.length) {
     var a = focusItems[todayFocusIdx % focusItems.length];
@@ -1879,6 +2017,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
       + '<div class="t-next-actions"><button class="chunky-btn" onclick="openAddAssignmentModal()">ADD SOMETHING</button></div></div>';
   }
 
+  html += renderTodayPlan(todayStr);
   // course bubbles
   if (semCourses.length) {
     html += '<div class="t-courses" aria-label="Courses">';
@@ -2657,7 +2796,8 @@ function renderCalendar() {
   html += '<div class="cal-month">' + monthNames[month] + ' ' + year + '</div>';
   html += '<button class="cal-nav" onclick="calNav(1)">▶</button>';
   html += '<button class="btn btn-ghost btn-sm" onclick="calToday()">Today</button>';
-  html += '<button class="btn btn-ghost btn-sm" onclick="openIcsModal()" style="margin-left:auto">Import due dates</button>';
+  html += '<button class="btn btn-primary btn-sm" onclick="openPlanner()" style="margin-left:auto">Plan today</button>';
+  html += '<button class="btn btn-ghost btn-sm cal-plan-btn" onclick="openIcsModal()">Import due dates</button>';
   html += '</div><div class="cal-grid">';
   ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(function(d) { html += '<div class="cal-dow">' + d + '</div>'; });
   for (var i = 0; i < firstDay; i++) {
@@ -2762,14 +2902,17 @@ async function calMoveAssignment(id, dateStr) {
 }
 window.calDayClick = function(dateStr) {
   if (calJustDragged) return;
-  var any = getSemAssignments().some(function(a) { return a.due_date === dateStr; });
-  if (any) openCalDay(dateStr); else openAddAssignmentModal(dateStr);
+  openCalDay(dateStr);
 };
 window.openCalDay = function(dateStr) {
   var list = getSemAssignments().filter(function(a) { return a.due_date === dateStr; });
   var d = new Date(dateStr + "T00:00:00");
-  document.getElementById("day-modal-title").textContent = "Due " + d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  document.getElementById("day-modal-title").textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
   var html = "";
+  var pb = blocksFor(dateStr).filter(function(b) { return b.kind !== "event"; });
+  var pm = pb.reduce(function(t, b) { return t + b.dur_min; }, 0);
+  html += '<div class="day-plan-line">' + (pm ? durLabel(pm) + ' of work planned' : 'Nothing planned yet') + '</div>';
+  if (!list.length) html += '<div class="day-plan-line" style="font-weight:600">Nothing due this day.</div>';
   list.forEach(function(a) {
     var c = getCourseById(a.course_id);
     var color = (c && c.color) || "#6E58B4";
@@ -2779,10 +2922,434 @@ window.openCalDay = function(dateStr) {
   });
   document.getElementById("day-modal-list").innerHTML = html;
   document.getElementById("day-modal-add").onclick = function() { closeDayModal(); openAddAssignmentModal(dateStr); };
+  document.getElementById("day-modal-plan").onclick = function() { closeDayModal(); openPlanner(dateStr); };
   document.getElementById("day-modal").classList.add("open");
 };
 window.closeDayModal = function() { document.getElementById("day-modal").classList.remove("open"); };
 
+
+
+/* ===== RC6: daily planner ===== */
+var PLAN_START = 7, PLAN_END = 23, PLAN_PX = 1.15, PLAN_SNAP = 5, PLAN_STOP = 22 * 60, PLAN_GAP = 10, PLAN_DAY_CAP = 150;
+var planBlocks = [], planLocal = false, planState = { date: null, picked: null, pendingMin: null, undo: null, trayOpen: false };
+var _planTimerBlock = null;
+function planKey() { return "semstr-plan-" + (currentUser ? currentUser.id : "x"); }
+function planSaveLocal() { try { localStorage.setItem(planKey(), JSON.stringify(planBlocks)); } catch (e) {} }
+function planIsMissingTable(err) { var m = String((err && (err.message || err.code)) || ""); return /42P01|PGRST205|relation|does not exist|schema cache/i.test(m); }
+async function loadPlanBlocks() {
+  var from = localDateStr(new Date(Date.now() - 21 * 86400000));
+  try {
+    var r = await sb.from("plan_blocks").select("*").eq("user_id", currentUser.id).gte("date", from);
+    if (r.error) throw r.error;
+    planLocal = false;
+    planBlocks = r.data || [];
+    var local = [];
+    try { local = JSON.parse(localStorage.getItem(planKey()) || "[]"); } catch (e) {}
+    if (local.length) {
+      var rows = local.map(function(b) { return { user_id: currentUser.id, date: b.date, start_min: b.start_min, dur_min: b.dur_min, assignment_id: b.assignment_id || null, title: b.title || null, kind: b.kind || "focus", done: !!b.done }; });
+      var up = await sb.from("plan_blocks").insert(rows).select();
+      if (!up.error) { planBlocks = planBlocks.concat(up.data || []); localStorage.removeItem(planKey()); }
+    }
+  } catch (e) {
+    planLocal = true;
+    try { planBlocks = JSON.parse(localStorage.getItem(planKey()) || "[]"); } catch (x) { planBlocks = []; }
+  }
+}
+async function planInsert(b) {
+  b.user_id = currentUser.id;
+  if (!planLocal) {
+    var r = await sb.from("plan_blocks").insert(b).select().single();
+    if (!r.error && r.data) { planBlocks.push(r.data); return r.data; }
+    if (!planIsMissingTable(r.error)) { showToast((r.error && r.error.message) || "Couldn't save that block", "error"); return null; }
+    planLocal = true;
+  }
+  b.id = "local-" + Date.now() + "-" + Math.floor(Math.random() * 1e6);
+  planBlocks.push(b); planSaveLocal(); return b;
+}
+async function planUpdate(id, patch) {
+  var b = planBlocks.find(function(x) { return x.id === id; }); if (!b) return;
+  var before = Object.assign({}, b); Object.assign(b, patch);
+  if (planLocal || String(id).indexOf("local-") === 0) { planSaveLocal(); return; }
+  var r = await sb.from("plan_blocks").update(patch).eq("id", id);
+  if (r.error) { Object.assign(b, before); showToast(r.error.message || "Couldn't update that block", "error"); renderPlanner(); }
+}
+async function planDelete(id) {
+  var i = planBlocks.findIndex(function(x) { return x.id === id; }); if (i < 0) return;
+  var gone = planBlocks.splice(i, 1)[0];
+  if (planLocal || String(id).indexOf("local-") === 0) { planSaveLocal(); return; }
+  var r = await sb.from("plan_blocks").delete().eq("id", id);
+  if (r.error) { planBlocks.push(gone); showToast(r.error.message || "Couldn't remove that block", "error"); renderPlanner(); }
+}
+function planRoutine() { var md = (currentUser && currentUser.user_metadata) || {}; return Array.isArray(md.routine) ? md.routine : []; }
+function hm2min(t) { var m = String(t || "").match(/^(\d{1,2}):(\d{2})/); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+function min2label(m) { var h = Math.floor(m / 60), mm = m % 60, ap = h >= 12 ? "pm" : "am", h12 = h % 12 || 12; return h12 + (mm ? ":" + String(mm).padStart(2, "0") : "") + " " + ap; }
+function min2short(m) { var h = Math.floor(m / 60), mm = m % 60, h12 = h % 12 || 12; return h12 + ":" + String(mm).padStart(2, "0"); }
+function durLabel(m) { m = Math.round(m); if (m < 60) return m + " min"; var h = Math.floor(m / 60), r = m % 60; return h + " h" + (r ? " " + r + " m" : ""); }
+function routineFor(dateStr) {
+  var dow = new Date(dateStr + "T00:00:00").getDay();
+  return planRoutine().filter(function(r) { return (r.days || []).indexOf(dow) > -1 && hm2min(r.start) != null && hm2min(r.end) > hm2min(r.start); })
+    .map(function(r) { return { title: r.title || "Busy", start: hm2min(r.start), end: hm2min(r.end) }; });
+}
+function blocksFor(dateStr) { return planBlocks.filter(function(b) { return b.date === dateStr; }).sort(function(a, b) { return a.start_min - b.start_min; }); }
+function busyFor(dateStr, ignoreId) {
+  var busy = routineFor(dateStr).map(function(r) { return [r.start, r.end]; });
+  blocksFor(dateStr).forEach(function(b) { if (b.id !== ignoreId) busy.push([b.start_min, b.start_min + b.dur_min]); });
+  return busy;
+}
+function planFits(dateStr, start, dur, ignoreId) {
+  if (start < PLAN_START * 60 || start + dur > PLAN_END * 60) return false;
+  return !busyFor(dateStr, ignoreId).some(function(x) { return start < x[1] && start + dur > x[0]; });
+}
+function planFindSlot(dateStr, from, dur, until) {
+  until = until || PLAN_END * 60;
+  for (var t = Math.ceil(from / PLAN_SNAP) * PLAN_SNAP; t + dur <= until; t += PLAN_SNAP) if (planFits(dateStr, t, dur)) return t;
+  return null;
+}
+function planNowMin() { var n = new Date(); return n.getHours() * 60 + n.getMinutes(); }
+function planCourseColor(b) {
+  if (b.assignment_id) { var a = assignments.find(function(x) { return x.id === b.assignment_id; }); var c = a && getCourseById(a.course_id); if (c && c.color) return c.color; }
+  return b.kind === "event" ? "#9EC3E6" : "#6E58B4";
+}
+function planBlockTitle(b) {
+  if (b.assignment_id) { var a = assignments.find(function(x) { return x.id === b.assignment_id; }); if (a) return a.title; }
+  return b.title || "Block";
+}
+// Minutes still to plan for an assignment: its time guess minus every block already made for it.
+function planRemaining(a) {
+  var est = parseInt(a.estimated_minutes || 0, 10); if (!est) est = FOCUS_BLOCK_MIN;
+  var planned = planBlocks.filter(function(b) { return b.assignment_id === a.id; }).reduce(function(t, b) { return t + b.dur_min; }, 0);
+  return Math.max(0, est - planned);
+}
+function planCandidates(dateStr) {
+  return getSemAssignments().filter(function(a) {
+    if (a.status === "done" || !a.due_date) return false;
+    var d = Math.round((new Date(a.due_date + "T00:00:00") - new Date(dateStr + "T00:00:00")) / 86400000);
+    return d <= 21 && (d >= 0 || a.due_date >= localDateStr(new Date(Date.now() - 14 * 86400000)));
+  }).sort(function(a, b) { var p = { high: 0, med: 1, low: 2 }; return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : (p[a.priority] || 1) - (p[b.priority] || 1); });
+}
+
+window.openPlanner = function(dateStr) {
+  planState.date = dateStr || localDateStr(); planState.picked = null; planState.pendingMin = null; planState.undo = null; planState.trayOpen = false;
+  document.getElementById("plan-sheet").classList.add("open");
+  document.body.style.overflow = "hidden"; document.body.classList.add("plan-open");
+  renderPlanner(true);
+};
+window.closePlanner = function() {
+  document.getElementById("plan-sheet").classList.remove("open");
+  document.body.style.overflow = ""; document.body.classList.remove("plan-open");
+  planState.picked = null;
+  renderActiveTab();
+};
+window.planShiftDay = function(n) {
+  var d = new Date(planState.date + "T00:00:00"); d.setDate(d.getDate() + n);
+  planState.date = localDateStr(d); planState.picked = null; planState.pendingMin = null; planState.undo = null;
+  renderPlanner(true);
+};
+function renderPlanner(scroll) {
+  if (!document.getElementById("plan-sheet").classList.contains("open")) return;
+  var ds = planState.date, todayStr = localDateStr();
+  var d = new Date(ds + "T00:00:00");
+  var rel = ds === todayStr ? "Today" : ds === localDateStr(new Date(Date.now() + 86400000)) ? "Tomorrow" : ds === localDateStr(new Date(Date.now() - 86400000)) ? "Yesterday" : d.toLocaleDateString("en-US", { weekday: "long" });
+  document.getElementById("plan-title").textContent = rel;
+  var blocks = blocksFor(ds), routine = routineFor(ds);
+  var plannedMin = blocks.filter(function(b) { return b.kind !== "event"; }).reduce(function(t, b) { return t + b.dur_min; }, 0);
+  var doneMin = blocks.filter(function(b) { return b.done && b.kind !== "event"; }).reduce(function(t, b) { return t + b.dur_min; }, 0);
+  document.getElementById("plan-sub").textContent = d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + (plannedMin ? " · " + durLabel(plannedMin) + " planned" + (doneMin ? ", " + durLabel(doneMin) + " done" : "") : "");
+
+  // bar
+  var bar = "";
+  if (planState.picked) {
+    bar = '<div class="plan-placing" role="status"><span style="flex:1;min-width:0">Tap a time for <b>' + esc(planState.picked.title) + '</b> (' + durLabel(planState.picked.dur) + ')</span><button class="plan-cancel" onclick="planCancelPick()">Cancel</button></div>';
+  } else {
+    var isPast = ds < todayStr;
+    bar = '<div class="plan-bar">' + (isPast ? '' : '<button class="chunky-btn" onclick="planSuggest()">SUGGEST A PLAN</button>')
+      + '<div class="plan-bar-note">' + (isPast ? 'Looking back. Tap a block to tick it off.' : 'Pick something on the ' + (window.innerWidth <= 900 ? 'list below' : 'right') + ', then tap a time. Drag blocks to move them.') + '</div>'
+      + (planState.undo ? '<button class="plan-undo" onclick="planUndoSuggest()">Undo</button>' : '') + '</div>';
+    if (!planRoutine().length) bar += '<div class="plan-hint">Add your school hours first so plans fit around them.<button onclick="openRoutine()">Add school hours</button></div>';
+    if (planLocal) bar += '<div class="plan-hint" style="background:var(--amber-bg)">Plans are saved on this device only until the planner table is set up in Supabase.</div>';
+  }
+  document.getElementById("plan-bar").outerHTML = '<div id="plan-bar">' + bar + '</div>';
+
+  // timeline
+  var tl = document.getElementById("plan-tl");
+  var hourPx = 60 * PLAN_PX;
+  tl.style.setProperty("--hour", hourPx + "px");
+  tl.style.height = ((PLAN_END - PLAN_START) * hourPx) + "px";
+  tl.className = "plan-tl" + (planState.picked ? " is-placing" : "");
+  var h = "";
+  for (var hr = PLAN_START; hr <= PLAN_END; hr++) h += '<div class="plan-hour" style="top:' + ((hr - PLAN_START) * hourPx) + 'px">' + min2label(hr * 60).replace(":00", "") + '</div>';
+  routine.forEach(function(r) {
+    var top = (Math.max(r.start, PLAN_START * 60) - PLAN_START * 60) * PLAN_PX, ht = (Math.min(r.end, PLAN_END * 60) - Math.max(r.start, PLAN_START * 60)) * PLAN_PX;
+    if (ht > 0) h += '<div class="plan-routine" style="top:' + top + 'px;height:' + (ht - 2) + 'px">' + esc(r.title) + ' · ' + min2short(r.start) + '–' + min2short(r.end) + '</div>';
+  });
+  blocks.forEach(function(b) {
+    var col = planCourseColor(b), top = (b.start_min - PLAN_START * 60) * PLAN_PX, ht = Math.max(18, b.dur_min * PLAN_PX - 3);
+    var title = planBlockTitle(b);
+    h += '<div class="plan-block' + (b.done ? ' is-done' : '') + (ht < 30 ? ' is-short' : '') + '" data-id="' + b.id + '" role="button" tabindex="0" aria-label="' + esc(title) + ', ' + min2label(b.start_min) + ' to ' + min2label(b.start_min + b.dur_min) + (b.done ? ', done' : '') + '" '
+      + 'style="top:' + top + 'px;height:' + ht + 'px;background:' + col + '2E;border-left:4px solid ' + col + '">'
+      + '<span class="plan-block-title">' + (b.done ? '✓ ' : '') + esc(title) + '</span><span class="plan-block-time">' + min2short(b.start_min) + '–' + min2short(b.start_min + b.dur_min) + '</span></div>';
+  });
+  if (ds === todayStr) { var nm = planNowMin(); if (nm >= PLAN_START * 60 && nm <= PLAN_END * 60) h += '<div class="plan-now" style="top:' + ((nm - PLAN_START * 60) * PLAN_PX) + 'px" aria-hidden="true"></div>'; }
+  tl.innerHTML = h;
+  attachPlanDrag();
+  renderPlanTray();
+  if (scroll) {
+    var sc = document.getElementById("plan-scroll");
+    var target = ds === todayStr ? Math.max(planNowMin() - 60, PLAN_START * 60) : (routine.length ? Math.max.apply(null, routine.map(function(r) { return r.end; })) - 30 : 15 * 60);
+    if (blocks.length && ds !== todayStr) target = Math.min(target, blocks[0].start_min - 30);
+    sc.scrollTop = Math.max(0, (target - PLAN_START * 60) * PLAN_PX);
+  }
+}
+function renderPlanTray() {
+  var ds = planState.date, items = planCandidates(ds);
+  var open = [], planned = [];
+  items.forEach(function(a) { (planRemaining(a) > 0 ? open : planned).push(a); });
+  var t = '<button class="plan-tray-toggle" onclick="planToggleTray()" aria-expanded="' + planState.trayOpen + '">To plan · ' + open.length + '<span>' + (planState.trayOpen ? 'Hide' : 'Show') + '</span></button><div class="plan-tray-inner">';
+  t += '<h3>To plan</h3><p class="plan-tray-help">' + (planState.pendingMin != null ? 'Pick something to put at ' + min2label(planState.pendingMin) + '.' : 'Each tap adds a 25-minute focus session.') + '</p>';
+  if (!open.length) t += '<p class="plan-tray-help">Everything coming up already has time planned. Nice.</p>';
+  open.forEach(function(a) {
+    var c = getCourseById(a.course_id), dd = daysUntil(a.due_date), rem = planRemaining(a);
+    var when = dd < 0 ? "late" : dd === 0 ? "due today" : dd === 1 ? "due tomorrow" : "due " + new Date(a.due_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    var picked = planState.picked && planState.picked.assignment_id === a.id;
+    t += '<button class="plan-item' + (picked ? ' is-picked' : '') + '" onclick="planPick(\'' + a.id + '\')"><i style="background:' + ((c && c.color) || "#6E58B4") + '"></i>'
+      + '<span class="plan-item-main"><span class="plan-item-title">' + esc(a.title) + '</span><span class="plan-item-sub">' + (c ? esc(c.code) + ' · ' : '') + when + ' · ' + durLabel(rem) + ' left</span></span><span class="plan-item-add" aria-hidden="true">＋</span></button>';
+  });
+  t += '<div class="plan-tray-sec">Something else</div><div class="plan-custom"><input id="plan-custom-title" type="text" placeholder="e.g. Practice, study group" aria-label="What is it?">'
+    + '<select id="plan-custom-dur" aria-label="How long"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">1 h</option><option value="90">1.5 h</option><option value="120">2 h</option></select>'
+    + '<button class="btn btn-primary" onclick="planPickCustom()">Add</button></div>';
+  if (planned.length) {
+    t += '<div class="plan-tray-sec">Already planned</div>';
+    planned.slice(0, 6).forEach(function(a) { var c = getCourseById(a.course_id); t += '<div class="plan-item" style="cursor:default;opacity:.7"><i style="background:' + ((c && c.color) || "#6E58B4") + '"></i><span class="plan-item-main"><span class="plan-item-title">' + esc(a.title) + '</span><span class="plan-item-sub">Time planned ✓</span></span></div>'; });
+  }
+  t += '</div>';
+  var tray = document.getElementById("plan-tray");
+  tray.innerHTML = t;
+  tray.classList.toggle("open", !!planState.trayOpen);
+}
+window.planToggleTray = function() { planState.trayOpen = !planState.trayOpen; renderPlanTray(); };
+window.planPick = function(id) {
+  var a = assignments.find(function(x) { return x.id === id; }); if (!a) return;
+  var rem = planRemaining(a);
+  var item = { kind: "focus", assignment_id: id, title: a.title, dur: Math.max(10, Math.min(FOCUS_BLOCK_MIN, rem || FOCUS_BLOCK_MIN)) };
+  planPlaceOrPick(item);
+};
+window.planPickCustom = function() {
+  var el = document.getElementById("plan-custom-title"), title = (el.value || "").trim();
+  if (!title) { el.focus(); showToast("Give it a name first"); return; }
+  planPlaceOrPick({ kind: "event", assignment_id: null, title: title, dur: parseInt(document.getElementById("plan-custom-dur").value, 10) || 30 });
+};
+function planPlaceOrPick(item) {
+  if (planState.pendingMin != null) { var m = planState.pendingMin; planState.pendingMin = null; planPlace(item, m); return; }
+  planState.picked = item; planState.trayOpen = false; renderPlanner();
+}
+window.planCancelPick = function() { planState.picked = null; planState.pendingMin = null; renderPlanner(); };
+async function planPlace(item, atMin) {
+  var ds = planState.date;
+  var start = planFindSlot(ds, atMin, item.dur);
+  if (start == null) { showToast("No free time after that on this day. Try earlier, or another day."); return; }
+  planState.picked = null; planState.undo = null;
+  await planInsert({ date: ds, start_min: start, dur_min: item.dur, assignment_id: item.assignment_id, title: item.kind === "event" ? item.title : null, kind: item.kind, done: false });
+  if (start !== Math.round(atMin / PLAN_SNAP) * PLAN_SNAP) showToast("Moved to " + min2label(start) + ", the next free time");
+  renderPlanner();
+}
+function planMinFromEvent(e) {
+  var tl = document.getElementById("plan-tl"), r = tl.getBoundingClientRect();
+  var y = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+  return Math.max(PLAN_START * 60, Math.min(PLAN_END * 60 - 5, Math.round((y / PLAN_PX + PLAN_START * 60) / PLAN_SNAP) * PLAN_SNAP));
+}
+// Suggest: fill free time with focus sessions, most urgent first, with breaks and a daily limit.
+window.planSuggest = async function() {
+  var ds = planState.date, todayStr = localDateStr();
+  var from = ds === todayStr ? planNowMin() + 10 : 7 * 60;
+  var routine = routineFor(ds);
+  if (routine.length) { var school = routine.filter(function(r) { return r.start < 12 * 60 && r.end > 12 * 60; })[0]; if (school && from < school.end) from = Math.max(from, school.end + 30); }
+  if (ds !== todayStr && from < 9 * 60) from = 9 * 60;
+  var already = blocksFor(ds).filter(function(b) { return b.kind !== "event"; }).reduce(function(t, b) { return t + b.dur_min; }, 0);
+  var budget = PLAN_DAY_CAP - already;
+  if (budget < 20) { showToast("This day already has plenty planned."); return; }
+  var made = [], perAssign = {};
+  var cands = planCandidates(ds).filter(function(a) { return a.due_date >= ds || a.due_date < todayStr; });
+  var withTime = cands.filter(function(a) { return parseInt(a.estimated_minutes || 0, 10) > 0; });
+  if (withTime.length) cands = withTime;
+  var cursor = from, guard = 0;
+  while (budget >= 20 && guard++ < 20) {
+    var a = cands.find(function(x) { return planRemaining(x) > 0 && (perAssign[x.id] || 0) < 2; });
+    if (!a) break;
+    var dur = Math.max(10, Math.min(FOCUS_BLOCK_MIN, planRemaining(a)));
+    var start = planFindSlot(ds, cursor, dur, PLAN_STOP);
+    if (start == null) break;
+    var b = await planInsert({ date: ds, start_min: start, dur_min: dur, assignment_id: a.id, title: null, kind: "focus", done: false });
+    if (!b) break;
+    made.push(b.id); perAssign[a.id] = (perAssign[a.id] || 0) + 1;
+    budget -= dur; cursor = start + dur + PLAN_GAP;
+  }
+  if (!made.length) { showToast(cands.length ? "No free time left on this day." : "Nothing coming up to plan. Enjoy it."); return; }
+  planState.undo = made;
+  showToast("Added " + made.length + " focus session" + (made.length > 1 ? "s" : "") + ". Move or remove any you like.", "success");
+  renderPlanner();
+  var first = blocksFor(ds).find(function(x) { return x.id === made[0]; });
+  if (first) document.getElementById("plan-scroll").scrollTop = Math.max(0, (first.start_min - 30 - PLAN_START * 60) * PLAN_PX);
+};
+window.planUndoSuggest = async function() {
+  var ids = planState.undo || []; planState.undo = null;
+  for (var i = 0; i < ids.length; i++) await planDelete(ids[i]);
+  renderPlanner();
+};
+// Drag blocks: mouse drags at once; on touch, press and hold first so the timeline can still scroll.
+var planDrag = null;
+function attachPlanDrag() {
+  var tl = document.getElementById("plan-tl");
+  tl.onclick = function(e) {
+    if (planDrag && planDrag.moved) return;
+    if (e.target.closest(".plan-block")) return;
+    var m = planMinFromEvent(e);
+    if (planState.picked) { var item = planState.picked; planPlace(item, m); return; }
+    if (planState.date < localDateStr()) return;
+    planState.pendingMin = m; planState.trayOpen = true; renderPlanTray();
+    if (window.innerWidth > 900) document.getElementById("plan-tray").scrollTop = 0;
+  };
+  tl.querySelectorAll(".plan-block").forEach(function(el) {
+    el.onkeydown = function(e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPlanBlock(el.dataset.id); } };
+    el.addEventListener("pointerdown", function(e) {
+      if (e.button && e.button !== 0) return;
+      var b = planBlocks.find(function(x) { return x.id === el.dataset.id; }); if (!b) return;
+      planDrag = { el: el, b: b, y0: e.clientY, top0: parseFloat(el.style.top), active: e.pointerType === "mouse", moved: false, timer: null, pid: e.pointerId };
+      if (!planDrag.active) planDrag.timer = setTimeout(function() { if (planDrag) { planDrag.active = true; el.classList.add("is-drag"); if (navigator.vibrate) navigator.vibrate(15); } }, 320);
+    });
+  });
+}
+document.addEventListener("pointermove", function(e) {
+  if (!planDrag) return;
+  var dy = e.clientY - planDrag.y0;
+  if (!planDrag.active) { if (Math.abs(dy) > 8) { clearTimeout(planDrag.timer); planDrag = null; } return; }
+  if (Math.abs(dy) > 3) planDrag.moved = true;
+  planDrag.el.classList.add("is-drag");
+  var b = planDrag.b, nm = Math.round((b.start_min + dy / PLAN_PX) / PLAN_SNAP) * PLAN_SNAP;
+  nm = Math.max(PLAN_START * 60, Math.min(PLAN_END * 60 - b.dur_min, nm));
+  planDrag.newMin = nm;
+  planDrag.el.style.top = ((nm - PLAN_START * 60) * PLAN_PX) + "px";
+  var tm = planDrag.el.querySelector(".plan-block-time"); if (tm) tm.textContent = min2short(nm) + "–" + min2short(nm + b.dur_min);
+});
+document.addEventListener("touchmove", function(e) { if (planDrag && planDrag.active) e.preventDefault(); }, { passive: false });
+document.addEventListener("pointerup", function() {
+  if (!planDrag) return;
+  var d = planDrag; clearTimeout(d.timer);
+  if (d.active && d.moved && d.newMin != null && d.newMin !== d.b.start_min) {
+    var target = d.newMin;
+    if (!planFits(d.b.date, target, d.b.dur_min, d.b.id)) {
+      var after = null;
+      for (var t = target; t + d.b.dur_min <= PLAN_END * 60; t += PLAN_SNAP) if (planFits(d.b.date, t, d.b.dur_min, d.b.id)) { after = t; break; }
+      target = after != null ? after : d.b.start_min;
+    }
+    planUpdate(d.b.id, { start_min: target }).then(function() { renderPlanner(); });
+    setTimeout(function() { planDrag = null; }, 0);
+    return;
+  }
+  planDrag = null;
+  if (!d.moved) openPlanBlock(d.b.id);
+});
+document.addEventListener("pointercancel", function() { if (planDrag) { clearTimeout(planDrag.timer); planDrag = null; renderPlanner(); } });
+
+function openPlanBlock(id) {
+  var b = planBlocks.find(function(x) { return x.id === id; }); if (!b) return;
+  var a = b.assignment_id ? assignments.find(function(x) { return x.id === b.assignment_id; }) : null;
+  var c = a ? getCourseById(a.course_id) : null;
+  var isToday = b.date === localDateStr();
+  var h = '<div class="modal-title"><span>' + esc(planBlockTitle(b)) + '</span><button class="modal-close" onclick="closePlanBlock()">×</button></div>'
+    + '<div class="pb-meta">' + min2label(b.start_min) + ' – ' + min2label(b.start_min + b.dur_min) + (c ? ' · ' + esc(c.code) : '') + (a && a.next_action ? '<br>First step: ' + esc(a.next_action) : '') + '</div>'
+    + '<div class="pb-dur">Length <button onclick="planDur(\'' + id + '\',-5)" aria-label="5 minutes shorter">−</button><span>' + durLabel(b.dur_min) + '</span><button onclick="planDur(\'' + id + '\',5)" aria-label="5 minutes longer">+</button></div>'
+    + '<div class="pb-actions">'
+    + (a && isToday && !b.done ? '<button class="chunky-btn" style="grid-column:1/-1" onclick="planStart(\'' + id + '\')">START ' + Math.min(b.dur_min, FOCUS_BLOCK_MIN) + ' MIN</button>' : '')
+    + '<button class="btn btn-primary" onclick="planToggleDone(\'' + id + '\')">' + (b.done ? 'Not done yet' : 'Mark done ✓') + '</button>'
+    + '<button class="btn" onclick="planTomorrow(\'' + id + '\')">Move to tomorrow</button>'
+    + (a ? '<button class="btn" onclick="closePlanBlock();openEditAssignment(\'' + a.id + '\')">Open assignment</button>' : '')
+    + '<button class="btn btn-danger" onclick="planRemove(\'' + id + '\')">Remove</button></div>';
+  document.getElementById("plan-block-body").innerHTML = h;
+  document.getElementById("plan-block-modal").classList.add("open");
+}
+window.openPlanBlock = openPlanBlock;
+window.closePlanBlock = function() { document.getElementById("plan-block-modal").classList.remove("open"); };
+window.planDur = async function(id, d) {
+  var b = planBlocks.find(function(x) { return x.id === id; }); if (!b) return;
+  var nd = Math.max(10, Math.min(240, b.dur_min + d));
+  if (d > 0 && !planFits(b.date, b.start_min, nd, b.id)) { showToast("Something else starts right after this."); return; }
+  await planUpdate(id, { dur_min: nd }); openPlanBlock(id); renderPlanner(); refreshTodayIfOpen();
+};
+window.planToggleDone = async function(id) {
+  var b = planBlocks.find(function(x) { return x.id === id; }); if (!b) return;
+  await planUpdate(id, { done: !b.done });
+  closePlanBlock(); renderPlanner(); refreshTodayIfOpen();
+  if (b.done) showToast("Nice. That counts toward your week.", "success");
+};
+window.planTomorrow = async function(id) {
+  var b = planBlocks.find(function(x) { return x.id === id; }); if (!b) return;
+  var d = new Date(b.date + "T00:00:00"); d.setDate(d.getDate() + 1); var nd = localDateStr(d);
+  var start = planFindSlot(nd, b.start_min, b.dur_min) ; if (start == null) start = planFindSlot(nd, PLAN_START * 60, b.dur_min);
+  if (start == null) { showToast("Tomorrow is full. Try another day."); return; }
+  await planUpdate(id, { date: nd, start_min: start, done: false });
+  closePlanBlock(); renderPlanner(); refreshTodayIfOpen();
+  showToast("Moved to tomorrow at " + min2label(start) + ".");
+};
+window.planRemove = async function(id) { await planDelete(id); closePlanBlock(); renderPlanner(); refreshTodayIfOpen(); };
+window.planStart = function(id) {
+  var b = planBlocks.find(function(x) { return x.id === id; }); if (!b || !b.assignment_id) return;
+  closePlanBlock();
+  window.startAssignmentFocus(null, b.assignment_id);
+  _planTimerBlock = id;
+};
+function refreshTodayIfOpen() { if (activeTab === "dashboard" && !document.getElementById("plan-sheet").classList.contains("open")) renderActiveTab(); }
+
+// routine editor
+var routineDraft = [];
+var DOW = ["S", "M", "T", "W", "T", "F", "S"];
+window.openRoutine = function() {
+  routineDraft = JSON.parse(JSON.stringify(planRoutine()));
+  if (!routineDraft.length) routineDraft = [{ title: "School", days: [1, 2, 3, 4, 5], start: "08:45", end: "15:15" }];
+  renderRoutine();
+  document.getElementById("routine-modal").classList.add("open");
+};
+window.closeRoutine = function() { document.getElementById("routine-modal").classList.remove("open"); };
+function renderRoutine() {
+  var h = "";
+  routineDraft.forEach(function(r, i) {
+    h += '<div class="routine-row"><div class="routine-top"><input type="text" value="' + esc(r.title || "") + '" placeholder="What is it?" aria-label="Name" oninput="routineSet(' + i + ',\'title\',this.value)">'
+      + '<button class="routine-del" onclick="routineDel(' + i + ')" aria-label="Remove ' + esc(r.title || "this time") + '">×</button></div>'
+      + '<div class="routine-times"><input type="time" value="' + esc(r.start || "") + '" aria-label="Starts" onchange="routineSet(' + i + ',\'start\',this.value)"> to <input type="time" value="' + esc(r.end || "") + '" aria-label="Ends" onchange="routineSet(' + i + ',\'end\',this.value)"></div>'
+      + '<div class="routine-days" role="group" aria-label="Days">' + [1, 2, 3, 4, 5, 6, 0].map(function(dw) {
+        var on = (r.days || []).indexOf(dw) > -1;
+        return '<button class="' + (on ? 'on' : '') + '" aria-pressed="' + on + '" onclick="routineDay(' + i + ',' + dw + ')">' + ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dw] + '</button>';
+      }).join("") + '</div></div>';
+  });
+  document.getElementById("routine-list").innerHTML = h || '<p class="routine-help">Nothing yet.</p>';
+}
+window.routineSet = function(i, k, v) { routineDraft[i][k] = v; };
+window.routineDay = function(i, dw) { var d = routineDraft[i].days || (routineDraft[i].days = []); var j = d.indexOf(dw); if (j > -1) d.splice(j, 1); else d.push(dw); renderRoutine(); };
+window.routineDel = function(i) { routineDraft.splice(i, 1); renderRoutine(); };
+window.routineAdd = function() { routineDraft.push({ title: "", days: [], start: "16:00", end: "17:30" }); renderRoutine(); };
+window.routineSave = async function() {
+  var clean = routineDraft.filter(function(r) { return (r.days || []).length && hm2min(r.start) != null && hm2min(r.end) > hm2min(r.start); })
+    .map(function(r) { return { title: (r.title || "Busy").trim() || "Busy", days: r.days.slice().sort(), start: r.start, end: r.end }; });
+  if (routineDraft.length && !clean.length) { showToast("Each time needs at least one day and an end after its start."); return; }
+  await saveUserMeta({ routine: clean });
+  closeRoutine(); renderPlanner(); showToast("Routine saved", "success");
+};
+
+// Today card
+function renderTodayPlan(todayStr) {
+  var blocks = blocksFor(todayStr), nm = planNowMin();
+  var upcoming = blocks.filter(function(b) { return !b.done && b.start_min + b.dur_min > nm; }).slice(0, 3);
+  var doneN = blocks.filter(function(b) { return b.done; }).length;
+  var h = '<div class="t-plan"><div class="t-plan-head"><b>Today\'s plan</b><button class="t-link" onclick="openPlanner()">' + (blocks.length ? 'Open planner' : 'Plan today') + '</button></div>';
+  if (!blocks.length) h += '<div class="t-plan-empty">Give your work a time. A plan with two or three short sessions is plenty.</div>';
+  else if (!upcoming.length) h += '<div class="t-plan-empty">' + (doneN ? 'All done for today. ' + doneN + ' session' + (doneN > 1 ? 's' : '') + ' finished.' : 'Nothing left on today\'s plan.') + '</div>';
+  upcoming.forEach(function(b) {
+    var a = b.assignment_id ? assignments.find(function(x) { return x.id === b.assignment_id; }) : null, c = a ? getCourseById(a.course_id) : null;
+    var live = b.start_min <= nm;
+    h += '<div class="t-plan-row"><span class="t-plan-time">' + (live ? 'Now' : min2label(b.start_min)) + '</span><button class="t-plan-title t-row-main" style="padding:0" onclick="openPlanner()">' + esc(planBlockTitle(b)) + '<small>' + (c ? esc(c.code) + ' · ' : '') + durLabel(b.dur_min) + '</small></button>'
+      + (a ? '<button class="t-plan-go" onclick="planStart(\'' + b.id + '\')">START</button>' : '') + '</div>';
+  });
+  return h + '</div>';
+}
 
 /* ===== RC3: import due dates from a calendar file (Brightspace or Google) ===== */
 var icsState = null;
@@ -3951,6 +4518,7 @@ window.startAssignmentFocus = function(e, assignmentId) {
   if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
   _timerHabitId = null;
   _timerAssignmentId = assignmentId;
+  _planTimerBlock = null;
   var est = parseInt(a.estimated_minutes || 0, 10);
   var minutes = (!isNaN(est) && est > 0 && est < FOCUS_BLOCK_MIN) ? Math.max(5, est) : FOCUS_BLOCK_MIN;
   _timerTotalSeconds = minutes * 60;
@@ -4036,6 +4604,7 @@ window.skipHabitTimer = function() {
 async function completeHabitTimer() {
   var habitId = _timerHabitId;
   var assignmentId = _timerAssignmentId;
+  var planBlockId = _planTimerBlock; _planTimerBlock = null;
   _timerHabitId = null; _timerAssignmentId = null; _timerPaused = false;
   var widget = document.getElementById("habit-timer-widget");
   if (widget) {
@@ -4052,6 +4621,7 @@ async function completeHabitTimer() {
     showToast("Session complete! 🎉 Great work!", "success");
     if (activeTab === "habits") renderHabits();
   } else if (assignmentId) {
+    if (planBlockId) { await planUpdate(planBlockId, { done: true }); renderPlanner(); refreshTodayIfOpen(); }
     showToast("Block done. Take a 5-minute break, then go again.", "success");
   }
 }
