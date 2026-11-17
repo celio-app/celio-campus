@@ -1092,6 +1092,10 @@ body.no-sem .mbar { display: none !important; }
 .t-crow-n.is-grade { background: var(--green-bg); color: var(--green); }
 .t-crow-n.is-grade.mid { background: var(--amber-bg); color: var(--amber); }
 .t-crow-n.is-grade.low { background: var(--red-bg); color: var(--red); }
+
+/* RC22: snapshot labels say what they count */
+.t-snap span { white-space: normal; text-transform: none; letter-spacing: 0; font-size: .78rem; line-height: 1.15; margin-top: 4px; }
+@media (max-width: 640px) { .t-snap span { font-size: .64rem; } }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -2315,13 +2319,14 @@ function snapshotStrip(semA, semCourses) {
   var done = semA.length - open.length;
   var gs = (semCourses || []).map(function(c) { return calculateCourseGrade(c.id); }).filter(function(g) { return g; });
   var avg = gs.length ? Math.round(gs.reduce(function(t, g) { return t + g.grade; }, 0) / gs.length) : null;
-  function tile(n, label, cls, click) { return '<button class="' + cls + (n === 0 ? ' is-zero' : '') + '" onclick="' + click + '"><b>' + n + '</b><span>' + label + '</span></button>'; }
+  function tile(n, label, cls, click, tip) { return '<button class="' + cls + (n === 0 ? ' is-zero' : '') + '" onclick="' + click + '" title="' + tip + '" aria-label="' + tip + '"><b>' + n + '</b><span>' + label + '</span></button>'; }
+  function pl(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
   var h = '<div class="t-snap" role="group" aria-label="Academic snapshot">';
-  h += tile(late, "Late", late ? "is-late" : "", "openAssignFilter(\'overdue\')");
-  h += tile(today, "Today", today ? "is-today" : "", "openAssignFilter(\'upcoming\')");
-  h += tile(week, "This week", "", "openAssignFilter(\'upcoming\')");
-  h += '<button onclick="openAssignFilter(\'done\')"><b>' + done + '<small style="font-size:.6em;color:var(--text3)">/' + semA.length + '</small></b><span>Done</span></button>';
-  if (avg !== null) h += '<button onclick="showTab(\'courses\')"><b>' + avg + '<small style="font-size:.6em;color:var(--text3)">%</small></b><span>Average</span></button>';
+  h += tile(late, "Late", late ? "is-late" : "", "openAssignFilter(\'overdue\')", pl(late, "assignment") + " past the due date");
+  h += tile(today, "Due today", today ? "is-today" : "", "openAssignFilter(\'upcoming\')", pl(today, "assignment") + " due today");
+  h += tile(week, "Due this week", "", "openAssignFilter(\'upcoming\')", pl(week, "assignment") + " due in the next 7 days");
+  h += '<button onclick="openAssignFilter(\'done\')" title="' + done + ' of ' + semA.length + ' assignments done this term" aria-label="' + done + ' of ' + semA.length + ' assignments done this term"><b>' + done + '<small style="font-size:.6em;color:var(--text3)"> of ' + semA.length + '</small></b><span>Done this term</span></button>';
+  if (avg !== null) h += '<button onclick="showTab(\'courses\')" title="Your average grade across courses: ' + avg + '%" aria-label="Your average grade across courses: ' + avg + '%"><b>' + avg + '<small style="font-size:.6em;color:var(--text3)">%</small></b><span>Grade average</span></button>';
   return h + '</div>';
 }
 function renderTodayV2(semA, semCourses, ws, focusItems) {
