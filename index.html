@@ -1183,6 +1183,13 @@ body.no-sem .mbar { display: none !important; }
 .topbar-brand.brand-tag { font-size: 34px; }
 .ab-big { font-family: "Semstr Display", "Outfit", sans-serif; font-weight: 400; letter-spacing: -.02em; }
 .ab-dot { width: .21em; height: .21em; margin-left: .03em; }
+
+/* RC26: greeting in Semstr Display; one name on screen; avatar follows the colour scheme */
+.t-greet h1 { font-family: "Semstr Display", "Outfit", sans-serif; font-weight: 400; font-size: 2.6rem; letter-spacing: -.01em; line-height: 1; display: inline-flex; align-items: baseline; }
+.t-greet h1::after { content: ""; width: .2em; height: .2em; border-radius: 50%; background: var(--accent); margin-left: .05em; flex: none; }
+@container (min-width: 620px) { .t-greet h1 { font-size: 3rem; } }
+@media (max-width: 640px) { .t-greet h1 { font-size: 2.2rem; } }
+.sb-email { font-size: .82rem; color: var(--text2); font-weight: 700; }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1325,7 +1332,7 @@ body.no-sem .mbar { display: none !important; }
       </div>
       <div class="sb-bottom">
         <div class="sb-user" id="sb-user-row">
-          <div class="sb-avatar" id="sb-avatar">?</div>
+          <div class="sb-avatar" id="sb-avatar" onclick="openAccount()" title="Your account">?</div>
           <button class="sb-user-main" onclick="openAccount()" title="Your account"><span style="flex:1;min-width:0;"><span class="sb-email" id="sb-email" style="display:block"></span></span></button>
           <button class="sb-signout" onclick="doSignOut()">Sign Out</button>
         </div>
@@ -2020,17 +2027,17 @@ function renderSidebar() {
   if (currentUser) {
     var email = currentUser.email || "";
     var name = (currentUser.user_metadata && currentUser.user_metadata.display_name) || email.split("@")[0] || "?";
-    document.getElementById("sb-email").textContent = name;
+    document.getElementById("sb-email").textContent = "Your account";
     var initial = (name[0] || "?").toUpperCase();
     var xpNow = (userStats && userStats.xp) || 0;
     var lvl = getLevel(xpNow);
     var lvlIdx = getLevelIndex(xpNow);
     var avatarEl = document.getElementById("sb-avatar");
     var grads = { default:"linear-gradient(135deg,#7C4DDB,#D9788F)", ocean:"linear-gradient(135deg,#3A77AB,#9EC3E6)", sakura:"linear-gradient(135deg,#B8456E,#E9776A)", forest:"linear-gradient(135deg,#477F31,#9CB85A)", midnight:"linear-gradient(135deg,#3E4A8C,#7C4DDB)", ember:"linear-gradient(135deg,#B5583E,#E9A93A)", gold:"linear-gradient(135deg,#A86A12,#FFC928)" };
-    avatarEl.style.background = grads[lvl.theme || "default"] || grads.default;
+    avatarEl.style.background = "var(--accent-fill)";
     avatarEl.textContent = initial;
     var rings = ["none","none","0 0 0 2px #0ea5e9","0 0 0 2px #e11d78","0 0 0 2px #16a34a","0 0 0 2px #4f46e5","0 0 0 2px #ea580c, 0 0 8px rgba(234,88,12,.4)","0 0 0 2px #b45309, 0 0 10px rgba(180,83,9,.5)"];
-    avatarEl.style.boxShadow = rings[Math.min(lvlIdx, rings.length-1)] || "none";
+    avatarEl.style.boxShadow = "none";
     var existingPip = avatarEl.querySelector(".av-pip");
     if (existingPip) existingPip.remove();
   }
