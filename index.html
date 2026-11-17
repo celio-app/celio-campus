@@ -1064,6 +1064,17 @@ body.no-sem .mbar { display: none !important; }
   .a-cal i { font-size: .66rem; }
   .assignment-row > .a-cal { justify-self: end; text-align: center; }
 }
+
+/* RC19: academic snapshot strip at the top of Today */
+.t-snap { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); grid-auto-flow: column; gap: 8px; margin: 0 0 14px; }
+.t-snap button { border: 2px solid var(--border); background: var(--bg2); border-radius: 14px; padding: 9px 6px 8px; cursor: pointer; font: inherit; color: var(--text); text-align: center; min-width: 0; }
+.t-snap button:hover { border-color: var(--accent); }
+.t-snap b { display: block; font-size: 1.45rem; font-weight: 800; line-height: 1.05; letter-spacing: -.5px; }
+.t-snap span { display: block; font-size: .7rem; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-snap .is-late { border-color: #E0533F; background: var(--red-bg); } .t-snap .is-late b { color: var(--red); }
+.t-snap .is-today { border-color: #FFC928; background: var(--amber-bg); }
+.t-snap .is-zero b { color: var(--text4); }
+@media (max-width: 640px) { .t-snap { gap: 6px; } .t-snap button { padding: 8px 2px 7px; border-radius: 12px; } .t-snap b { font-size: 1.2rem; } .t-snap span { font-size: .6rem; letter-spacing: .02em; } }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -2279,6 +2290,23 @@ function weekPlan(semA, mon) {
   }
   return { planned: planned, done: done };
 }
+function snapshotStrip(semA, semCourses) {
+  var open = semA.filter(function(a) { return a.status !== "done"; });
+  var late = open.filter(function(a) { var d = daysUntil(a.due_date); return d !== null && d < 0; }).length;
+  var today = open.filter(function(a) { return daysUntil(a.due_date) === 0; }).length;
+  var week = open.filter(function(a) { var d = daysUntil(a.due_date); return d !== null && d >= 0 && d <= 7; }).length;
+  var done = semA.length - open.length;
+  var gs = (semCourses || []).map(function(c) { return calculateCourseGrade(c.id); }).filter(function(g) { return g; });
+  var avg = gs.length ? Math.round(gs.reduce(function(t, g) { return t + g.grade; }, 0) / gs.length) : null;
+  function tile(n, label, cls, click) { return '<button class="' + cls + (n === 0 ? ' is-zero' : '') + '" onclick="' + click + '"><b>' + n + '</b><span>' + label + '</span></button>'; }
+  var h = '<div class="t-snap" role="group" aria-label="Academic snapshot">';
+  h += tile(late, "Late", late ? "is-late" : "", "openAssignFilter(\'overdue\')");
+  h += tile(today, "Today", today ? "is-today" : "", "openAssignFilter(\'upcoming\')");
+  h += tile(week, "This week", "", "openAssignFilter(\'upcoming\')");
+  h += '<button onclick="openAssignFilter(\'done\')"><b>' + done + '<small style="font-size:.6em;color:var(--text3)">/' + semA.length + '</small></b><span>Done</span></button>';
+  if (avg !== null) h += '<button onclick="showTab(\'courses\')"><b>' + avg + '<small style="font-size:.6em;color:var(--text3)">%</small></b><span>Average</span></button>';
+  return h + '</div>';
+}
 function renderTodayV2(semA, semCourses, ws, focusItems) {
   var html = "";
   var now = new Date(); now.setHours(0,0,0,0);
@@ -2289,6 +2317,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   var first = (fullName || "").split(" ")[0];
 
   html += '<div class="t-greet"><h1>Hi' + (first ? ' ' + esc(first) : '') + '</h1><span>' + now.toLocaleDateString("en-US", { month: "long", year: "numeric" }) + '</span></div>';
+  html += snapshotStrip(semA, semCourses);
 
   // day strip
   var _wp = weekPlan(semA, mon), _maxP = Math.max(60, Math.max.apply(null, _wp.planned));
@@ -2375,7 +2404,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
     title = "Due this week";
   }
   var total = list.length;
-  html += '<div class="t-list-head"><h2>' + title + '</h2>' + (total > 4 ? '<button class="t-link" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">See all ' + total + '</button>' : '') + '</div>';
+  html += '<div class="t-list-head"><h2>' + title + '</h2>' + (total > 4 ? '<button class="t-link" onclick="openAssignFilter(\'upcoming\')">See all ' + total + '</button>' : '') + '</div>';
   if (!list.length) {
     html += '<div class="t-empty">' + (todayDaySel ? 'Nothing due that day.' : 'Nothing due in the next 7 days.') + '</div>';
   } else {
@@ -2504,17 +2533,6 @@ function renderDashboard() {
   }).slice(0, 4);
   var weekLoad = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d >= 0 && d <= 7; }).length;
 
-  moreHtml += '<div class="section-title">Academic Snapshot</div>';
-  moreHtml += '<div class="snapshot-panel">';
-  moreHtml += '<div class="stat-grid snapshot-grid">';
-  moreHtml += '<div class="stat-card purple" style="cursor:pointer" onclick="assignFilter=\'all\';showTab(\'assignments\')">' + statIcon('total','var(--accent)') + '<div style="flex:1"><div class="stat-label">Total</div><div class="stat-value">' + total + '</div><div class="stat-sub">assignments</div></div></div>';
-  moreHtml += '<div class="stat-card green" style="cursor:pointer" onclick="assignFilter=\'done\';showTab(\'assignments\')">' + statIcon('done','var(--green)') + '<div style="flex:1"><div class="stat-label">Done</div><div class="stat-value">' + done + '</div><div class="stat-sub">' + (total > 0 ? Math.round(done/total*100) : 0) + '% complete</div></div></div>';
-  moreHtml += '<div class="stat-card red" style="cursor:pointer" onclick="assignFilter=\'overdue\';showTab(\'assignments\')">' + statIcon('overdue','var(--red)') + '<div style="flex:1"><div class="stat-label">Late</div><div class="stat-value">' + overdue + '</div><div class="stat-sub">past due</div></div></div>';
-  moreHtml += '<div class="stat-card amber" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('today','var(--amber)') + '<div style="flex:1"><div class="stat-label">Due Today</div><div class="stat-value">' + today + '</div><div class="stat-sub">due today</div></div></div>';
-  moreHtml += '<div class="stat-card pink" style="cursor:pointer" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')">' + statIcon('week','var(--pink)') + '<div style="flex:1"><div class="stat-label">This Week</div><div class="stat-value">' + upcoming + '</div><div class="stat-sub">upcoming</div></div></div>';
-  moreHtml += '</div>';
-
-  moreHtml += '</div>';
   var _old = '';
   _old += '<div class="section-title">Do this next</div>';
   _old += '<div class="today-grid"><div class="today-panel">';
@@ -2543,8 +2561,8 @@ function renderDashboard() {
     _old += '</div>';
     _old += '<span class="countdown-badge ' + badge.cls + '">' + badge.text + '</span>';
     _old += '<div class="today-mini-row">';
-    _old += '<div class="today-mini" title="See late work" onclick="assignFilter=\'overdue\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--red)">' + attentionItems.length + '</div><div class="today-mini-label">Late</div></div>';
-    _old += '<div class="today-mini" title="See what\'s due today" onclick="assignFilter=\'upcoming\';showTab(\'assignments\')"><div class="today-mini-value" style="color:var(--amber)">' + dueTodayItems.length + '</div><div class="today-mini-label">Today</div></div>';
+    _old += '<div class="today-mini" title="See late work" onclick="openAssignFilter(\'overdue\')"><div class="today-mini-value" style="color:var(--red)">' + attentionItems.length + '</div><div class="today-mini-label">Late</div></div>';
+    _old += '<div class="today-mini" title="See what\'s due today" onclick="openAssignFilter(\'upcoming\')"><div class="today-mini-value" style="color:var(--amber)">' + dueTodayItems.length + '</div><div class="today-mini-label">Today</div></div>';
     _old += '<div class="today-mini" title="Open habits" onclick="showTab(\'habits\')"><div class="today-mini-value" style="color:var(--green)">' + completedTodayHabits + '/' + totalHabits + '</div><div class="today-mini-label">Habits</div></div>';
     _old += '</div>';
     _old += '</div>';
@@ -2593,7 +2611,7 @@ function renderDashboard() {
     _old += '</div>';
   }
   var laterCount = semA.filter(function(a) { var d = daysUntil(a.due_date); return a.status !== "done" && d !== null && d > 7; }).length;
-  if (laterCount) _old += '<button class="dash-later" onclick="assignFilter=\'all\';showTab(\'assignments\')">' + laterCount + ' more due later →</button>';
+  if (laterCount) _old += '<button class="dash-later" onclick="openAssignFilter(\'all\')">' + laterCount + ' more due later →</button>';
   _old += renderProgressStrip(ws);
   html += renderTodayV2(semA, semCourses, ws, todayFocusItems);
 
@@ -2629,7 +2647,7 @@ function renderDashboard() {
   moreHtml += '<div class="weekly-reset-card"><div class="weekly-reset-label">Planned workload</div><div class="weekly-reset-main">' + estimatedLabel + '</div><div class="weekly-reset-sub">' + (estimatedWeekMinutes > 0 ? 'Based on estimates for items due this week.' : 'Add estimated time to assignments for a clearer weekly load.') + '</div></div>';
   moreHtml += '</div>';
   moreHtml += '<div class="weekly-reset-actions">';
-  moreHtml += '<button class="weekly-reset-chip" onclick="assignFilter=&quot;upcoming&quot;;showTab(&quot;assignments&quot;)">Review this week</button>';
+  moreHtml += '<button class="weekly-reset-chip" onclick="openAssignFilter(&quot;upcoming&quot;)">Review this week</button>';
   moreHtml += '<button class="weekly-reset-chip" onclick="showTab(&quot;habits&quot;)">' + (habitTargets > 0 ? 'Check multi-step habits' : 'Review habits') + '</button>';
   if (resetPriority) moreHtml += '<button class="weekly-reset-chip" onclick="openEditAssignment(&quot;' + resetPriority.id + '&quot;)">Set a first step</button>';
   moreHtml += '</div>';
@@ -2686,7 +2704,7 @@ function dueCalHtml(a, days) {
   var d = new Date(a.due_date + "T00:00:00");
   var h = 0, id = String(a.id || a.title || "");
   for (var k = 0; k < id.length; k++) h = (h * 31 + id.charCodeAt(k)) | 0;
-  var r = [-7, -5, -3.5, 3.5, 5, 7][Math.abs(h) % 6];
+  var r = 0;
   var cls = "", tag = "";
   if (a.status === "done") cls = " done";
   else if (days !== null && days < 0) { cls = " late"; tag = Math.abs(days) + (Math.abs(days) === 1 ? " day late" : " days late"); }
@@ -2791,6 +2809,7 @@ function renderAssignments() {
 }
 
 window.setFilter = function(f) { assignFilter = f; renderAssignments(); };
+window.openAssignFilter = function(f) { assignFilter = f; showTab('assignments'); };
 window.setSearch = function(v) { assignSearch = v; renderAssignments(); };
 
 window.saveInlineGrade = async function(e, id, totalMarks) {
