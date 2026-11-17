@@ -1075,6 +1075,17 @@ body.no-sem .mbar { display: none !important; }
 .t-snap .is-today { border-color: #FFC928; background: var(--amber-bg); }
 .t-snap .is-zero b { color: var(--text4); }
 @media (max-width: 640px) { .t-snap { gap: 6px; } .t-snap button { padding: 8px 2px 7px; border-radius: 12px; } .t-snap b { font-size: 1.2rem; } .t-snap span { font-size: .6rem; letter-spacing: .02em; } }
+
+/* RC20: snapshot reads as one stat bar, not tiles; week strip sits with the list it filters */
+.t-snap { gap: 0; background: var(--bg2); border-radius: 18px; box-shadow: var(--card-shadow); padding: 10px 4px; margin-bottom: 18px; }
+.t-snap button, .t-snap .is-late, .t-snap .is-today { border: 0; background: none; border-radius: 0; padding: 2px 4px; position: relative; }
+.t-snap button + button::before { content: ""; position: absolute; left: 0; top: 18%; bottom: 18%; width: 1.5px; background: var(--border); }
+.t-snap button:hover { background: none; } .t-snap button:hover span { color: var(--accent); }
+.t-snap b { font-size: 1.7rem; }
+.t-snap .is-late b { color: #E0533F; }
+.t-snap .is-today b { color: var(--text); text-decoration: underline 4px #FFC928; text-underline-offset: 3px; }
+.t-due .t-days { margin-top: 2px; }
+@media (max-width: 640px) { .t-snap { padding: 8px 0; } .t-snap button { padding: 2px 1px; } .t-snap b { font-size: 1.35rem; } }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -2318,6 +2329,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
 
   html += '<div class="t-greet"><h1>Hi' + (first ? ' ' + esc(first) : '') + '</h1><span>' + now.toLocaleDateString("en-US", { month: "long", year: "numeric" }) + '</span></div>';
   html += snapshotStrip(semA, semCourses);
+  var _daysAt = html.length;
 
   // day strip
   var _wp = weekPlan(semA, mon), _maxP = Math.max(60, Math.max.apply(null, _wp.planned));
@@ -2335,6 +2347,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
   html += '</div>';
 
   html += '<div class="t-hint">Tap a day to see what\'s due. The bar under each day is your planned time.</div>';
+  var _days = html.slice(_daysAt); html = html.slice(0, _daysAt);
   var _top = html; html = "";
   var _nb = null;
   // a planned session today goes first in Do this next
@@ -2419,7 +2432,7 @@ function renderTodayV2(semA, semCourses, ws, focusItems) {
     });
     html += '</div>';
   }
-  return '<div class="t-grid"><div class="t-col-a">' + _top + _main + '<section class="t-due" aria-label="Due soon">' + html + '</section>' + comingUpCard(semA) + '</div>'
+  return '<div class="t-grid"><div class="t-col-a">' + _top + _main + '<section class="t-due" aria-label="Due soon">' + _days + html + '</section>' + comingUpCard(semA) + '</div>'
     + '<div class="t-col-b">' + _side + todayHabitsCard() + '</div></div>';
 }
 
