@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preload" href="/fonts/SemstrDisplay.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1171,6 +1172,17 @@ body.no-sem .mbar { display: none !important; }
   .badge-toast > div:first-child img { width: 36px !important; height: 36px !important; }
   .badge-toast > div:last-child > div:last-child { display: none; }
 }
+
+/* RC25: Semstr Display wordmark; the dot follows the colour scheme */
+@font-face { font-family: "Semstr Display"; src: url("/fonts/SemstrDisplay.woff2") format("woff2"); font-display: swap; }
+.brand-tag { font-family: "Semstr Display", "Outfit", sans-serif; font-weight: 400; letter-spacing: -.02em; }
+.brand-tag::after { background: var(--accent); width: .21em; height: .21em; margin-left: .03em; }
+[data-theme="dark"] .brand-tag::after { background: var(--accent); }
+.sb-logo .brand-tag { font-size: 44px; }
+.sidebar.collapsed .sb-logo .brand-tag { font-size: 24px; }
+.topbar-brand.brand-tag { font-size: 34px; }
+.ab-big { font-family: "Semstr Display", "Outfit", sans-serif; font-weight: 400; letter-spacing: -.02em; }
+.ab-dot { width: .21em; height: .21em; margin-left: .03em; }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
