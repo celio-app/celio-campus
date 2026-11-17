@@ -1096,6 +1096,9 @@ body.no-sem .mbar { display: none !important; }
 /* RC22: snapshot labels say what they count */
 .t-snap span { white-space: normal; text-transform: none; letter-spacing: 0; font-size: .78rem; line-height: 1.15; margin-top: 4px; }
 @media (max-width: 640px) { .t-snap span { font-size: .64rem; } }
+
+/* RC23: app icon instead of a second wordmark on sign-in */
+.ab-icon { width: 56px; height: 56px; border-radius: 14px; display: block; box-shadow: 0 4px 0 rgba(36,27,58,.35); transform: rotate(-4deg); }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1171,7 +1174,7 @@ body.no-sem .mbar { display: none !important; }
 <!-- AUTH SCREEN — SEMSTR BRANDING -->
 <div id="auth-screen">
   <section class="auth-brand" aria-label="About Semstr">
-    <div class="ab-top"><span class="brand-tag ab-mark" role="img" aria-label="Semstr">semstr</span></div>
+    <div class="ab-top"><img class="ab-icon" src="/icon-192.png" alt="Semstr app icon" width="56" height="56"></div>
     <div class="ab-mid">
       <h1 class="ab-big">semstr<span class="ab-dot" aria-hidden="true"></span></h1>
       <div class="ab-rule" aria-hidden="true"></div>
