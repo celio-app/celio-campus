@@ -1036,6 +1036,33 @@ body.no-sem .mbar { display: none !important; }
 .cal-a-sticker { position: absolute; top: -14px; left: 4px; width: 40px; height: 40px; transform: rotate(-12deg); pointer-events: none; z-index: 2; filter: drop-shadow(0 2px 2px rgba(36,27,58,.18)); }
 .cal-a-sticker.top { width: 46px; height: 46px; top: -17px; left: 2px; transform: rotate(8deg); }
 @media (max-width: 640px) { .cal-a-sticker { width: 28px; height: 28px; top: -10px; left: 1px; } .cal-a-sticker.top { width: 32px; height: 32px; top: -12px; left: 0; } }
+
+/* RC18: due dates on the Assignments list as little tilted calendar pages that break the row */
+.assignment-list { gap: 12px; }
+.assignment-row { overflow: visible; position: relative; }
+.a-cal { position: relative; z-index: 2; flex: 0 0 auto; width: 58px; margin: -20px 2px -8px 6px; transform: rotate(var(--r, 0deg)); background: #fff; border: 2px solid #241B3A; border-radius: 12px; box-shadow: 0 3px 0 #241B3A; text-align: center; overflow: visible; line-height: 1; font-weight: 800; color: #241B3A; }
+.a-cal i { display: block; font-style: normal; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; padding: 5px 0 4px; background: var(--accent-fill); color: #fff; border-radius: 9px 9px 0 0; border-bottom: 2px solid #241B3A; }
+.a-cal b { display: block; font-size: 1.55rem; padding: 4px 0 7px; }
+.a-cal s { position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%) rotate(calc(var(--r, 0deg) * -1)); text-decoration: none; white-space: nowrap; font-size: .66rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; border: 2px solid #241B3A; background: #fff; color: #241B3A; }
+.a-cal.late i { background: #E0533F; }
+.a-cal.late s { background: #E0533F; color: #fff; }
+.a-cal.today i { background: #FFC928; color: #241B3A; }
+.a-cal.today s, .a-cal.soon s { background: #FFC928; }
+.a-cal.done { opacity: .45; box-shadow: none; }
+.a-cal.done i { background: #9A93AD; }
+.grade-quick-input { width: 72px; }
+.a-cal-none { font-size: .72rem; font-weight: 700; color: var(--text3); white-space: nowrap; }
+[data-theme="dark"] .a-cal { background: #2A2550; color: #fff; border-color: #0E0B20; box-shadow: 0 3px 0 #0E0B20; }
+[data-theme="dark"] .a-cal i { border-bottom-color: #0E0B20; }
+[data-theme="dark"] .a-cal s { border-color: #0E0B20; background: #2A2550; color: #fff; }
+[data-theme="dark"] .a-cal.late s { background: #E0533F; }
+[data-theme="dark"] .a-cal.today s, [data-theme="dark"] .a-cal.soon s { background: #FFC928; color: #241B3A; }
+@media (max-width: 640px) {
+  .a-cal { width: 50px; margin: -22px 0 4px; }
+  .a-cal b { font-size: 1.3rem; padding: 3px 0 6px; }
+  .a-cal i { font-size: .6rem; }
+  .assignment-row > .a-cal { justify-self: end; text-align: center; }
+}
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -2653,6 +2680,20 @@ function setupCard(title, text, btnLabel, onclick) {
     + '<button class="btn btn-primary" onclick="' + onclick + '">' + btnLabel + '</button></div>';
 }
 
+function dueCalHtml(a, days) {
+  if (!a.due_date) return '<div class="a-due a-cal-none">No date</div>';
+  var d = new Date(a.due_date + "T00:00:00");
+  var h = 0, id = String(a.id || a.title || "");
+  for (var k = 0; k < id.length; k++) h = (h * 31 + id.charCodeAt(k)) | 0;
+  var r = ((Math.abs(h) % 7) - 3) * 1.4;
+  var cls = "", tag = "";
+  if (a.status === "done") cls = " done";
+  else if (days !== null && days < 0) { cls = " late"; tag = Math.abs(days) + (Math.abs(days) === 1 ? " day late" : " days late"); }
+  else if (days === 0) { cls = " today"; tag = "Today"; }
+  else if (days === 1) { cls = " soon"; tag = "Tomorrow"; }
+  var mon = d.toLocaleDateString("en-US", { month: "short" });
+  return '<div class="a-due a-cal' + cls + '" style="--r:' + r.toFixed(1) + 'deg" title="Due ' + esc(formatDate(a.due_date)) + '"><i>' + mon + '</i><b>' + d.getDate() + '</b>' + (tag ? '<s>' + tag + '</s>' : '') + '</div>';
+}
 function renderAssignments() {
   var ca = document.getElementById("content-area");
   var semA = getSemAssignments();
@@ -2738,7 +2779,7 @@ function renderAssignments() {
         }
         html += '</div>';
       }
-      html += '<div class="' + dueClass + ' a-due">' + dueText + '</div>';
+      html += dueCalHtml(a, days);
       if (a.priority === "high" && a.status !== "done") html += '<span class="prio-tag">High</span>';
       html += '</div>';
     });
