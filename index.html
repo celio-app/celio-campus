@@ -1260,6 +1260,13 @@ a.appear-btn { text-decoration: none; }
 /* RC34: changed / moved tags in the import list */
 .ics-tag.ics-chg { background: var(--amber-bg); color: var(--amber); }
 .ics-tag.ics-moved { background: var(--accent-bg); color: var(--accent); }
+
+/* RC35: simpler re-import */
+.ics-updates { background: var(--amber-bg); border-radius: 14px; padding: 10px 14px; margin: 0 0 10px; font-size: .88rem; }
+.ics-updates summary { cursor: pointer; }
+.ics-updates ul { margin: 8px 0 4px; padding-left: 18px; } .ics-updates li { margin: 3px 0; }
+.ics-updates p { margin: 4px 0 0; color: var(--text3); font-size: .8rem; font-weight: 600; }
+.ics-have { font-size: .82rem; font-weight: 700; color: var(--text3); margin: 0 2px 10px; }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -4003,8 +4010,7 @@ window.icsFileChosen = function(input) {
         var cands = (byTitle[title.toLowerCase()] || []).filter(function(a) { return a.due_date !== ev.date; });
         var gc = groups[ev.group].course;
         if (gc && gc !== "new" && gc !== "skip") { var same = cands.filter(function(a) { return a.course_id === gc; }); if (same.length) cands = same; }
-        if (cands.length === 1) { it.moved = true; it.aid = cands[0].id; it.oldDate = cands[0].due_date; }
-        else it.checked = kind === "due" && ev.date >= today;
+        it.checked = kind === "due" && ev.date >= today;
       }
       groups[ev.group].items.push(it);
     });
@@ -4029,7 +4035,7 @@ function icsRender() {
   var html = '<div class="ics-summary">Found <b>' + nDue + ' due date' + (nDue === 1 ? '' : 's') + '</b> between ' + formatDate(st.from) + ' and ' + formatDate(st.to) + '. Upcoming ones are ticked. Pick the matching course for each group.</div>';
   if (nOther) html += '<label class="ics-toggle"><input type="checkbox" ' + (st.showOther ? 'checked' : '') + ' onchange="icsSetOther(this.checked)"> Show other events too (' + nOther + ', like class times and when work opens)</label>';
   st.groups.forEach(function(g, gi) {
-    var vis = g.items.filter(function(it) { return it.kind === "due" || st.showOther; });
+    var vis = g.items.filter(function(it) { return (it.kind === "due" || st.showOther) && !it.exists && !it.change; });
     if (!vis.length) return;
     var skip = g.course === "skip";
     html += '<div class="ics-group' + (skip ? ' is-skip' : '') + '"><div class="ics-group-head"><div class="ics-group-name">' + esc(g.label) + '</div>';
@@ -4039,6 +4045,7 @@ function icsRender() {
     html += '<option value="skip"' + (skip ? ' selected' : '') + '>Don\'t import this group</option></select></div>';
     g.items.forEach(function(it, ii) {
       if (!(it.kind === "due" || st.showOther)) return;
+      if (it.exists || it.change) return;
       var tag = it.exists ? '<span class="ics-tag">Already added</span>'
         : it.change ? '<span class="ics-tag ics-chg">' + (it.oldDate !== it.date ? 'Date changed: ' + formatDate(it.oldDate) + ' → ' + formatDate(it.date) : 'Renamed from “' + esc(it.oldTitle) + '”') + '</span>'
         : it.moved ? '<span class="ics-tag ics-moved">Moved? ' + formatDate(it.oldDate) + ' → ' + formatDate(it.date) + '</span>'
@@ -4049,6 +4056,18 @@ function icsRender() {
     });
     html += '</div>';
   });
+  var have = 0, chg = [];
+  st.groups.forEach(function(g) { if (g.course === "skip") return; g.items.forEach(function(it) { if (it.exists) have++; if (it.change) chg.push(it); }); });
+  var top = '';
+  if (chg.length) {
+    top += '<details class="ics-updates"><summary><b>' + chg.length + ' update' + (chg.length === 1 ? '' : 's') + ' from your teachers</b> will be applied</summary><ul>';
+    chg.forEach(function(it) { top += '<li><b>' + esc(it.title) + '</b>: ' + (it.oldDate !== it.date ? 'now due ' + formatDate(it.date) + ' (was ' + formatDate(it.oldDate) + ')' : 'renamed from “' + esc(it.oldTitle) + '”') + '</li>'; });
+    top += '</ul><p>Your progress and grades stay.</p></details>';
+  }
+  if (have) top += '<div class="ics-have">' + have + ' already in Semstr</div>';
+  var anyNew = html.indexOf('<div class="ics-group') > -1;
+  if (!anyNew && !chg.length) top += '<div class="ics-have" style="font-size:.95rem;color:var(--text)">You are all up to date. Nothing new in this file.</div>';
+  html = anyNew ? html.replace('<div class="ics-group', top + '<div class="ics-group') : html + top;
   document.getElementById("ics-list").innerHTML = html;
   icsCount();
 }
