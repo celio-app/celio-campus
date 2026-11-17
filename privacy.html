@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · Semstr</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #FFF8EC; --ink: #241B3A; --muted: #5E5675; --accent: #7C4DDB; --card: #fff; --line: #EADFCB; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #171430; --ink: #F4F0FF; --muted: #B8B0D4; --accent: #B79BFF; --card: #211D45; --line: #332D63; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 500 17px/1.6 "Plus Jakarta Sans", system-ui, sans-serif; }
+  header { background: #7C4DDB; color: #FFF6E5; padding: 28px 22px 34px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+  .top img { width: 44px; height: 44px; border-radius: 11px; }
+  .top a { color: #FFF6E5; font-weight: 800; text-decoration: none; font-size: .95rem; }
+  h1 { font: 700 clamp(40px, 8vw, 64px)/1 "Outfit", sans-serif; letter-spacing: -.04em; margin: 0; }
+  h1 span { display: inline-block; width: .2em; height: .2em; border-radius: 50%; background: #FFC928; margin-left: .04em; }
+  header p { margin: 12px 0 0; font-size: 1.1rem; opacity: .92; }
+  main { padding: 28px 22px 60px; }
+  section { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 20px 22px; margin-bottom: 16px; }
+  h2 { font-size: 1.15rem; margin: 0 0 8px; font-weight: 800; }
+  ul { margin: 6px 0 0; padding-left: 20px; } li { margin: 4px 0; }
+  p { margin: 6px 0; }
+  .muted { color: var(--muted); font-size: .9rem; }
+  a { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><img src="/icon-192.png" alt=""><a href="/">← Back to Semstr</a></div>
+  <h1>Privacy<span></span></h1>
+  <p>What Semstr keeps, why it keeps it, and how you stay in control.</p>
+</div></header>
+<main class="wrap">
+  <section>
+    <h2>The short version</h2>
+    <ul>
+      <li>Semstr keeps only what you add, so it can show you what's due and help you plan.</li>
+      <li>There are no ads, and your information is never sold.</li>
+      <li>You can download a copy of your data or delete your account at any time from <b>Your account</b> in the app.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>What we keep</h2>
+    <ul>
+      <li><b>Your account:</b> your email address, your password (stored scrambled, so no one can read it) and the name you choose.</li>
+      <li><b>Your schoolwork:</b> semesters, courses, assignments, due dates, grades you enter and notes.</li>
+      <li><b>Your routines:</b> habits, check-ins, planned study sessions, streaks and badges.</li>
+      <li><b>Settings:</b> things like light or dark mode and your colour choice.</li>
+    </ul>
+    <p class="muted">Semstr doesn't ask for your location, contacts, photos or phone number.</p>
+  </section>
+  <section>
+    <h2>Why we keep it</h2>
+    <p>Only to run the app for you: showing your work, planning your day, tracking habits and keeping your account secure. Your information isn't used for advertising, and it isn't shared with other students.</p>
+  </section>
+  <section>
+    <h2>Where it's stored</h2>
+    <ul>
+      <li><b>Supabase</b> stores your account and data in a secure database. Each student can only see their own information.</li>
+      <li><b>Vercel</b> hosts the website.</li>
+      <li><b>Google Fonts</b> supplies the lettering. Your browser loads it from Google, which sees a normal web request but none of your Semstr data.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>You're in control</h2>
+    <ul>
+      <li><b>Download:</b> Your account → Your data → Download gives you a file with everything you've added.</li>
+      <li><b>Delete:</b> Your account → Delete my account removes your account and everything in it. This can't be undone.</li>
+      <li><b>Change:</b> you can edit or remove any course, assignment, grade or habit whenever you like.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Questions</h2>
+    <p>If you or a parent or guardian has a question about your information, contact: <b>[contact email to be added]</b></p>
+    <p class="muted">Last updated November 16, 2026.</p>
+  </section>
+</main>
+</body>
+</html>

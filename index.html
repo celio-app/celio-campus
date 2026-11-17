@@ -1099,6 +1099,78 @@ body.no-sem .mbar { display: none !important; }
 
 /* RC23: app icon instead of a second wordmark on sign-in */
 .ab-icon { width: 56px; height: 56px; border-radius: 14px; display: block; box-shadow: 0 4px 0 rgba(36,27,58,.35); transform: rotate(-4deg); }
+
+/* RC24: usability pass */
+@media (max-width: 768px) {
+  #toast-container { bottom: calc(92px + env(safe-area-inset-bottom)) !important; right: 12px !important; left: 12px; align-items: center !important; }
+  #toast { bottom: calc(92px + env(safe-area-inset-bottom)); }
+}
+/* phone calendar: coloured dots, tap a day for the list */
+.cal-dots { display: none; }
+@media (max-width: 640px) {
+  .cal-day .cal-event, .cal-day .cal-more { display: none; }
+  .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin-top: auto; padding-bottom: 3px; }
+  .cal-dots i { width: 8px; height: 8px; border-radius: 50%; display: block; }
+  .cal-dots i.done { opacity: .35; }
+  .cal-dots b { font-size: .6rem; font-weight: 800; color: var(--text3); line-height: 8px; }
+  .cal-day { min-height: 58px; }
+}
+/* Courses tab */
+.cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+.cc { background: var(--bg2); border-radius: 20px; box-shadow: var(--card-shadow); padding: 16px 16px 14px; border-top: 6px solid var(--cc, var(--accent)); display: flex; flex-direction: column; gap: 12px; }
+.cc-top { display: flex; align-items: flex-start; gap: 12px; }
+.cc-name { flex: 1; min-width: 0; text-align: left; background: none; border: 0; padding: 0; font: inherit; color: var(--text); cursor: pointer; }
+.cc-name b { display: block; font-size: 1.15rem; font-weight: 800; letter-spacing: -.3px; line-height: 1.2; }
+.cc-name span { display: block; font-size: .78rem; font-weight: 700; color: var(--text3); margin-top: 3px; }
+.cc-grade { flex: 0 0 auto; text-align: center; min-width: 64px; padding: 6px 8px 5px; border-radius: 14px; background: var(--bg3); }
+.cc-grade b { display: block; font-size: 1.35rem; font-weight: 800; line-height: 1; }
+.cc-grade span { display: block; font-size: .64rem; font-weight: 800; color: var(--text3); margin-top: 3px; }
+.cc-grade.hi { background: var(--green-bg); } .cc-grade.hi b { color: var(--green); }
+.cc-grade.mid { background: var(--amber-bg); } .cc-grade.mid b { color: var(--amber); }
+.cc-grade.lo { background: var(--red-bg); } .cc-grade.lo b { color: var(--red); }
+.cc-next { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: var(--bg3); border: 0; border-radius: 12px; padding: 9px 12px; font: inherit; color: var(--text); cursor: pointer; }
+.cc-next small { display: block; font-size: .68rem; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+.cc-next b { display: block; font-size: .92rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-next > span:first-child { flex: 1; min-width: 0; }
+.cc-next em { font-style: normal; font-size: .8rem; font-weight: 800; color: var(--text2); white-space: nowrap; }
+.cc-next em.late { color: var(--red); }
+.cc-prog { display: flex; align-items: center; gap: 10px; font-size: .8rem; font-weight: 700; color: var(--text3); }
+.cc-prog .bar { flex: 1; height: 8px; border-radius: 99px; background: var(--bg3); overflow: hidden; }
+.cc-prog .bar i { display: block; height: 100%; border-radius: 99px; background: var(--cc, var(--accent)); }
+.cc-late { color: var(--red); font-weight: 800; }
+.cc-foot { display: flex; align-items: center; gap: 6px; }
+.cc-foot .cc-open { flex: 1; }
+.cc-icon { width: 34px; height: 34px; border-radius: 10px; border: 1.5px solid var(--border); background: none; color: var(--text3); display: grid; place-items: center; cursor: pointer; }
+.cc-icon:hover { color: var(--accent); border-color: var(--accent); }
+.cc-icon.danger:hover { color: var(--red); border-color: var(--red); }
+/* phone timeline */
+@media (max-width: 768px) {
+  .tl-labels { width: 138px; flex-basis: 138px; }
+  .tl-sec-code { display: none; }
+  .tl-label-row { padding: 0 8px; }
+  .tl-label-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: .74rem; line-height: 1.15; }
+  .tl-label-sub { display: none; }
+  .tl-sec-name { font-size: .68rem; }
+}
+/* Account sheet */
+.sb-user-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.acct-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border2); font-size: .88rem; }
+.acct-row:last-of-type { border-bottom: 0; }
+.acct-row small { display: block; color: var(--text3); font-weight: 600; font-size: .76rem; margin-top: 2px; }
+.acct-pill { font-size: .72rem; font-weight: 800; padding: 3px 10px; border-radius: 99px; background: var(--green-bg); color: var(--green); white-space: nowrap; }
+.acct-pill.warn { background: var(--amber-bg); color: var(--amber); }
+.acct-danger { margin-top: 14px; padding: 14px; border-radius: 14px; background: var(--red-bg); }
+.acct-danger p { margin: 0 0 10px; font-size: .82rem; font-weight: 600; color: var(--text2); line-height: 1.45; }
+.auth-legal { margin-top: 16px; text-align: center; font-size: .78rem; font-weight: 600; color: var(--text3); }
+.auth-legal a { color: var(--accent); font-weight: 800; }
+
+.cc-foot .cc-open { justify-content: center; }
+@media (max-width: 768px) {
+  .badge-toast { padding: 8px 12px !important; gap: 10px !important; max-width: 320px; }
+  .badge-toast > div:first-child { width: 38px !important; height: 38px !important; flex: 0 0 38px !important; }
+  .badge-toast > div:first-child img { width: 36px !important; height: 36px !important; }
+  .badge-toast > div:last-child > div:last-child { display: none; }
+}
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1206,6 +1278,7 @@ body.no-sem .mbar { display: none !important; }
       <div class="form-row" id="name-row" style="display:none"><label>Display Name</label><input type="text" id="auth-name" placeholder="Your name"></div>
       <button class="btn-auth" onclick="doAuth()" id="auth-submit-btn">Sign In</button>
       <button type="button" class="auth-forgot" id="auth-forgot" onclick="doForgotPassword()">Forgot password?</button>
+      <div class="auth-legal">How we look after your information: <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a></div>
     </div>
     <div id="recovery-form" style="display:none">
       <div style="font-size:.85rem;font-weight:700;margin-bottom:10px;text-align:center">Set a new password</div>
@@ -1241,7 +1314,7 @@ body.no-sem .mbar { display: none !important; }
       <div class="sb-bottom">
         <div class="sb-user" id="sb-user-row">
           <div class="sb-avatar" id="sb-avatar">?</div>
-          <div style="flex:1;min-width:0;"><div class="sb-email" id="sb-email"></div></div>
+          <button class="sb-user-main" onclick="openAccount()" title="Your account"><span style="flex:1;min-width:0;"><span class="sb-email" id="sb-email" style="display:block"></span></span></button>
           <button class="sb-signout" onclick="doSignOut()">Sign Out</button>
         </div>
       </div>
@@ -1289,6 +1362,7 @@ body.no-sem .mbar { display: none !important; }
 <div id="toast-container" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none"></div>
 
 <!-- SEMESTER MODAL -->
+<div class="modal-bg" id="acct-modal"><div class="modal" style="max-width:460px"><div class="modal-title"><span>Your account</span><button class="modal-close" onclick="closeAccount()">×</button></div><div id="acct-body"></div></div></div>
 <div class="modal-bg" id="appear-modal"><div class="modal" style="max-width:460px"><div class="modal-title"><span>Appearance</span><button class="modal-close" onclick="closeAppearance()">×</button></div><div id="appear-body"></div></div></div>
 <div class="modal-bg" id="sem-modal">
   <div class="modal" style="max-width:440px">
@@ -3153,6 +3227,7 @@ function renderCalendar() {
       var isDone = a.status === "done";
       html += '<div class="cal-event' + (isDone ? " cal-event-done" : "") + '" draggable="true" data-id="' + a.id + '" style="background:' + color + '22;color:' + color + ';border-left:3px solid ' + color + '" ondragstart="calDragStart(event,\'' + a.id + '\')" onclick="event.stopPropagation();openEditAssignment(\'' + a.id + '\')">' + (isDone ? "✓ " : "") + esc(a.title) + '</div>';
     });
+    if (dayAssigns.length) html += '<div class="cal-dots" aria-hidden="true">' + dayAssigns.slice(0, 4).map(function(a) { var c = getCourseById(a.course_id); return '<i class="' + (a.status === "done" ? 'done' : '') + '" style="background:' + ((c && c.color) || "#7C4DDB") + '"></i>'; }).join("") + (dayAssigns.length > 4 ? '<b>+' + (dayAssigns.length - 4) + '</b>' : '') + '</div>';
     if (dayAssigns.length > 3) html += '<div class="cal-more" onclick="event.stopPropagation();openCalDay(\'' + dateStr + '\')">+' + (dayAssigns.length-3) + ' more</div>';
     html += '</div>';
   }
@@ -4032,7 +4107,7 @@ function renderGantt() {
     var color = course.color || "#7C4DDB";
     var collapsed = !!tlCollapsed[course.id];
     var sl = div("tl-sec-label");
-    sl.innerHTML = '<span class="tl-arrow' + (collapsed ? '' : ' open') + '">▶</span><i style="background:' + color + '"></i><span class="tl-sec-name">' + esc(course.code) + ' · ' + esc(course.name) + '</span><span class="tl-sec-count">' + items.length + '</span>';
+    sl.innerHTML = '<span class="tl-arrow' + (collapsed ? '' : ' open') + '">▶</span><i style="background:' + color + '"></i><span class="tl-sec-name"><span class="tl-sec-code">' + esc(course.code) + ' · </span>' + esc(course.name) + '</span><span class="tl-sec-count">' + items.length + '</span>';
     var sec = addRow(sl, "tl-sec");
     sec.lr.onclick = sec.row.onclick = function() { tlToggle(course.id); };
     if (collapsed) return;
@@ -4117,28 +4192,37 @@ function renderCoursesTab() {
   var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
   var html = '<div class="fade-in">';
   if (semCourses.length === 0) {
-    html += '<div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 20 20" fill="none" style="color:var(--accent);opacity:.4"><rect x="2" y="2" width="10" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><rect x="6" y="5" width="10" height="13" rx="2" stroke="currentColor" stroke-width="1.4" opacity=".4"/></svg></div><div class="empty-title">No courses yet</div><div class="empty-sub">Add your courses for this semester to start tracking assignments.</div></div>';
-    html += '<div style="text-align:center;margin-top:12px"><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
+    html += '<div class="empty-state"><div class="empty-title">No courses yet</div><div class="empty-sub">Add each class you take this semester. Then add what\'s due.</div><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
   } else {
     html += '<div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn btn-primary" onclick="openAddCourseModal(null,\'' + activeSemester.id + '\')">＋ Add Course</button></div>';
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
+    html += '<div class="cc-grid">';
+    var PEN = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M13 3l4 4-9 9-5 1 1-5 9-9z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    var BIN = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M6 6l1 11h6l1-11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     semCourses.forEach(function(course) {
       var cA = assignments.filter(function(a) { return a.course_id === course.id; });
       var cdone = cA.filter(function(a) { return a.status === "done"; }).length;
-      var coverdue = cA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; }).length;
-      var cpct = cA.length > 0 ? Math.round(cdone / cA.length * 100) : 0;
-      html += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--card-shadow)"><div style="height:6px;background:' + (course.color||"#7C4DDB") + '"></div><div style="padding:16px">';
-      html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px"><div><div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text3)">' + esc(course.code) + '</div><div style="font-size:.95rem;font-weight:800;margin-top:2px">' + esc(course.name) + '</div></div>';
-      html += '<div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" onclick="openEditCourse(null,\'' + course.id + '\')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M13 3l4 4-9 9-5 1 1-5 9-9z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="btn btn-ghost btn-sm" onclick="openDeleteCourse(null,\'' + course.id + '\')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle"><path d="M5 6h10l-1 10H6L5 6z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 6h14M8 6V4h4v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div></div>';
-      if (course.instructor) html += '<div style="font-size:.75rem;color:var(--text3);margin-bottom:8px;font-weight:600"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><circle cx="10" cy="6" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> ' + esc(course.instructor) + (course.credits ? ' · ' + course.credits + ' credits' : '') + '</div>';
-      if (course.notes) html += '<div style="font-size:.73rem;color:var(--text4);margin-bottom:8px"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 2a5 5 0 0 1 5 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 0 1 5-5z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="7" r="1.8" fill="currentColor" opacity=".6"/></svg> ' + esc(course.notes) + '</div>';
-      html += '<div style="display:flex;gap:10px;font-size:.75rem;font-weight:700;margin-bottom:10px"><span style="color:var(--green)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.3" opacity=".35"/><path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> ' + cdone + ' done</span><span style="color:var(--text3)"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M13 3l4 4-9 9-5 1 1-5 9-9z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> ' + cA.length + ' total</span>';
-      if (coverdue > 0) html += '<span style="color:var(--red)"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 3L2 17h16L10 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 9v4M10 14.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> ' + coverdue + ' needs attention</span>';
+      var late = cA.filter(function(a) { return a.status !== "done" && daysUntil(a.due_date) < 0; }).length;
+      var pct = cA.length ? Math.round(cdone / cA.length * 100) : 0;
+      var g = calculateCourseGrade(course.id);
+      var next = cA.filter(function(a) { return a.status !== "done" && a.due_date; }).sort(function(x, y) { return x.due_date.localeCompare(y.due_date); })[0];
+      var col = course.color || "#7C4DDB";
+      html += '<div class="cc" style="--cc:' + col + '">';
+      html += '<div class="cc-top"><button class="cc-name" onclick="selectCourse(\'' + course.id + '\')"><b>' + esc(course.name || course.code) + '</b><span>' + esc(course.code || "") + (course.instructor ? ' · ' + esc(course.instructor) : '') + '</span></button>';
+      html += g ? '<div class="cc-grade ' + (g.grade >= 80 ? 'hi' : g.grade >= 60 ? 'mid' : 'lo') + '" title="Based on ' + g.weightCovered + '% of the course grade so far"><b>' + g.grade + '%</b><span>grade so far</span></div>'
+                : '<div class="cc-grade"><b>–</b><span>no grades yet</span></div>';
       html += '</div>';
-      html += '<div class="progress-bar-wrap"><div class="progress-bar" style="width:' + cpct + '%;background:' + (course.color||"var(--accent)") + '"></div></div>';
-      html += '<div style="text-align:right;font-size:.7rem;font-weight:800;color:' + (course.color||"var(--accent)") + ';margin-top:4px">' + cpct + '%</div>';
-      html += '<button class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%;justify-content:center" onclick="selectCourse(\'' + course.id + '\')">View Assignments</button>';
-      html += '</div></div>';
+      if (next) {
+        var dd = daysUntil(next.due_date);
+        var when = dd < 0 ? Math.abs(dd) + (Math.abs(dd) === 1 ? ' day late' : ' days late') : dd === 0 ? 'Today' : dd === 1 ? 'Tomorrow' : new Date(next.due_date + "T00:00:00").toLocaleDateString("en-US", { weekday: dd < 7 ? "short" : undefined, month: dd < 7 ? undefined : "short", day: dd < 7 ? undefined : "numeric" });
+        html += '<button class="cc-next" onclick="openEditAssignment(\'' + next.id + '\')"><span><small>Next up</small><b>' + esc(next.title) + '</b></span><em class="' + (dd < 0 ? 'late' : '') + '">' + when + '</em></button>';
+      } else {
+        html += '<div class="cc-next" style="cursor:default"><span><small>Next up</small><b style="color:var(--text3)">Nothing due</b></span></div>';
+      }
+      html += '<div class="cc-prog"><span>' + cdone + ' of ' + cA.length + ' done</span><span class="bar"><i style="width:' + pct + '%"></i></span>' + (late ? '<span class="cc-late">' + late + ' late</span>' : '') + '</div>';
+      html += '<div class="cc-foot"><button class="btn btn-ghost btn-sm cc-open" onclick="selectCourse(\'' + course.id + '\')">Open course</button>'
+        + '<button class="cc-icon" title="Edit course" aria-label="Edit ' + esc(course.name || course.code) + '" onclick="openEditCourse(null,\'' + course.id + '\')">' + PEN + '</button>'
+        + '<button class="cc-icon danger" title="Delete course" aria-label="Delete ' + esc(course.name || course.code) + '" onclick="openDeleteCourse(null,\'' + course.id + '\')">' + BIN + '</button></div>';
+      html += '</div>';
     });
     html += '</div>';
   }
@@ -4196,6 +4280,54 @@ window.deleteSemester = function() {
       showToast("Semester deleted.");
     } catch (err) { showToast(err.message, "error"); }
   });
+};
+
+window.openAccount = function() { renderAccount(false); document.getElementById("acct-modal").classList.add("open"); };
+window.closeAccount = function() { document.getElementById("acct-modal").classList.remove("open"); };
+function renderAccount(confirming) {
+  var u = currentUser || {}, md = u.user_metadata || {};
+  var h = '<div class="acct-row"><div><b>' + esc(md.display_name || "Student") + '</b><small>' + esc(u.email || "") + '</small></div></div>';
+  h += '<div class="acct-row"><div>Planner<small>' + (planLocal ? 'Saved on this device only. Planned sessions won\'t show on your other devices yet.' : 'Saved to your account, so it shows on every device.') + '</small></div><span class="acct-pill' + (planLocal ? ' warn' : '') + '">' + (planLocal ? 'This device' : 'Synced') + '</span></div>';
+  h += '<div class="acct-row"><div>Your data<small>A copy of your semesters, courses, assignments, habits and plans.</small></div><button class="btn btn-ghost btn-sm" onclick="downloadMyData()">Download</button></div>';
+  h += '<div class="acct-row"><div>Privacy<small>What Semstr keeps and why.</small></div><a class="btn btn-ghost btn-sm" href="/privacy.html" target="_blank" rel="noopener">Read</a></div>';
+  h += '<div class="acct-danger">';
+  if (!confirming) {
+    h += '<p>Deleting your account removes everything you\'ve added to Semstr. This can\'t be undone.</p><button class="btn btn-danger btn-sm" onclick="renderAccount(true)">Delete my account</button>';
+  } else {
+    h += '<p>Type <b>DELETE</b> to confirm. Your semesters, courses, assignments, grades, habits, plans and badges will all be removed.</p>'
+      + '<input id="acct-del-input" class="inp" autocomplete="off" placeholder="DELETE" style="margin-bottom:10px">'
+      + '<div style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="renderAccount(false)">Cancel</button><button class="btn btn-danger btn-sm" onclick="deleteMyAccount()">Delete forever</button></div>';
+  }
+  h += '</div>';
+  document.getElementById("acct-body").innerHTML = h;
+  var inp = document.getElementById("acct-del-input"); if (inp) inp.focus();
+}
+window.renderAccount = renderAccount;
+window.downloadMyData = async function() {
+  try {
+    var logs = await sb.from("habit_logs").select("*").eq("user_id", currentUser.id);
+    var data = { exported_at: new Date().toISOString(), email: currentUser.email, semesters: semesters, courses: courses, assignments: assignments, habits: habits, habit_logs: (logs && logs.data) || habitLogs, plan_blocks: planBlocks, stats: userStats || null };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "semstr-my-data-" + localDateStr() + ".json";
+    document.body.appendChild(a); a.click(); setTimeout(function() { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    showToast("Your data is downloading.", "success");
+  } catch (err) { showToast(err.message || "Couldn't make the download.", "error"); }
+};
+window.deleteMyAccount = async function() {
+  var v = (document.getElementById("acct-del-input") || {}).value || "";
+  if (v.trim().toUpperCase() !== "DELETE") { showToast("Type DELETE to confirm.", "error"); return; }
+  try {
+    var r = await sb.rpc("delete_my_account");
+    if (r && r.error) throw r.error;
+    try { Object.keys(localStorage).forEach(function(k) { if (k.indexOf(currentUser.id) > -1) localStorage.removeItem(k); }); } catch (e) {}
+    closeAccount();
+    await sb.auth.signOut();
+    await applySession(null);
+    showToast("Your account has been deleted.", "success");
+  } catch (err) {
+    var m = String(err.message || err);
+    showToast(/function|schema cache|not find/i.test(m) ? "Account deletion isn't switched on yet. Please contact your teacher." : m, "error");
+  }
 };
 window.openAppearance = function() { renderAppearance(); document.getElementById("appear-modal").classList.add("open"); };
 window.closeAppearance = function() { document.getElementById("appear-modal").classList.remove("open"); };
