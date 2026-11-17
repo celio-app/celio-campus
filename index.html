@@ -4552,8 +4552,9 @@ window.sendFeedback = async function() {
     var row = { kind: fbKind, body: text, email: currentUser.email || null,
       screen: TAB_NAMES[activeTab] || activeTab, device: fbDevice(),
       context: { w: window.innerWidth, h: window.innerHeight, theme: document.documentElement.getAttribute("data-theme") || "light", palette: (userPrefs().palette || "purple"), ua: navigator.userAgent, url: location.pathname } };
-    var r = await sb.from("feedback").insert(row);
+    var r = await sb.from("feedback").insert(row).select("id").single();
     if (r && r.error) throw r.error;
+    try { if (sb.functions && r.data && r.data.id) sb.functions.invoke("feedback-notify", { body: { id: r.data.id } }).catch(function() {}); } catch (e) {}
     document.getElementById("fb-body-wrap").innerHTML = '<div style="text-align:center;padding:14px 4px 6px"><img src="icons/habits/star.png" alt="" style="width:84px;height:84px" onerror="this.remove()"><h3 style="margin:8px 0 4px">Thanks! Got it.</h3><p style="margin:0;color:var(--text3);font-weight:600;font-size:.9rem">Your note was sent. You can see it under Feedback you\'ve sent.</p><div class="modal-actions" style="justify-content:center"><button class="btn btn-primary" onclick="closeFeedback()">Done</button></div></div>';
   } catch (err) {
     var m = String(err.message || err);
