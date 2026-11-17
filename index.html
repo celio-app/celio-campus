@@ -1252,6 +1252,10 @@ a.appear-btn { text-decoration: none; }
 #badges-body .badge-chip__mark, #badges-body .badge-chip__mark img { width: 64px !important; height: 64px !important; flex: 0 0 64px; }
 #badges-body .badge-chip.is-locked .badge-chip__mark img { filter: grayscale(1); opacity: .45; }
 @media (max-width: 640px) { #badges-body .badge-grid { grid-template-columns: 1fr; } #badges-body .badge-chip__mark, #badges-body .badge-chip__mark img { width: 52px !important; height: 52px !important; flex-basis: 52px; } }
+
+/* RC32: setup card with import */
+.setup-card-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; flex: 0 0 auto; }
+@media (max-width: 640px) { .setup-card-btns { width: 100%; justify-content: stretch; } .setup-card-btns .btn { flex: 1; } }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1588,7 +1592,8 @@ a.appear-btn { text-decoration: none; }
     <div class="modal-title"><span>Import due dates</span><button class="modal-close" onclick="closeIcsModal()">×</button></div>
     <div id="ics-step1">
       <div class="ics-help">
-        <p><b>From Brightspace:</b> open Calendar → Settings → tick <i>Enable Calendar Feeds</i> → Save → Subscribe → Download.</p>
+        <p><b>From SLATE or Brightspace:</b> open Calendar → Settings → tick <i>Enable Calendar Feeds</i> → Save → Subscribe → Download.</p>
+        <p><b>From Blackboard:</b> open Calendar → Settings (gear) → <i>Get external calendar link</i>, then paste that link into your browser to download the file.</p>
         <p><b>From Google Calendar</b> (for Google Classroom): Settings → Import &amp; export → Export, then unzip the download.</p>
         <p>Then choose the <b>.ics</b> file here. Nothing is added until you check the list and tap Import.</p>
       </div>
@@ -2632,9 +2637,9 @@ function renderDashboard() {
   var html = '<div class="fade-in dash-v2">';
 
   if (semCourses.length === 0) {
-    html += setupCard("Step 2: add your courses", "Add each class you're taking this semester. You only do this once.", "＋ Add a course", "openAddCourseModal(null,'" + activeSemester.id + "')");
+    html += setupCard("Step 1: add your courses", "Add each class you're taking this semester, or import your due dates from SLATE, Brightspace, Blackboard or Google Classroom and Semstr sets up your courses for you.", "＋ Add a course", "openAddCourseModal(null,'" + activeSemester.id + "')", "⤓ Import due dates");
   } else if (total === 0) {
-    html += setupCard("Step 3: add what's due", "Add your next assignment, test or project. Give it a start date and a time guess so Semstr can help you plan your week.", "＋ Add an assignment", "openAddAssignmentModal()");
+    html += setupCard("Step 2: add what's due", "Add your next assignment, test or project, or import them all from your school's calendar. Give each a start date and a time guess so Semstr can help you plan your week.", "＋ Add an assignment", "openAddAssignmentModal()", "⤓ Import due dates");
   }
 
   var moreHtml = '', badgesHtml = '';
@@ -2842,9 +2847,10 @@ function renderDashboard() {
 }
 
 
-function setupCard(title, text, btnLabel, onclick) {
+function setupCard(title, text, btnLabel, onclick, alt) {
   return '<div class="setup-card"><div><div class="setup-card-title">' + esc(title) + '</div><div class="setup-card-text">' + esc(text) + '</div></div>'
-    + '<button class="btn btn-primary" onclick="' + onclick + '">' + btnLabel + '</button></div>';
+    + '<div class="setup-card-btns">' + (alt ? '<button class="btn btn-ghost" onclick="openIcsModal()">' + alt + '</button>' : '')
+    + '<button class="btn btn-primary" onclick="' + onclick + '">' + btnLabel + '</button></div></div>';
 }
 
 function dueCalHtml(a, days) {
