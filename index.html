@@ -1267,6 +1267,9 @@ a.appear-btn { text-decoration: none; }
 .ics-updates ul { margin: 8px 0 4px; padding-left: 18px; } .ics-updates li { margin: 3px 0; }
 .ics-updates p { margin: 4px 0 0; color: var(--text3); font-size: .8rem; font-weight: 600; }
 .ics-have { font-size: .82rem; font-weight: 700; color: var(--text3); margin: 0 2px 10px; }
+
+/* RC36: hide past items in import */
+.ics-link { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; color: var(--accent); cursor: pointer; }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -3917,8 +3920,8 @@ function icsParse(text) {
   return { events: events, isD2L: isD2L };
 }
 function icsKind(title, isD2L) {
+  if (/\s[-–—]\s*(Available|Availability Ends|Availability Starts|Opens|Closes|Start|End|Starts|Ends)\s*$/i.test(title) || /^(Available|Opens):/i.test(title)) return "access";
   if (!isD2L) return "due";
-  if (/ - (Available|Availability Ends|Availability Starts|Start|End)$/i.test(title)) return "access";
   if (/ - Due$/i.test(title) || /\bdue\b/i.test(title)) return "due";
   return "event";
 }
@@ -4032,10 +4035,11 @@ function icsRender() {
   var semCourses = courses.filter(function(c) { return c.semester_id === activeSemester.id; });
   var nDue = 0, nOther = 0;
   st.groups.forEach(function(g) { g.items.forEach(function(it) { if (it.kind === "due") nDue++; else nOther++; }); });
-  var html = '<div class="ics-summary">Found <b>' + nDue + ' due date' + (nDue === 1 ? '' : 's') + '</b> between ' + formatDate(st.from) + ' and ' + formatDate(st.to) + '. Upcoming ones are ticked. Pick the matching course for each group.</div>';
-  if (nOther) html += '<label class="ics-toggle"><input type="checkbox" ' + (st.showOther ? 'checked' : '') + ' onchange="icsSetOther(this.checked)"> Show other events too (' + nOther + ', like class times and when work opens)</label>';
+  var nUp = 0; st.groups.forEach(function(g) { g.items.forEach(function(it) { if (it.kind === "due" && !it.past && !it.exists && !it.change) nUp++; }); });
+  var html = '<div class="ics-summary">' + (nUp ? '<b>' + nUp + ' upcoming due date' + (nUp === 1 ? '' : 's') + '</b> to add. Check each group goes to the right course.' : 'No new upcoming due dates in this file.') + '</div>';
+
   st.groups.forEach(function(g, gi) {
-    var vis = g.items.filter(function(it) { return (it.kind === "due" || st.showOther) && !it.exists && !it.change; });
+    var vis = g.items.filter(function(it) { return (it.kind === "due" || st.showOther) && !it.exists && !it.change && (!it.past || st.showPast); });
     if (!vis.length) return;
     var skip = g.course === "skip";
     html += '<div class="ics-group' + (skip ? ' is-skip' : '') + '"><div class="ics-group-head"><div class="ics-group-name">' + esc(g.label) + '</div>';
@@ -4046,6 +4050,7 @@ function icsRender() {
     g.items.forEach(function(it, ii) {
       if (!(it.kind === "due" || st.showOther)) return;
       if (it.exists || it.change) return;
+      if (it.past && !st.showPast) return;
       var tag = it.exists ? '<span class="ics-tag">Already added</span>'
         : it.change ? '<span class="ics-tag ics-chg">' + (it.oldDate !== it.date ? 'Date changed: ' + formatDate(it.oldDate) + ' → ' + formatDate(it.date) : 'Renamed from “' + esc(it.oldTitle) + '”') + '</span>'
         : it.moved ? '<span class="ics-tag ics-moved">Moved? ' + formatDate(it.oldDate) + ' → ' + formatDate(it.date) + '</span>'
@@ -4064,7 +4069,14 @@ function icsRender() {
     chg.forEach(function(it) { top += '<li><b>' + esc(it.title) + '</b>: ' + (it.oldDate !== it.date ? 'now due ' + formatDate(it.date) + ' (was ' + formatDate(it.oldDate) + ')' : 'renamed from “' + esc(it.oldTitle) + '”') + '</li>'; });
     top += '</ul><p>Your progress and grades stay.</p></details>';
   }
-  if (have) top += '<div class="ics-have">' + have + ' already in Semstr</div>';
+  var nPast = 0;
+  st.groups.forEach(function(g) { if (g.course === "skip") return; g.items.forEach(function(it) { if (it.past && !it.exists && !it.change && (it.kind === "due" || st.showOther)) nPast++; }); });
+  var bits = [];
+  if (have) bits.push(have + ' already in Semstr');
+  if (nPast) bits.push(nPast + ' past due date' + (nPast === 1 ? '' : 's') + (st.showPast ? ' shown' : ' hidden') + ' · <button type="button" class="ics-link" onclick="icsSetPast(' + (!st.showPast) + ')">' + (st.showPast ? 'Hide' : 'Show') + '</button>');
+  var nOth = 0; st.groups.forEach(function(g) { g.items.forEach(function(it) { if (it.kind !== "due" && !it.exists) nOth++; }); });
+  if (nOth) bits.push(nOth + ' other event' + (nOth === 1 ? '' : 's') + ' like when work opens · <button type="button" class="ics-link" onclick="icsSetOther(' + (!st.showOther) + ')">' + (st.showOther ? 'Hide' : 'Show') + '</button>');
+  if (bits.length) top += '<div class="ics-have">' + bits.join(' &nbsp;·&nbsp; ') + '</div>';
   var anyNew = html.indexOf('<div class="ics-group') > -1;
   if (!anyNew && !chg.length) top += '<div class="ics-have" style="font-size:.95rem;color:var(--text)">You are all up to date. Nothing new in this file.</div>';
   html = anyNew ? html.replace('<div class="ics-group', top + '<div class="ics-group') : html + top;
@@ -4072,6 +4084,7 @@ function icsRender() {
   icsCount();
 }
 window.icsSetOther = function(v) { icsState.showOther = v; icsRender(); };
+window.icsSetPast = function(v) { icsState.showPast = v; icsRender(); };
 window.icsSetCourse = function(gi, v) { icsState.groups[gi].course = v; icsRender(); };
 window.icsSetItem = function(gi, ii, v) { icsState.groups[gi].items[ii].checked = v; icsCount(); };
 function icsPicked() {
