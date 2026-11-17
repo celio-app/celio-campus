@@ -1256,6 +1256,10 @@ a.appear-btn { text-decoration: none; }
 /* RC32: setup card with import */
 .setup-card-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; flex: 0 0 auto; }
 @media (max-width: 640px) { .setup-card-btns { width: 100%; justify-content: stretch; } .setup-card-btns .btn { flex: 1; } }
+
+/* RC34: changed / moved tags in the import list */
+.ics-tag.ics-chg { background: var(--amber-bg); color: var(--amber); }
+.ics-tag.ics-moved { background: var(--accent-bg); color: var(--accent); }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -3967,8 +3971,14 @@ window.icsFileChosen = function(input) {
     var from = activeSemester.start_date || localDateStr(new Date(Date.now() - 14 * 86400000));
     var to = activeSemester.end_date || localDateStr(new Date(Date.now() + 200 * 86400000));
     var semA = getSemAssignments();
-    var existing = {};
-    semA.forEach(function(a) { existing[(a.title || "").toLowerCase() + "|" + a.due_date] = true; });
+    // RC34: match by the calendar's permanent event ID first, then title + date, then "moved?"
+    var existing = {}, byUid = {}, byTitle = {};
+    semA.forEach(function(a) {
+      var t = (a.title || "").toLowerCase();
+      existing[t + "|" + a.due_date] = a;
+      if (a.source_uid) byUid[a.source_uid] = a;
+      else (byTitle[t] = byTitle[t] || []).push(a);
+    });
     var groups = {}, order = [], seen = {}, outside = 0;
     parsed.events.forEach(function(ev) {
       if (ev.date < from || ev.date > to) { outside++; return; }
@@ -3981,9 +3991,22 @@ window.icsFileChosen = function(input) {
         groups[ev.group] = { label: ev.group, code: code, name: icsCourseName(ev.group, code), course: icsMatchCourse(ev.group, code), items: [] };
         order.push(ev.group);
       }
-      var exists = !!existing[title.toLowerCase() + "|" + ev.date];
-      groups[ev.group].items.push({ title: title, date: ev.date, kind: kind, exists: exists, past: ev.date < today,
-        checked: kind === "due" && !exists && ev.date >= today });
+      var it = { title: title, date: ev.date, kind: kind, uid: ev.uid || "", exists: false, past: ev.date < today, checked: false };
+      var hit = it.uid && byUid[it.uid];
+      if (hit) {
+        if (hit.due_date === ev.date && (hit.title || "").toLowerCase() === title.toLowerCase()) { it.exists = true; }
+        else { it.change = true; it.aid = hit.id; it.oldDate = hit.due_date; it.oldTitle = hit.title; it.checked = true; }
+      } else if (existing[title.toLowerCase() + "|" + ev.date]) {
+        var ex = existing[title.toLowerCase() + "|" + ev.date];
+        it.exists = true; if (it.uid && !ex.source_uid) it.backfill = ex.id;
+      } else {
+        var cands = (byTitle[title.toLowerCase()] || []).filter(function(a) { return a.due_date !== ev.date; });
+        var gc = groups[ev.group].course;
+        if (gc && gc !== "new" && gc !== "skip") { var same = cands.filter(function(a) { return a.course_id === gc; }); if (same.length) cands = same; }
+        if (cands.length === 1) { it.moved = true; it.aid = cands[0].id; it.oldDate = cands[0].due_date; }
+        else it.checked = kind === "due" && ev.date >= today;
+      }
+      groups[ev.group].items.push(it);
     });
     var list = order.map(function(k) { var g = groups[k]; g.items.sort(function(a, b) { return a.date.localeCompare(b.date); }); return g; })
       .filter(function(g) { return g.items.length; })
@@ -4016,7 +4039,10 @@ function icsRender() {
     html += '<option value="skip"' + (skip ? ' selected' : '') + '>Don\'t import this group</option></select></div>';
     g.items.forEach(function(it, ii) {
       if (!(it.kind === "due" || st.showOther)) return;
-      var tag = it.exists ? '<span class="ics-tag">Already added</span>' : (it.past ? '<span class="ics-tag">Past</span>' : (it.kind !== "due" ? '<span class="ics-tag">Event</span>' : ''));
+      var tag = it.exists ? '<span class="ics-tag">Already added</span>'
+        : it.change ? '<span class="ics-tag ics-chg">' + (it.oldDate !== it.date ? 'Date changed: ' + formatDate(it.oldDate) + ' → ' + formatDate(it.date) : 'Renamed from “' + esc(it.oldTitle) + '”') + '</span>'
+        : it.moved ? '<span class="ics-tag ics-moved">Moved? ' + formatDate(it.oldDate) + ' → ' + formatDate(it.date) + '</span>'
+        : (it.past ? '<span class="ics-tag">Past</span>' : (it.kind !== "due" ? '<span class="ics-tag">Event</span>' : ''));
       html += '<label class="ics-row' + (it.exists ? ' is-exists' : '') + '"><input type="checkbox" ' + (it.checked ? 'checked ' : '') + (it.exists || skip ? 'disabled ' : '')
         + 'onchange="icsSetItem(' + gi + ',' + ii + ',this.checked)">'
         + '<span class="ics-title">' + esc(it.title) + '</span><span class="ics-date">' + formatDate(it.date) + '</span>' + tag + '</label>';
@@ -4033,14 +4059,15 @@ function icsPicked() {
   var out = [];
   icsState.groups.forEach(function(g) {
     if (g.course === "skip") return;
-    g.items.forEach(function(it) { if (it.checked && !it.exists && (it.kind === "due" || icsState.showOther)) out.push({ g: g, it: it }); });
+    g.items.forEach(function(it) { if (it.checked && !it.exists && (it.kind === "due" || icsState.showOther || it.change || it.moved)) out.push({ g: g, it: it }); });
   });
   return out;
 }
 function icsCount() {
   var n = icsPicked().length;
   var btn = document.getElementById("ics-import-btn");
-  btn.textContent = n ? "Import " + n : "Nothing ticked";
+  var up = icsPicked().filter(function(p) { return p.it.change || p.it.moved; }).length;
+  btn.textContent = n ? (up === n ? "Update " + n : up ? "Import " + (n - up) + " · update " + up : "Import " + n) : "Nothing ticked";
   btn.disabled = !n;
 }
 window.icsImport = async function() {
@@ -4048,7 +4075,7 @@ window.icsImport = async function() {
   var btn = document.getElementById("ics-import-btn");
   btn.disabled = true; btn.textContent = "Importing...";
   try {
-    var newCount = 0, rows = [];
+    var newCount = 0, rows = [], updates = [];
     for (var i = 0; i < icsState.groups.length; i++) {
       var g = icsState.groups[i];
       var mine = picked.filter(function(p) { return p.g === g; });
@@ -4063,15 +4090,33 @@ window.icsImport = async function() {
         g.course = res.data.id; newCount++;
       }
       mine.forEach(function(p) {
-        rows.push({ user_id: currentUser.id, course_id: g.course, title: p.it.title.slice(0, 200), type: icsType(p.it.title),
-          due_date: p.it.date, status: "todo", priority: "med", weight: icsWeight(p.it.title) });
+        if (p.it.change || p.it.moved) { updates.push(p.it); return; }
+        var row = { user_id: currentUser.id, course_id: g.course, title: p.it.title.slice(0, 200), type: icsType(p.it.title),
+          due_date: p.it.date, status: "todo", priority: "med", weight: icsWeight(p.it.title) };
+        if (p.it.uid) row.source_uid = p.it.uid;
+        rows.push(row);
       });
     }
-    var r = await sb.from("assignments").insert(rows);
-    if (r.error) throw r.error;
+    if (rows.length) {
+      var r = await sb.from("assignments").insert(rows);
+      if (r.error && /source_uid/.test(r.error.message || "")) { rows.forEach(function(x) { delete x.source_uid; }); r = await sb.from("assignments").insert(rows); }
+      if (r.error) throw r.error;
+    }
+    for (var u = 0; u < updates.length; u++) {
+      var it = updates[u], patch = { due_date: it.date, title: it.title.slice(0, 200) };
+      if (it.uid) patch.source_uid = it.uid;
+      var ur = await sb.from("assignments").update(patch).eq("id", it.aid);
+      if (ur.error && /source_uid/.test(ur.error.message || "")) { delete patch.source_uid; ur = await sb.from("assignments").update(patch).eq("id", it.aid); }
+      if (ur.error) throw ur.error;
+    }
+    icsState.groups.forEach(function(g) { g.items.forEach(function(it) { if (it.backfill) sb.from("assignments").update({ source_uid: it.uid }).eq("id", it.backfill).then(function() {}, function() {}); }); });
     closeIcsModal();
     await loadAll(); showTab("calendar");
-    showToast("Imported " + rows.length + " due date" + (rows.length === 1 ? "" : "s") + (newCount ? " and " + newCount + " new course" + (newCount === 1 ? "" : "s") : ""), "success");
+    var parts = [];
+    if (rows.length) parts.push("added " + rows.length + " due date" + (rows.length === 1 ? "" : "s"));
+    if (updates.length) parts.push("updated " + updates.length);
+    if (newCount) parts.push(newCount + " new course" + (newCount === 1 ? "" : "s"));
+    var msgTxt = parts.join(", "); showToast(msgTxt.charAt(0).toUpperCase() + msgTxt.slice(1) + ".", "success");
   } catch (err) {
     showToast(err.message || "Import failed", "error");
     btn.disabled = false; icsCount();
