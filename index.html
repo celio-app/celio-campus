@@ -14,7 +14,7 @@
 <title>Semstr</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Outfit:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23FBF5E9%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2727%27 fill=%27%232E2840%27/%3E%3Ctext x=%2729%27 y=%2743%27 text-anchor=%27middle%27 font-family=%27Arial,Helvetica,sans-serif%27 font-weight=%27700%27 font-size=%2734%27 fill=%27%23FBF3E2%27%3Es%3C/text%3E%3Ccircle cx=%2742%27 cy=%2740%27 r=%274.4%27 fill=%27%23F5C343%27/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
 :root {
   --bg: #FFF8EC; --bg2: #FFFFFF; --bg3: #F6EEDC; --bg4: #EDE2CB;
@@ -1007,6 +1007,29 @@ body.plan-open #toast { bottom: 84px; }
 @media (max-width: 768px) { .habit-icon-tile { width: 78px; height: 78px; flex: 0 0 78px; } }
 .t-habit-ico, .t-habit-ico img { width: 86px; height: 86px; }
 @media (max-width: 640px) { .t-next-sticker { width: 112px; height: 112px; top: -42px; } .t-chip { font-size: .85rem; padding: 4px 12px; } }
+
+/* RC16: semester edit + delete, Appearance sheet */
+.sem-edit { flex: 0 0 auto; width: 26px; height: 26px; border: 0; background: none; color: var(--text3); border-radius: 7px; display: grid; place-items: center; cursor: pointer; opacity: 0; transition: opacity .15s, background .15s; }
+.sem-row:hover .sem-edit, .sem-row.active .sem-edit { opacity: 1; }
+.sem-edit:hover { background: var(--bg2); color: var(--accent); }
+@media (hover: none) { .sem-edit { opacity: .7; } }
+#sem-delete-btn { margin-right: auto; }
+.theme-btn { display: none !important; }
+.appear-btn { background: none; border: 1.5px solid var(--border); cursor: pointer; color: var(--text2); width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; flex: 0 0 auto; }
+.appear-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+.ap-label { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin: 4px 0 8px; }
+.ap-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.ap-mode { border: 2px solid var(--border); border-radius: 14px; padding: 10px; background: var(--bg2); cursor: pointer; text-align: left; font: inherit; color: var(--text); font-weight: 700; }
+.ap-mode.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.ap-mode i { display: block; height: 44px; border-radius: 9px; margin-bottom: 8px; border: 1.5px solid rgba(36,27,58,.15); }
+.ap-mode i.l { background: linear-gradient(90deg,#FFF8EC 60%,#7C4DDB 60% 72%,#FFC928 72%); }
+.ap-mode i.d { background: linear-gradient(90deg,#171430 60%,#B79BFF 60% 72%,#FFC928 72%); }
+.ap-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(96px,1fr)); gap: 8px; }
+.ap-col { border: 2px solid var(--border); border-radius: 14px; padding: 10px 8px 8px; background: var(--bg2); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font: inherit; font-size: .82rem; font-weight: 700; color: var(--text); }
+.ap-col b { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(36,27,58,.25); }
+.ap-col.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+
+body.no-sem .mbar { display: none !important; }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1161,7 +1184,7 @@ body.plan-open #toast { bottom: 84px; }
         <span class="brand-tag topbar-brand" role="img" aria-label="Semstr">semstr</span>
         <div class="topbar-title" id="topbar-title">Welcome to Semstr</div>
         <div id="topbar-pills"></div>
-        <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><circle cx="10" cy="10" r="4" fill="currentColor"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.9 4.9l1.4 1.4M13.7 13.7l1.4 1.4M4.9 15.1l1.4-1.4M13.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+        <button class="appear-btn" onclick="openAppearance()" title="Appearance" aria-label="Appearance"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" style="display:block"><path d="M10 2.5a7.5 7.5 0 1 0 0 15c1.1 0 1.7-.7 1.7-1.5 0-.9-.8-1.3-.8-2.2 0-.9.7-1.5 1.6-1.5h1.8a3.2 3.2 0 0 0 3.2-3.2C17.5 5.6 14.1 2.5 10 2.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="6.3" cy="9.3" r="1.2" fill="currentColor"/><circle cx="8.8" cy="6.1" r="1.2" fill="currentColor"/><circle cx="12.6" cy="6.3" r="1.2" fill="currentColor"/></svg></button><button class="theme-btn" onclick="toggleTheme()" title="Toggle theme"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><circle cx="10" cy="10" r="4" fill="currentColor"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.9 4.9l1.4 1.4M13.7 13.7l1.4 1.4M4.9 15.1l1.4-1.4M13.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
         <button class="topbar-btn primary" id="topbar-add-btn" onclick="topbarAdd()" style="display:none"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Add</button>
       </div>
 
@@ -1197,6 +1220,7 @@ body.plan-open #toast { bottom: 84px; }
 <div id="toast-container" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none"></div>
 
 <!-- SEMESTER MODAL -->
+<div class="modal-bg" id="appear-modal"><div class="modal" style="max-width:460px"><div class="modal-title"><span>Appearance</span><button class="modal-close" onclick="closeAppearance()">×</button></div><div id="appear-body"></div></div></div>
 <div class="modal-bg" id="sem-modal">
   <div class="modal" style="max-width:440px">
     <div class="modal-title"><span id="sem-modal-title">New Semester</span><button class="modal-close" onclick="closeSemModal()">×</button></div>
@@ -1208,7 +1232,7 @@ body.plan-open #toast { bottom: 84px; }
       </div>
       <div><label class="flbl">Average Goal % <span class="flbl-hint">(optional)</span></label><input id="sem-gpa-goal" class="inp" type="number" min="0" max="100" step="1" placeholder="e.g. 85"></div>
     </div>
-    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button><button class="btn btn-primary" onclick="saveSemester()">Save</button></div>
+    <div class="modal-actions"><button class="btn btn-danger btn-sm" id="sem-delete-btn" onclick="deleteSemester()" style="display:none">Delete semester</button><button class="btn btn-ghost" onclick="closeSemModal()">Cancel</button><button class="btn btn-primary" onclick="saveSemester()">Save</button></div>
   </div>
 </div>
 
@@ -1801,6 +1825,7 @@ async function loadAll() {
 }
 
 function renderSidebar() {
+  document.body.classList.toggle("no-sem", !semesters.length);
   var el = document.getElementById("sb-semesters");
   if (!el) return;
   if (semesters.length === 0) {
@@ -1817,6 +1842,7 @@ function renderSidebar() {
     html += '<div class="sem-dot" style="background:' + (sem.color || "#7C4DDB") + '"></div>';
     html += '<span class="sem-row-name">' + esc(sem.name) + '</span>';
     html += '</div>';
+    html += '<button class="sem-edit" title="Edit semester" aria-label="Edit semester" onclick="event.stopPropagation();openEditSemester(\'' + sem.id + '\')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="display:block"><path d="M13 3l4 4-9 9-5 1 1-5 9-9z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
     html += '<span class="sem-chevron' + (isExpanded ? " open" : "") + '" onclick="toggleSemExpand(event,\'' + sem.id + '\')">▶</span>';
     html += '</div>';
     if (isExpanded) {
@@ -4066,6 +4092,7 @@ function renderCoursesTab() {
 window.openSemesterModal = function() {
   editingSemesterId = null;
   document.getElementById("sem-modal-title").textContent = "New Semester";
+  document.getElementById("sem-delete-btn").style.display = "none";
   ["sem-name","sem-start","sem-end","sem-gpa-goal"].forEach(function(id) { document.getElementById(id).value = ""; });
   document.getElementById("sem-modal").classList.add("open");
 };
@@ -4074,11 +4101,70 @@ window.openEditSemester = function(semId) {
   if (!sem) return;
   editingSemesterId = semId;
   document.getElementById("sem-modal-title").textContent = "Edit Semester";
+  document.getElementById("sem-delete-btn").style.display = "";
   document.getElementById("sem-name").value = sem.name || "";
   document.getElementById("sem-start").value = sem.start_date || "";
   document.getElementById("sem-end").value = sem.end_date || "";
   document.getElementById("sem-gpa-goal").value = sem.gpa_goal || "";
   document.getElementById("sem-modal").classList.add("open");
+};
+
+window.deleteSemester = function() {
+  var semId = editingSemesterId;
+  var sem = semesters.find(function(s) { return s.id === semId; });
+  if (!sem) return;
+  var semCourses = courses.filter(function(c) { return c.semester_id === semId; });
+  var ids = semCourses.map(function(c) { return c.id; });
+  var nA = assignments.filter(function(a) { return ids.indexOf(a.course_id) > -1; }).length;
+  var what = semCourses.length ? " and its " + semCourses.length + " course" + (semCourses.length === 1 ? "" : "s") + (nA ? " and " + nA + " assignment" + (nA === 1 ? "" : "s") : "") : "";
+  closeSemModal();
+  showConfirm("Delete semester", "Delete " + sem.name + what + "? Your habits and streak stay. This can't be undone.", async function() {
+    try {
+      for (var i = 0; i < ids.length; i++) {
+        var r1 = await sb.from("assignments").delete().eq("course_id", ids[i]); if (r1 && r1.error) throw r1.error;
+      }
+      var r2 = await sb.from("courses").delete().eq("semester_id", semId); if (r2 && r2.error) throw r2.error;
+      var r3 = await sb.from("semesters").delete().eq("id", semId); if (r3 && r3.error) throw r3.error;
+      var key = "semstr-sem-" + currentUser.id;
+      if (localStorage.getItem(key) === semId) localStorage.removeItem(key);
+      if (activeSemester && activeSemester.id === semId) activeSemester = null;
+      if (activeCourse && activeCourse.semester_id === semId) activeCourse = null;
+      await loadAll();
+      if (!semesters.length) {
+        document.getElementById("tab-nav").style.display = "none";
+        document.getElementById("topbar-add-btn").style.display = "none";
+        document.getElementById("topbar-title").textContent = "Welcome to Semstr";
+        document.getElementById("content-area").innerHTML = '<div class="empty-state"><div class="empty-title">No semesters yet</div><div class="empty-sub">Start a new one to add your courses and what\'s due.</div><button class="btn btn-primary" onclick="openSemesterModal()">＋ Create your semester</button></div>';
+      } else if (activeTab !== "dashboard") showTab("dashboard");
+      showToast("Semester deleted.");
+    } catch (err) { showToast(err.message, "error"); }
+  });
+};
+window.openAppearance = function() { renderAppearance(); document.getElementById("appear-modal").classList.add("open"); };
+window.closeAppearance = function() { document.getElementById("appear-modal").classList.remove("open"); };
+function renderAppearance() {
+  var dark = document.documentElement.getAttribute("data-theme") === "dark";
+  var cur = userPrefs().palette || "";
+  var h = '<div class="ap-label">Mode</div><div class="ap-modes">';
+  h += '<button class="ap-mode' + (!dark ? ' on' : '') + '" onclick="setAppearMode(\'light\')"><i class="l"></i>Light</button>';
+  h += '<button class="ap-mode' + (dark ? ' on' : '') + '" onclick="setAppearMode(\'dark\')"><i class="d"></i>Dark</button></div>';
+  h += '<div class="ap-label">Colour</div><div class="ap-grid">';
+  PALETTES.forEach(function(pl) {
+    h += '<button class="ap-col' + (pl[0] === cur ? ' on' : '') + '" onclick="setAppearPalette(\'' + pl[0] + '\')"><b style="background:' + pl[2] + '"></b>' + pl[1] + '</button>';
+  });
+  h += '</div>';
+  document.getElementById("appear-body").innerHTML = h;
+}
+window.setAppearMode = function(m) {
+  var dark = document.documentElement.getAttribute("data-theme") === "dark";
+  if ((m === "dark") !== dark) toggleTheme();
+  renderAppearance();
+};
+window.setAppearPalette = async function(k) {
+  await saveUserMeta({ palette: k });
+  applyLevelPalette();
+  renderAppearance();
+  renderActiveTab();
 };
 window.closeSemModal = function() { document.getElementById("sem-modal").classList.remove("open"); };
 window.saveSemester = async function() {
