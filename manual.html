@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to use Semstr</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: "Semstr Display"; src: url("/fonts/SemstrDisplay.woff2") format("woff2"); font-display: swap; }
+  :root { --bg: #FFF8EC; --ink: #241B3A; --muted: #5E5675; --accent: #7C4DDB; --card: #fff; --line: #EADFCB; --tint: #F3ECFF; --sun: #FFC928; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #171430; --ink: #F4F0FF; --muted: #B8B0D4; --accent: #B79BFF; --card: #211D45; --line: #332D63; --tint: #2C2558; } }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 500 17px/1.6 "Plus Jakarta Sans", system-ui, sans-serif; }
+  header { background: #7C4DDB; color: #FFF6E5; padding: 26px 22px 36px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .top img { width: 44px; height: 44px; border-radius: 11px; }
+  .top a { color: #FFF6E5; font-weight: 800; text-decoration: none; font-size: .95rem; }
+  h1 { font: 400 clamp(40px, 8vw, 66px)/1 "Semstr Display", sans-serif; letter-spacing: -.01em; margin: 0; }
+  h1 span { display: inline-block; width: .2em; height: .2em; border-radius: 50%; background: var(--sun); margin-left: .05em; }
+  header p { margin: 12px 0 0; font-size: 1.1rem; opacity: .92; }
+  main { padding: 26px 22px 70px; }
+  nav.toc { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 16px 20px; margin-bottom: 22px; }
+  nav.toc b { display: block; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  nav.toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 28px; }
+  nav.toc li { margin: 3px 0; break-inside: avoid; }
+  @media (max-width: 560px) { nav.toc ol { columns: 1; } }
+  section { background: var(--card); border: 1.5px solid var(--line); border-radius: 18px; padding: 20px 22px; margin-bottom: 16px; scroll-margin-top: 16px; }
+  h2 { font: 400 1.7rem/1.1 "Semstr Display", sans-serif; margin: 0 0 10px; }
+  h3 { font-size: 1.02rem; font-weight: 800; margin: 16px 0 4px; }
+  p { margin: 6px 0; }
+  ul, ol { margin: 6px 0; padding-left: 22px; } li { margin: 4px 0; }
+  a { color: var(--accent); font-weight: 700; }
+  .tip { background: var(--tint); border-radius: 12px; padding: 10px 14px; margin-top: 10px; font-size: .94rem; }
+  .tip b:first-child { color: var(--accent); }
+  kbd { font: 700 .85em "Plus Jakarta Sans", sans-serif; background: var(--tint); border-radius: 6px; padding: 1px 7px; }
+  .muted { color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><img src="/icon-192.png" alt=""><a href="/">← Back to Semstr</a></div>
+  <h1>How to use Semstr<span></span></h1>
+  <p>Know what's due. Plan when you'll do it. Keep the habits that help.</p>
+</div></header>
+<main class="wrap">
+
+<nav class="toc" aria-label="Contents">
+  <b>Contents</b>
+  <ol>
+    <li><a href="#start">Getting started</a></li>
+    <li><a href="#import">Importing due dates</a></li>
+    <li><a href="#today">The Today screen</a></li>
+    <li><a href="#plan">Planning your day</a></li>
+    <li><a href="#assignments">Assignments and grades</a></li>
+    <li><a href="#calendar">Calendar</a></li>
+    <li><a href="#timeline">Timeline</a></li>
+    <li><a href="#courses">Courses</a></li>
+    <li><a href="#habits">Habits</a></li>
+    <li><a href="#streaks">Streaks, goals and badges</a></li>
+    <li><a href="#homescreen">Put Semstr on your phone</a></li>
+    <li><a href="#account">Colours, account and privacy</a></li>
+    <li><a href="#help">Feedback and help</a></li>
+  </ol>
+</nav>
+
+<section id="start">
+  <h2>Getting started</h2>
+  <p>Setting up takes about five minutes, and you only do it once a semester.</p>
+  <ol>
+    <li><b>Make your account.</b> Tap <b>Sign Up</b>, enter your name, email and a password. If it asks you to confirm your email, check your inbox (and junk folder).</li>
+    <li><b>Add your semester.</b> Give it a name like "Semester 1, 2026–27" and its start and end dates.</li>
+    <li><b>Add your courses.</b> One for each class, with the course code (like ENG2D) and your teacher's name if you like. Each course gets its own colour.</li>
+    <li><b>Add what's due.</b> Tap <b>＋</b> (or <b>Add</b> on a computer). Or save time and <a href="#import">import your due dates</a>.</li>
+  </ol>
+  <h3>What to fill in for each assignment</h3>
+  <ul>
+    <li><b>Title, course and due date.</b> The only must-haves.</li>
+    <li><b>Type:</b> assignment, test, quiz, project, lab and so on.</li>
+    <li><b>Start date:</b> when you should begin. It shows a <b>Start now</b> tag once that day arrives, so big projects don't sneak up on you.</li>
+    <li><b>Time guess:</b> roughly how long it will take. Semstr uses this to plan your week.</li>
+    <li><b>First step:</b> the very first small thing to do, like "write the intro paragraph". Starting is the hardest part; this makes it easier.</li>
+    <li><b>Marks and weight:</b> what it's out of and how much it counts. Add your mark later to see your grade.</li>
+  </ul>
+</section>
+
+<section id="import">
+  <h2>Importing due dates</h2>
+  <p>If your teachers post due dates in Brightspace or Google Classroom, you can bring them all into Semstr at once instead of typing them in.</p>
+  <h3>Step 1: get the calendar file</h3>
+  <p><b>From Brightspace</b></p>
+  <ol>
+    <li>Open <b>Calendar</b> in Brightspace.</li>
+    <li>Open <b>Settings</b>, tick <b>Enable Calendar Feeds</b> and click <b>Save</b>.</li>
+    <li>Back on the Calendar, click <b>Subscribe</b>, then <b>Download</b>. You'll get a file ending in <kbd>.ics</kbd>.</li>
+  </ol>
+  <p><b>From Google Classroom</b> (its due dates live in Google Calendar)</p>
+  <ol>
+    <li>Open <b>Google Calendar</b> on a computer.</li>
+    <li>Click the gear, then <b>Settings → Import &amp; export → Export</b>.</li>
+    <li>Unzip the download. Inside is a <kbd>.ics</kbd> file for each calendar; pick the one for your class.</li>
+  </ol>
+  <h3>Step 2: bring it into Semstr</h3>
+  <ol>
+    <li>Go to <b>Calendar</b> and tap <b>Import due dates</b>.</li>
+    <li>Tap <b>Choose .ics file</b> and pick the file.</li>
+    <li>Semstr groups everything by course. For each group, choose which of your courses it belongs to, pick <b>＋ New course</b>, or choose <b>Don't import this group</b>.</li>
+    <li>Untick anything you don't want. Items already in Semstr are greyed out, so you won't get doubles.</li>
+    <li>Tap <b>Import</b>. Nothing is added until you do.</li>
+  </ol>
+  <div class="tip"><b>Tip:</b> Semstr only shows due dates at first. Tick <b>Show other events too</b> if you also want things like class times or when work opens.</div>
+  <div class="tip"><b>Good to know:</b> importing is a one-time copy. If a teacher changes a date later, change it in Semstr too (drag it on the Calendar), or import again; anything you already have is skipped.</div>
+</section>
+
+<section id="today">
+  <h2>The Today screen</h2>
+  <p>Today is your home base. Top to bottom:</p>
+  <ul>
+    <li><b>The numbers bar:</b> what's <b>Late</b>, <b>Due today</b>, <b>Due this week</b>, how much is <b>Done this term</b>, and your <b>Grade average</b>. Tap any number to see that list.</li>
+    <li><b>Do this next:</b> the one thing Semstr thinks you should work on now (late work first, then what's due soonest). Tap <b>Start 25 min</b> to begin a focus session, or <b>Not now</b> to see the next suggestion.</li>
+    <li><b>Today's plan:</b> study sessions you've planned for today. See <a href="#plan">Planning your day</a>.</li>
+    <li><b>The week strip:</b> tap a day to see what's due then. Coloured dots show what's due; the bar under each day shows how much time you've planned.</li>
+    <li><b>Due this week:</b> <b>tick the box when you finish something.</b> It moves out of the list and counts toward your streak. Tapped it by mistake? Tap <b>Undo</b> on the green message.</li>
+  </ul>
+  <p>On a computer or tablet you'll also see your courses with their grades, your week's progress, today's habits and your badges.</p>
+</section>
+
+<section id="plan">
+  <h2>Planning your day</h2>
+  <p>Knowing what's due is half of it. The other half is deciding <i>when</i> you'll do it.</p>
+  <ol>
+    <li>Tap <b>Plan today</b> (on Today or the Calendar), or <b>Plan this day</b> on any calendar day.</li>
+    <li>The first time, set <b>My routine</b>: things that happen most weeks, like school, practice or a job. The planner keeps those times free.</li>
+    <li>Tap <b>Suggest a plan</b> for Semstr to fit short sessions around your routine, or add them yourself: pick an assignment from the list, then tap a time.</li>
+    <li>Drag a session to move it. On a phone, press and hold first.</li>
+  </ol>
+  <div class="tip"><b>Tip:</b> two or three short sessions a day is plenty. When a planned session's time comes, it shows up in <b>Up next</b> on Today.</div>
+</section>
+
+<section id="assignments">
+  <h2>Assignments and grades</h2>
+  <ul>
+    <li>The <b>Assignments</b> tab lists everything, with filters for <b>To Do</b>, <b>In Progress</b>, <b>Done</b>, <b>Late</b> and <b>This Week</b>, plus a search box.</li>
+    <li>Each due date is a little calendar page: <b>red</b> means late, <b>yellow</b> means today.</li>
+    <li>Tap any assignment to edit it.</li>
+  </ul>
+  <h3>Entering grades</h3>
+  <p>When you get a mark back, type it into the <b>Score</b> box (for example 17 out of 20). If the assignment has a <b>weight</b>, Semstr works out your grade for that course and your overall average.</p>
+  <div class="tip"><b>Gold stars:</b> score <b>80% or higher</b> and a star sticker lands on that day in your Calendar. 90% and up gets a bigger one.</div>
+</section>
+
+<section id="calendar">
+  <h2>Calendar</h2>
+  <ul>
+    <li>See the whole month. On a phone, each day shows coloured dots; tap a day to see the list.</li>
+    <li><b>Move a due date</b> by dragging it to another day. On a phone, press and hold first.</li>
+    <li>Star stickers mark days you got an A.</li>
+    <li><b>Import due dates</b> lives here too. See <a href="#import">Importing due dates</a>.</li>
+  </ul>
+</section>
+
+<section id="timeline">
+  <h2>Timeline</h2>
+  <p>The Timeline shows each piece of work as a bar running from its start date to its due date, grouped by course. It's the best way to spot a crowded week coming.</p>
+  <ul>
+    <li>The <b>Workload</b> row adds up your time guesses for each week: green is fine, yellow is busy, red is heavy.</li>
+    <li>Drag a bar to move it, or drag either end to change just the start or due date. On a phone, press and hold first.</li>
+    <li>Tap a course name to fold its section away.</li>
+  </ul>
+</section>
+
+<section id="courses">
+  <h2>Courses</h2>
+  <p>Each course card shows your <b>grade so far</b>, the <b>next thing due</b>, how much you've finished and anything late. Tap <b>Open course</b> to see all its work, or use the pencil and bin to edit or delete it.</p>
+  <p class="muted">Deleting a course also deletes its assignments.</p>
+</section>
+
+<section id="habits">
+  <h2>Habits</h2>
+  <p>Habits are small things you want to do most days, like reading for 20 minutes, drinking water or getting outside.</p>
+  <ul>
+    <li>Tap <b>＋ New Habit</b>, pick a sticker and a name.</li>
+    <li>Some habits have a count, like 6 glasses of water. Tap the circles as you go.</li>
+    <li>Tick off today's habits right from Today on a computer, or from the Habits tab.</li>
+  </ul>
+</section>
+
+<section id="streaks">
+  <h2>Streaks, goals and badges</h2>
+  <ul>
+    <li>A day counts when you <b>finish an assignment</b> or do at least the minimum of a habit.</li>
+    <li>Your <b>weekly goal</b> is how many days a week you aim for. Tap <b>Goal</b> on the This week card to change it and to pick <b>rest days</b>, which never count against you.</li>
+    <li>Your <b>streak</b> counts weeks in a row where you hit your goal. Missing a week <b>pauses</b> it instead of wiping it out, so you can pick it back up.</li>
+    <li><b>Badges</b> unlock as you go, like finishing work early or planning ahead. See them all in the Badges card.</li>
+  </ul>
+</section>
+
+<section id="homescreen">
+  <h2>Put Semstr on your phone</h2>
+  <p>Semstr works like an app once it's on your home screen.</p>
+  <h3>iPhone or iPad</h3>
+  <ol>
+    <li>Open <b>semstr.app</b> in <b>Safari</b>.</li>
+    <li>Tap the <b>Share</b> button (the square with an arrow).</li>
+    <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+  </ol>
+  <h3>Android</h3>
+  <ol>
+    <li>Open <b>semstr.app</b> in <b>Chrome</b>.</li>
+    <li>Tap the <b>⋮</b> menu.</li>
+    <li>Tap <b>Add to Home screen</b> or <b>Install app</b>.</li>
+  </ol>
+  <p>Look for the yellow <b>s.</b> icon.</p>
+</section>
+
+<section id="account">
+  <h2>Colours, account and privacy</h2>
+  <ul>
+    <li><b>Colours and dark mode:</b> tap the palette button at the top. Choose Light or Dark and one of seven colours.</li>
+    <li><b>Your account:</b> tap <b>Your account</b> at the bottom of the side menu (☰ on a phone). There you can download a copy of your data or delete your account.</li>
+    <li><b>Semesters:</b> tap the pencil next to a semester in the side menu to rename it or delete it when it's over.</li>
+    <li><b>Privacy:</b> read <a href="/privacy.html">what Semstr keeps and why</a>.</li>
+  </ul>
+</section>
+
+<section id="help">
+  <h2>Feedback and help</h2>
+  <p>Something broken, confusing, or got an idea? Tap <b>Feedback</b> at the top of any screen. Choose what kind of note it is, write what happened, and tap <b>Send</b>. Semstr notes which screen you were on and what device you're using, so you don't have to explain that part.</p>
+  <p class="muted">Last updated November 16, 2026.</p>
+</section>
+
+</main>
+</body>
+</html>
