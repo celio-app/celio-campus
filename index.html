@@ -1030,6 +1030,12 @@ body.plan-open #toast { bottom: 84px; }
 .ap-col.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
 
 body.no-sem .mbar { display: none !important; }
+
+/* RC17: star sticker on calendar days with an A (80%+) */
+.cal-day { position: relative; overflow: visible; }
+.cal-a-sticker { position: absolute; top: -14px; left: 4px; width: 40px; height: 40px; transform: rotate(-12deg); pointer-events: none; z-index: 2; filter: drop-shadow(0 2px 2px rgba(36,27,58,.18)); }
+.cal-a-sticker.top { width: 46px; height: 46px; top: -17px; left: 2px; transform: rotate(8deg); }
+@media (max-width: 640px) { .cal-a-sticker { width: 28px; height: 28px; top: -10px; left: 1px; } .cal-a-sticker.top { width: 32px; height: 32px; top: -12px; left: 0; } }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -2752,11 +2758,13 @@ window.saveInlineGrade = async function(e, id, totalMarks) {
   if (val > totalMarks) val = totalMarks;
   var a = assignments.find(function(x) { return x.id === id; });
   if (!a) return;
+  var wasA = (gradePctOf(a) || 0) >= A_GRADE;
   a.marks_received = val;
   try {
     var res = await sb.from("assignments").update({ marks_received: val }).eq("id", id);
     if (res.error) throw res.error;
     renderAssignments();
+    if (!wasA) aStickerToast(a);
   } catch(err) { a.marks_received = null; showToast(err.message, "error"); }
 };
 
@@ -3060,6 +3068,9 @@ function launchConfetti() {
 }
 
 var calDragId = null;
+function gradePctOf(a) { return (a && a.marks_received != null && a.total_marks > 0) ? a.marks_received / a.total_marks * 100 : null; }
+var A_GRADE = 80;
+function aStickerToast(a) { var p = gradePctOf(a); if (p != null && p >= A_GRADE) showToast("Nice work! A star sticker went on your calendar.", "success"); }
 function renderCalendar() {
   var ca = document.getElementById("content-area");
   var semA = getSemAssignments();
@@ -3088,6 +3099,9 @@ function renderCalendar() {
     var dayAssigns = semA.filter(function(a) { return a.due_date === dateStr; });
     html += '<div class="cal-day' + (isToday ? " today" : "") + '" data-date="' + dateStr + '" onclick="calDayClick(\'' + dateStr + '\')" ondragover="calDragOver(event)" ondragleave="calDragLeave(event)" ondrop="calDrop(event,\'' + dateStr + '\')">';
     html += '<div class="cal-day-num">' + day + '</div>';
+    var bestA = null;
+    dayAssigns.forEach(function(a) { var p = gradePctOf(a); if (p != null && p >= A_GRADE && (!bestA || p > bestA.p)) bestA = { p: p, t: a.title }; });
+    if (bestA) html += '<img class="cal-a-sticker' + (bestA.p >= 90 ? ' top' : '') + '" src="icons/habits/star.png" alt="A on ' + esc(bestA.t) + '" title="' + Math.round(bestA.p) + '% on ' + esc(bestA.t) + '">';
     var shown = 0;
     dayAssigns.forEach(function(a) {
       if (shown >= 3) return; shown++;
@@ -4395,12 +4409,15 @@ window.saveAssignment = async function() {
     if (tmVal) payload.total_marks = parseFloat(tmVal);
     if (mrVal) payload.marks_received = parseFloat(mrVal);
     payload.estimated_minutes = estVal ? parseInt(estVal, 10) : null;
+    var prevA = editingAssignmentId ? assignments.find(function(x) { return x.id === editingAssignmentId; }) : null;
+    var wasA = (gradePctOf(prevA) || 0) >= A_GRADE;
     var res = editingAssignmentId
       ? await sb.from("assignments").update(payload).eq("id", editingAssignmentId).select().single()
       : await sb.from("assignments").insert(payload).select().single();
     if (res.error) throw res.error;
     closeAssignModal(); await loadAll(); renderActiveTab();
-    showToast(editingAssignmentId ? "Updated!" : "Assignment added! ✅", "success");
+    if (!wasA && (gradePctOf(res.data) || 0) >= A_GRADE) aStickerToast(res.data);
+    else showToast(editingAssignmentId ? "Updated!" : "Assignment added! ✅", "success");
   } catch (err) { console.error("saveAssignment error:", err); showToast(err.message || JSON.stringify(err), "error"); }
 };
 window.deleteAssignment = function() {
