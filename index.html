@@ -5355,11 +5355,27 @@ async function applySession(user) {
 }
 
 (async function boot() {
+  // RC30: email links come to semstr.app with a token_hash, so links match the sender's domain
+  var linkNote = null, linkErr = null;
+  try {
+    var q = new URLSearchParams(window.location.search), th = q.get("token_hash"), tp = q.get("type");
+    if (th && tp) {
+      if (tp === "recovery") _recoveryMode = true;
+      var v = await sb.auth.verifyOtp({ token_hash: th, type: tp });
+      history.replaceState({}, "", window.location.pathname);
+      if (v && v.error) { _recoveryMode = false; linkErr = "That link has expired or was already used. Ask for a new one below."; }
+      else if (tp === "signup" || tp === "email") linkNote = "Email confirmed. Welcome to Semstr!";
+      else if (tp === "email_change") linkNote = "Your new email is confirmed.";
+    }
+  } catch (e) { _recoveryMode = false; linkErr = "That link didn't work. Ask for a new one below."; }
   try {
     var r = await sb.auth.getSession();
     var user = r && r.data && r.data.session && r.data.session.user ? r.data.session.user : null;
     await applySession(user);
+    if (_recoveryMode && user) showRecoveryForm();
   } catch(e) { await applySession(null); }
+  if (linkErr) setAuthMsg(linkErr, "error");
+  if (linkNote) showToast(linkNote, "success");
 })();
 
 })();
