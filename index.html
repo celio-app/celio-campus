@@ -1230,6 +1230,15 @@ a.appear-btn { text-decoration: none; }
 .fb-tag.broken { background: var(--red-bg); color: var(--red); } .fb-tag.idea { background: var(--green-bg); color: var(--green); } .fb-tag.confusing { background: var(--amber-bg); color: var(--amber); }
 .fb-links { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: .82rem; }
 .fb-links button { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; color: var(--accent); cursor: pointer; }
+
+/* RC29: sticker icons in the feedback box */
+.fb-kind { padding: 8px 6px 10px; }
+.fb-kind img { display: block; width: 64px; height: 64px; margin: 0 auto 4px; transition: transform .15s; }
+.fb-kind:hover img { transform: rotate(-6deg) scale(1.06); }
+.fb-kind.on img { transform: scale(1.1); }
+@media (max-width: 400px) { .fb-kind img { width: 52px; height: 52px; } }
+.fb-tag { display: inline-flex; align-items: center; gap: 4px; }
+.fb-tag img { width: 18px; height: 18px; margin: -3px 0; }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -4425,7 +4434,7 @@ window.closeFeedback = function() { document.getElementById("fb-modal").classLis
 function renderFbForm(text) {
   document.getElementById("fb-title").textContent = "Send feedback";
   var h = '<p style="font-size:.85rem;color:var(--text3);margin:0 0 12px;font-weight:600">Thanks for helping make Semstr better. Every note is read.</p><div class="fb-kinds">';
-  FB_KINDS.forEach(function(k) { h += '<button type="button" class="fb-kind' + (fbKind === k[0] ? ' on' : '') + '" onclick="pickFbKind(\'' + k[0] + '\')"><i>' + k[1] + '</i>' + k[2] + '</button>'; });
+  FB_KINDS.forEach(function(k) { h += '<button type="button" class="fb-kind' + (fbKind === k[0] ? ' on' : '') + '" onclick="pickFbKind(\'' + k[0] + '\')"><img src="icons/feedback/' + k[0] + '.png" alt="" onerror="this.outerHTML=\'<i>' + k[1] + '</i>\'">' + k[2] + '</button>'; });
   h += '</div><textarea id="fb-text" class="inp" rows="5" maxlength="4000" placeholder="What happened, or what would make this better?" style="width:100%;resize:vertical">' + esc(text || "") + '</textarea>';
   h += '<div class="fb-note">We\'ll include the screen you\'re on (' + (TAB_NAMES[activeTab] || "Today") + ') and your device (' + esc(fbDevice()) + '), so you don\'t need to.</div>';
   h += '<div class="modal-actions"><button class="btn btn-ghost" onclick="closeFeedback()">Cancel</button><button class="btn btn-primary" id="fb-send" onclick="sendFeedback()">Send</button></div>';
@@ -4465,7 +4474,7 @@ window.openFbList = async function() {
     rows.forEach(function(x) {
       var k = FB_KINDS.find(function(y) { return y[0] === x.kind; }) || ["", "", x.kind];
       var when = x.created_at ? new Date(x.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "";
-      h += '<div class="fb-item' + (x.status === "done" ? ' done' : '') + '"><span class="fb-tag ' + esc(x.kind || "") + '">' + esc(k[2]) + '</span>'
+      h += '<div class="fb-item' + (x.status === "done" ? ' done' : '') + '"><span class="fb-tag ' + esc(x.kind || "") + '"><img src="icons/feedback/' + esc(x.kind || "") + '.png" alt="" onerror="this.remove()">' + esc(k[2]) + '</span>'
         + '<div class="fb-body">' + esc(x.body || "") + '</div>'
         + '<div class="fb-meta">' + [others ? esc(x.email || "") : "", when, esc(x.screen || ""), esc(x.device || "")].filter(Boolean).join(" · ") + '</div>'
         + (others ? '<div style="margin-top:6px"><button class="btn btn-ghost btn-sm" onclick="fbSetDone(\'' + x.id + '\',' + (x.status === "done" ? 'false' : 'true') + ')">' + (x.status === "done" ? 'Reopen' : 'Mark done') + '</button></div>' : '')
