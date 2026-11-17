@@ -1038,12 +1038,13 @@ body.no-sem .mbar { display: none !important; }
 @media (max-width: 640px) { .cal-a-sticker { width: 28px; height: 28px; top: -10px; left: 1px; } .cal-a-sticker.top { width: 32px; height: 32px; top: -12px; left: 0; } }
 
 /* RC18: due dates on the Assignments list as little tilted calendar pages that break the row */
-.assignment-list { gap: 12px; }
+.assignment-list { gap: 20px; }
+@media (min-width: 641px) { .assignment-row { min-height: 84px; } }
 .assignment-row { overflow: visible; position: relative; }
-.a-cal { position: relative; z-index: 2; flex: 0 0 auto; width: 58px; margin: -20px 2px -8px 6px; transform: rotate(var(--r, 0deg)); background: #fff; border: 2px solid #241B3A; border-radius: 12px; box-shadow: 0 3px 0 #241B3A; text-align: center; overflow: visible; line-height: 1; font-weight: 800; color: #241B3A; }
-.a-cal i { display: block; font-style: normal; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; padding: 5px 0 4px; background: var(--accent-fill); color: #fff; border-radius: 9px 9px 0 0; border-bottom: 2px solid #241B3A; }
-.a-cal b { display: block; font-size: 1.55rem; padding: 4px 0 7px; }
-.a-cal s { position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%) rotate(calc(var(--r, 0deg) * -1)); text-decoration: none; white-space: nowrap; font-size: .66rem; font-weight: 800; padding: 3px 8px; border-radius: 999px; border: 2px solid #241B3A; background: #fff; color: #241B3A; }
+.a-cal { position: relative; z-index: 2; flex: 0 0 auto; width: 74px; margin: -24px 4px -10px 8px; transform: rotate(var(--r, 0deg)); background: #fff; border: 2px solid #241B3A; border-radius: 12px; box-shadow: 0 3px 0 #241B3A; text-align: center; overflow: visible; line-height: 1; font-weight: 800; color: #241B3A; }
+.a-cal i { display: block; font-style: normal; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; padding: 5px 0 4px; background: var(--accent-fill); color: #fff; border-radius: 9px 9px 0 0; border-bottom: 2px solid #241B3A; }
+.a-cal b { display: block; font-size: 2.1rem; padding: 5px 0 9px; }
+.a-cal s { position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%) rotate(calc(var(--r, 0deg) * -1)); text-decoration: none; white-space: nowrap; font-size: .74rem; font-weight: 800; padding: 3px 9px; border-radius: 999px; border: 2px solid #241B3A; background: #fff; color: #241B3A; }
 .a-cal.late i { background: #E0533F; }
 .a-cal.late s { background: #E0533F; color: #fff; }
 .a-cal.today i { background: #FFC928; color: #241B3A; }
@@ -1058,9 +1059,9 @@ body.no-sem .mbar { display: none !important; }
 [data-theme="dark"] .a-cal.late s { background: #E0533F; }
 [data-theme="dark"] .a-cal.today s, [data-theme="dark"] .a-cal.soon s { background: #FFC928; color: #241B3A; }
 @media (max-width: 640px) {
-  .a-cal { width: 50px; margin: -22px 0 4px; }
-  .a-cal b { font-size: 1.3rem; padding: 3px 0 6px; }
-  .a-cal i { font-size: .6rem; }
+  .a-cal { width: 60px; margin: -24px 2px 6px; }
+  .a-cal b { font-size: 1.65rem; padding: 4px 0 7px; }
+  .a-cal i { font-size: .66rem; }
   .assignment-row > .a-cal { justify-self: end; text-align: center; }
 }
 </style>
@@ -2685,7 +2686,7 @@ function dueCalHtml(a, days) {
   var d = new Date(a.due_date + "T00:00:00");
   var h = 0, id = String(a.id || a.title || "");
   for (var k = 0; k < id.length; k++) h = (h * 31 + id.charCodeAt(k)) | 0;
-  var r = ((Math.abs(h) % 7) - 3) * 1.4;
+  var r = [-7, -5, -3.5, 3.5, 5, 7][Math.abs(h) % 6];
   var cls = "", tag = "";
   if (a.status === "done") cls = " done";
   else if (days !== null && days < 0) { cls = " late"; tag = Math.abs(days) + (Math.abs(days) === 1 ? " day late" : " days late"); }
