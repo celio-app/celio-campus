@@ -1239,6 +1239,19 @@ a.appear-btn { text-decoration: none; }
 @media (max-width: 400px) { .fb-kind img { width: 52px; height: 52px; } }
 .fb-tag { display: inline-flex; align-items: center; gap: 4px; }
 .fb-tag img { width: 18px; height: 18px; margin: -3px 0; }
+
+/* RC31: badge stickers */
+.badge-mini { width: 36px; height: 36px; object-fit: contain; display: block; }
+.t-badges .section-title > div:first-child > div { gap: 2px !important; }
+.t-badges .section-title > div:first-child > div > img { width: 40px !important; height: 40px !important; }
+.badges-modal { max-width: 860px !important; width: calc(100% - 24px); }
+.badges-modal .modal-title small { font-size: .8rem; font-weight: 700; color: var(--text3); margin-left: 6px; }
+#badges-body { max-height: 72vh; overflow: auto; padding: 2px 2px 6px; }
+#badges-body .badge-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+#badges-body .badge-chip { display: flex; width: auto; }
+#badges-body .badge-chip__mark, #badges-body .badge-chip__mark img { width: 64px !important; height: 64px !important; flex: 0 0 64px; }
+#badges-body .badge-chip.is-locked .badge-chip__mark img { filter: grayscale(1); opacity: .45; }
+@media (max-width: 640px) { #badges-body .badge-grid { grid-template-columns: 1fr; } #badges-body .badge-chip__mark, #badges-body .badge-chip__mark img { width: 52px !important; height: 52px !important; flex-basis: 52px; } }
 </style>
 <link rel="preload" as="image" href="icons/habits/meditate.png">
 <link rel="preload" as="image" href="icons/habits/run.png">
@@ -1435,6 +1448,7 @@ a.appear-btn { text-decoration: none; }
 <div class="modal-bg" id="acct-modal"><div class="modal" style="max-width:460px"><div class="modal-title"><span>Your account</span><button class="modal-close" onclick="closeAccount()">×</button></div><div id="acct-body"></div></div></div>
 <div class="modal-bg" id="goal-modal"><div class="modal" style="max-width:460px"><div class="modal-title"><span>Your week</span><button class="modal-close" onclick="closeWeekGoal()">×</button></div><div id="goal-body"></div></div></div>
 <div class="modal-bg" id="fb-modal"><div class="modal" style="max-width:480px"><div class="modal-title"><span id="fb-title">Send feedback</span><button class="modal-close" onclick="closeFeedback()">×</button></div><div id="fb-body-wrap"></div></div></div>
+<div class="modal-bg" id="badges-modal"><div class="modal badges-modal"><div class="modal-title"><span>Badges <small id="badges-count"></small></span><button class="modal-close" onclick="closeBadges()">×</button></div><div id="badges-body"></div></div></div>
 <div class="modal-bg" id="appear-modal"><div class="modal" style="max-width:460px"><div class="modal-title"><span>Appearance</span><button class="modal-close" onclick="closeAppearance()">×</button></div><div id="appear-body"></div></div></div>
 <div class="modal-bg" id="sem-modal">
   <div class="modal" style="max-width:440px">
@@ -2647,14 +2661,13 @@ function renderDashboard() {
         var b = BADGE_DEFS.find(function(x) { return x.id === bid; });
         if (!b) return;
         var bg = b.rarity === 'epic' ? 'linear-gradient(135deg,#B7A6F0,#6B3FD6)' : b.rarity === 'rare' ? 'linear-gradient(135deg,#9e74ff,#5632dd)' : b.rarity === 'uncommon' ? 'linear-gradient(135deg,#8b7cff,#5d42f2)' : 'linear-gradient(135deg,#a98cff,#7e58ff)';
-        badgesHtml += '<div style="width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;background:' + bg + '" title="' + esc(b.name) + '">';
-        badgesHtml += '<svg style="width:12px;height:12px" aria-hidden="true"><use href="#i-' + b.icon + '"></use></svg></div>';
+        badgesHtml += '<img class="badge-mini" src="' + badgeIconSrc(b.id, 0) + '" alt="' + esc(b.name) + '" title="' + esc(b.name) + '">';
       });
       if (earnedBadgeIds.length > 6) badgesHtml += '<span style="font-size:.7rem;color:var(--text3);font-weight:700;align-self:center;margin-left:2px">+' + (earnedBadgeIds.length - 6) + '</span>';
       badgesHtml += '</div>';
     }
     badgesHtml += '</div>';
-    badgesHtml += '<span style="font-size:.75rem;color:var(--text3);font-weight:700">' + (badgesOpen ? '▴ hide' : '▾ show') + '</span></div>';
+    badgesHtml += '<span style="font-size:.75rem;color:var(--text3);font-weight:700">' + 'See all' + '</span></div>';
     if (badgesOpen) {
       badgesHtml += '<div style="background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;box-shadow:var(--card-shadow)">';
       BADGE_CATS.forEach(function(cat) {
@@ -3216,9 +3229,16 @@ async function awardXP(assignment, quiet) {
 }
 
 window.toggleBadgesPanel = function() {
-  uiExpanded["badges"] = !uiExpanded["badges"];
-  renderDashboard();
+  uiExpanded["badges"] = true; renderDashboard();
+  var panel = document.querySelector(".t-badges > .section-title + div");
+  var head = document.querySelector(".t-badges > .section-title > div:first-child > span");
+  var html = panel ? panel.innerHTML : "";
+  uiExpanded["badges"] = false; renderDashboard();
+  document.getElementById("badges-count").textContent = head ? head.textContent : "";
+  document.getElementById("badges-body").innerHTML = html;
+  document.getElementById("badges-modal").classList.add("open");
 };
+window.closeBadges = function() { document.getElementById("badges-modal").classList.remove("open"); };
 
 function showBadgeToast(badge) {
   var container = document.getElementById("toast-container");
