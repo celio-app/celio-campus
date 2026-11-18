@@ -1381,7 +1381,7 @@ a.appear-btn { text-decoration: none; }
     </div>
     <div id="recovery-form" style="display:none">
       <div style="font-size:.85rem;font-weight:700;margin-bottom:10px;text-align:center">Set a new password</div>
-      <div class="form-row"><label>New password</label><input id="rp-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password"></div>
+      <div class="form-row"><label>New password</label><input id="rp-pass" type="password" placeholder="8+ characters, letters and numbers" autocomplete="new-password"></div>
       <div class="form-row"><label>Confirm password</label><input id="rp-pass2" type="password" placeholder="Repeat password" autocomplete="new-password"></div>
       <button class="btn-auth" onclick="doUpdatePassword()">Save New Password</button>
     </div>
@@ -1885,6 +1885,45 @@ window.switchAuthTab = function(tab) {
   if (sub) sub.innerHTML = tab === "login" ? "Sign in to see what&#8217;s next." : "Free, and it takes about a minute.";
 };
 
+function pwProblem(p) {
+  if (!p || p.length < 8) return "Use at least 8 characters.";
+  if (!/[A-Za-z]/.test(p) || !/[0-9]/.test(p)) return "Use at least one letter and one number.";
+  return "";
+}
+var _authWaitTimer = null;
+function authFails(email) { try { return JSON.parse(localStorage.getItem("semstr-fails-" + email) || "{}"); } catch (e) { return {}; } }
+function authSaveFails(email, f) { try { if (f) localStorage.setItem("semstr-fails-" + email, JSON.stringify(f)); else localStorage.removeItem("semstr-fails-" + email); } catch (e) {} }
+function authWaitLeft(email) { var f = authFails(email); return f.until ? Math.max(0, Math.ceil((f.until - Date.now()) / 1000)) : 0; }
+function authShowWait(email) {
+  var btn = document.getElementById("auth-submit-btn"), msgEl = document.getElementById("auth-msg");
+  clearInterval(_authWaitTimer);
+  function tick() {
+    var left = authWaitLeft(email);
+    if (left <= 0) { clearInterval(_authWaitTimer); btn.disabled = false; btn.textContent = currentAuthTab === "login" ? "Sign In" : "Create Account"; msgEl.className = "auth-msg"; msgEl.textContent = "You can try again now. Forgot it? Tap Forgot password? for a reset link."; return; }
+    btn.disabled = true;
+    btn.textContent = "Try again in " + (left >= 60 ? Math.floor(left / 60) + ":" + ("0" + left % 60).slice(-2) : left + "s");
+    msgEl.className = "auth-msg error";
+    msgEl.textContent = "Too many wrong passwords. Tap Forgot password? to reset it by email.";
+  }
+  tick(); _authWaitTimer = setInterval(tick, 1000);
+}
+function semstrDeviceId() {
+  try {
+    var d = localStorage.getItem("semstr-device");
+    if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2)); localStorage.setItem("semstr-device", d); }
+    return d;
+  } catch (e) { return ""; }
+}
+function semstrDeviceName() {
+  var ua = navigator.userAgent || "";
+  var os = /iPhone/.test(ua) ? "iPhone" : /iPad/.test(ua) ? "iPad" : /Android/.test(ua) ? "Android" : /CrOS/.test(ua) ? "Chromebook" : /Mac/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows" : /Linux/.test(ua) ? "Linux" : "a device";
+  var br = /Edg\//.test(ua) ? "Edge" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "";
+  return br ? br + " on " + os : os;
+}
+function noteSignIn() {
+  try { var id = semstrDeviceId(); if (id && sb.functions) sb.functions.invoke("signin-notify", { body: { device: id, name: semstrDeviceName() } }).catch(function() {}); } catch (e) {}
+}
+
 window.doAuth = async function() {
   var email = document.getElementById("auth-email").value.trim();
   var password = document.getElementById("auth-password").value;
@@ -1892,6 +1931,9 @@ window.doAuth = async function() {
   var msgEl = document.getElementById("auth-msg");
   msgEl.textContent = "";
   if (!email || !password) { msgEl.className = "auth-msg error"; msgEl.textContent = "Please fill in all fields."; return; }
+  var ekey = email.toLowerCase();
+  if (currentAuthTab === "login" && authWaitLeft(ekey) > 0) { authShowWait(ekey); return; }
+  if (currentAuthTab === "signup") { var pp = pwProblem(password); if (pp) { msgEl.className = "auth-msg error"; msgEl.textContent = "Password: " + pp; return; } }
   try {
     var result;
     if (currentAuthTab === "login") {
@@ -1906,10 +1948,20 @@ window.doAuth = async function() {
       return;
     }
     var user = result.data && result.data.user ? result.data.user : null;
+    if (currentAuthTab === "login") { authSaveFails(ekey, null); noteSignIn(); }
     await applySession(user);
   } catch (err) {
     msgEl.className = "auth-msg error";
-    msgEl.textContent = err.message || "Authentication failed.";
+    var m = err.message || "Authentication failed.";
+    if (currentAuthTab === "login" && /invalid login credentials/i.test(m)) {
+      var f = authFails(ekey); f.n = (f.n || 0) + 1;
+      if (f.n >= 5) { var waits = [30, 60, 300]; f.until = Date.now() + waits[Math.min(f.n - 5, 2)] * 1000; }
+      authSaveFails(ekey, f);
+      if (f.n >= 5) { authShowWait(ekey); return; }
+      m = "That email and password don't match.";
+      if (f.n >= 3) m += " Forgot it? Tap Forgot password? below for a reset link.";
+    }
+    msgEl.textContent = m;
   }
 };
 
@@ -1940,7 +1992,7 @@ function showRecoveryForm() {
 }
 window.doUpdatePassword = async function() {
   var p = document.getElementById("rp-pass").value, p2 = document.getElementById("rp-pass2").value;
-  if (!p || p.length < 6) { setAuthMsg("Password must be at least 6 characters.", "error"); return; }
+  var pp = pwProblem(p); if (pp) { setAuthMsg("Password: " + pp, "error"); return; }
   if (p !== p2) { setAuthMsg("Passwords don't match.", "error"); return; }
   setAuthMsg("Saving...", "");
   var r = await sb.auth.updateUser({ password: p });
